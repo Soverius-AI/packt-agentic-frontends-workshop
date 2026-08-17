@@ -1,0 +1,13 @@
+html {
+  min-height: 100%;
+}
+body {
+  min-width: 320px;
+  min-height: 100%;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

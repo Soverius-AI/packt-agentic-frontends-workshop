@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.angular/
+.vite/
+.DS_Store
+*.log
+.env
+.env.local
+.pnpm-store/
