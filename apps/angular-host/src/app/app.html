@@ -1,23 +1,25 @@
 <main>
   <header class="page-header">
     <div>
-      <p class="eyebrow">Angular host · same protocol contracts</p>
+      <p class="eyebrow">Stage 1 · Angular host</p>
       <h1>Northstar facility operations</h1>
-      <p class="subtitle">A portable agentic frontend workshop reference system.</p>
+      <p class="subtitle">A conventional, deterministic application. No AI is involved.</p>
     </div>
-    <span class="live state-{{ machineState() }}">Asset: {{ machineState() }}</span>
+    <span class="live alarm-{{ alarmState() }}">
+      Alarm: {{ alarmState() === 'raised' ? 'raised' : 'not raised' }}
+    </span>
   </header>
 
   <section class="incident" aria-labelledby="incident-title">
     <div>
       <p class="eyebrow">Facilities anomaly</p>
-      <h2 id="incident-title">{{ incident.machineId }}</h2>
+      <h2 id="incident-title">{{ incident.assetId }}</h2>
       <p>{{ incident.summary }}</p>
     </div>
     <dl>
       <div>
         <dt>Room temperature</dt>
-        <dd>{{ incident.telemetry.temperatureCelsius }} °C</dd>
+        <dd>{{ incident.telemetry.roomTemperatureCelsius }} °C</dd>
       </div>
       <div>
         <dt>Outside temperature</dt>
@@ -35,56 +37,17 @@
   </section>
 
   <div class="actions">
-    <button type="button" (click)="assessIncident()" [disabled]="busy()">
-      {{ busy() ? 'Assessing…' : 'Ask facilities specialist' }}
+    <button type="button" (click)="raiseAlarm()" [disabled]="alarmState() === 'raised'">
+      {{ alarmState() === 'raised' ? 'Facilities alarm raised' : 'Raise facilities alarm' }}
     </button>
-    @if (assessment()) {
-      <button type="button" class="secondary" (click)="openLegalAnalysis()">
-        Open specialist guidance
-      </button>
-    }
   </div>
   <p class="status" role="status">{{ status() }}</p>
 
-  @if (assessment(); as result) {
-    <section class="decision" aria-labelledby="decision-title">
-      <p class="eyebrow">A2UI-style bounded decision surface</p>
-      <h2 id="decision-title">{{ result.caseId }}</h2>
-      <p>{{ result.recommendation }}</p>
-      <ul>
-        @for (action of result.requiredActions; track action.actionId) {
-          <li class="decision-row">
-            <div>
-              <strong>{{ action.label }}</strong>
-              <span>{{ action.consequential ? 'Approval required' : 'Advisory' }}</span>
-            </div>
-            @if (action.consequential) {
-              <div class="approval-controls">
-                <button
-                  type="button"
-                  (click)="decide(action.actionId, 'approve')"
-                  [disabled]="busy()"
-                >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  class="danger"
-                  (click)="decide(action.actionId, 'reject')"
-                  [disabled]="busy()"
-                >
-                  Reject
-                </button>
-              </div>
-            }
-          </li>
-        }
-      </ul>
-      <aside>{{ result.uncertainties.join(' ') }}</aside>
-    </section>
-  }
-
-  @if (showResearch()) {
-    <section #researchContainer class="research" aria-label="MCP specialist guidance app"></section>
-  }
+  <aside class="limitation" aria-labelledby="limitation-title">
+    <h2 id="limitation-title">What is missing?</h2>
+    <p>
+      This screen can display a known anomaly and expose a predefined action. It cannot tell the
+      person on duty whether checking the door should come before raising the alarm.
+    </p>
+  </aside>
 </main>

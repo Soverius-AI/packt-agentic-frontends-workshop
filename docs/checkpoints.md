@@ -1,6 +1,6 @@
 # Runnable checkpoints
 
-The repository contains the final integrated system. These checkpoints are presenter states, not duplicate source trees. Tags or workshop branches can be cut from this map when rehearsal stabilises.
+This `01-base-app` branch implements the first runnable checkpoint. It contains only the conventional HVAC application and its shared domain contract. The later rows describe the planned progression toward the integrated system on `main`; they do not yet have checkpoint branches.
 
 | Checkpoint             | Reveal or enable                                         | Limitation that motivates the next step              |
 | ---------------------- | -------------------------------------------------------- | ---------------------------------------------------- |

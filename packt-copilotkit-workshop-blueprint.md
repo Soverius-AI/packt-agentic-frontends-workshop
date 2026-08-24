@@ -37,14 +37,14 @@ becoming extra chapters in the three-hour version.
 
 ## 2. Scenario
 
-The application represents an industrial plant with machines producing
-telemetry such as temperature, pressure, vibration, status, utilisation,
-and errors. MQTT delivers the stream to a Node.js backend; historical
-machine, incident, alarm, and maintenance data is persisted.
+The application represents a facilities dashboard. Its first
+deterministic incident is `ROOM-3-HVAC`: the room temperature has risen
+for 30 minutes and now matches the outside temperature, while the door
+state is unknown.
 
-The Angular/React frontend initially contains a conventional machine
-grid with filtering, sorting, status/metrics, incident information, and
-an **Activate Alarm** action. No AI is involved.
+The Angular/React frontend initially contains a conventional incident
+card, the known telemetry, and a **Raise facilities alarm** action. The
+state is local and deterministic. No backend or AI is involved yet.
 
 ## 3. Autonomy model
 
@@ -70,17 +70,18 @@ APIs, and policies.
 
 ## 4. Phase 1 --- Application walkthrough
 
-Show the simulator, MQTT stream, Node backend, persistence,
-Angular/React frontend, machine grid, filters/sorting, and alarm action.
+Show the Angular and React versions of the same deterministic facilities
+screen, inspect the shared domain contract, and trigger the manual alarm
+action.
 
 ```text
-Machines → MQTT → Node.js → Database
-                    │
-                    ▼
-              Angular/React
-                    │
-                    ▼
-               Machine Grid
+Shared incident contract
+          │
+          ├──> Angular
+          └──> React
+                  │
+                  ▼
+        Predefined alarm action
 ```
 
 Key message:
@@ -96,14 +97,15 @@ This limitation motivates AI.
 Add a chat/sidebar beside the grid. Send user text to the Node backend
 and use an LLM SDK directly.
 
-Example: "Show me machines that had alarms during the last three days,
-sorted by incident count."
+Example: "Should I raise the alarm, or is there something simple I
+should check first?"
 
 Two intents matter:
 
-1.  **Data/UI manipulation:** the request changes the grid.
-2.  **Question answering:** e.g. "Who worked on M17 last week?" The
-    answer stays in chat.
+1.  **Data/UI manipulation:** the request can highlight or filter the
+    affected facility.
+2.  **Question answering:** the response can explain what the person on
+    duty should check before escalating. The answer stays in chat.
 
 This phase is **already agentic**. Later, CopilotKit/AG-UI do not create
 agency for the first time; they make the integration standardized and

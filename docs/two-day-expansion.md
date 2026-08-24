@@ -1,6 +1,6 @@
 # Ideas for expanding to a full two-day workshop
 
-This is an expansion backlog, not a finished two-day agenda. Keep the same plant incident and deepen the engineering work instead of adding unrelated demos.
+This is an expansion backlog, not a finished two-day agenda. Keep the same facilities incident and deepen the engineering work instead of adding unrelated demos.
 
 ## Candidate hands-on modules
 
