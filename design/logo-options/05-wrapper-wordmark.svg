@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-labelledby="title description">
+  <title id="title">Soverius Chocolate wrapper wordmark</title>
+  <desc id="description">A blue and cocoa chocolate-bar wrapper reading Soverius Chocolate.</desc>
+  <defs>
+    <clipPath id="wrapper">
+      <path d="M31 44 71 22h606l52 27-13 122-48 27H70l-42-24Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#wrapper)">
+    <rect width="760" height="220" fill="#4b210f"/>
+    <path d="M0 25h84v172H0z" fill="#6e3219"/>
+    <path d="M676 18h84v184h-84z" fill="#77371b"/>
+
+    <path d="M53 30h608l28 18-14 124-27 17H59L39 171Z" fill="#f1d5aa"/>
+    <path d="M63 37h573l27 17-13 108-25 17H65L48 164Z" fill="#315fa8"/>
+    <path d="M82 38h278L250 179H62L48 164l15-127Z" fill="#2a5298"/>
+    <path d="m546 37 90 1 27 16-13 108-25 17h-129Z" fill="#3b73ba"/>
+
+    <path d="M18 52 77 22 57 198 5 169Z" fill="#592713"/>
+    <path d="M742 45 677 20 660 198l61-33Z" fill="#5c2813"/>
+    <path d="m18 63 47-24M13 88l48-23M9 116l49-24M7 144l47-24M690 38l46 21M686 68l48 22M682 99l49 22M678 131l47 21" fill="none" stroke="#a65a32" stroke-width="7"/>
+
+    <g transform="translate(73 55)">
+      <path d="M48 0C25 0 8 4 4 10v43c0 25 14 41 44 53 30-12 44-28 44-53V10C88 4 71 0 48 0Z" fill="#376db4" stroke="#f7ead5" stroke-width="4"/>
+      <path d="M80 18C64 11 37 13 23 22c-11 8-5 17 8 21 14 5 38 5 42 17 5 16-26 27-52 17" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="10"/>
+    </g>
+
+    <g transform="skewX(-7)">
+      <text x="181" y="111" fill="#fff" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="900" letter-spacing="-2">SOVERIUS</text>
+      <text x="241" y="151" fill="#f6ddb8" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" letter-spacing="8">CHOCOLATE</text>
+    </g>
+
+    <g transform="translate(642 60)" fill="#a95a30" stroke="#4a1c0b" stroke-width="5">
+      <rect width="43" height="43" rx="6"/>
+      <rect y="50" width="43" height="43" rx="6"/>
+    </g>
+    <path d="M651 70h24M651 120h24" stroke="#cf8156" stroke-linecap="round" stroke-width="5"/>
+  </g>
+
+  <path d="M31 44 71 22h606l52 27-13 122-48 27H70l-42-24Z" fill="none" stroke="#3b180a" stroke-linejoin="round" stroke-width="6"/>
+</svg>

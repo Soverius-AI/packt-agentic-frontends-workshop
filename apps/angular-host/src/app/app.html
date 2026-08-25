@@ -1,53 +1,397 @@
 <main>
   <header class="page-header">
-    <div>
-      <p class="eyebrow">Stage 1 · Angular host</p>
-      <h1>Northstar facility operations</h1>
-      <p class="subtitle">A conventional, deterministic application. No AI is involved.</p>
+    <div class="brand-lockup">
+      <a
+        class="corporate-logo-link"
+        href="https://soverius.ai/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Visit the Soverius AI website"
+      >
+        <img class="corporate-logo" src="/soverius-ai-original.png" alt="Soverius AI" />
+      </a>
+      <div class="brand-copy">
+        <p class="eyebrow">Soverius Chocolate operations</p>
+        <h1 class="product-title">Incident Management</h1>
+        <p class="subtitle">
+          Persistent factory telemetry, historical readings, and operator-managed alarms. No AI is
+          involved.
+        </p>
+        <p class="stage-label">Stage 1 · Conventional full-stack application</p>
+      </div>
     </div>
-    <span class="live alarm-{{ alarmState() }}">
-      Alarm: {{ alarmState() === 'raised' ? 'raised' : 'not raised' }}
-    </span>
+    <div class="header-actions">
+      <span class="database-state">SQLite connected</span>
+      <span class="mode-state" [class.mode-state-live]="continuousUpdates()">
+        <span aria-hidden="true"></span>
+        {{ continuousUpdates() ? 'Snapshot live' : 'Reading log' }}
+      </span>
+      <span class="alarm-summary" [class.has-alarms]="activeAlarmCount() > 0">
+        {{ activeAlarmCount() }} active {{ activeAlarmCount() === 1 ? 'alarm' : 'alarms' }}
+      </span>
+      <button class="secondary-button" type="button" (click)="loadDashboard()">Refresh</button>
+    </div>
   </header>
 
-  <section class="incident" aria-labelledby="incident-title">
-    <div>
-      <p class="eyebrow">Facilities anomaly</p>
-      <h2 id="incident-title">{{ incident.assetId }}</h2>
-      <p>{{ incident.summary }}</p>
-    </div>
-    <dl>
-      <div>
-        <dt>Room temperature</dt>
-        <dd>{{ incident.telemetry.roomTemperatureCelsius }} °C</dd>
+  @if (loading()) {
+    <section class="message-card" aria-live="polite">
+      <h2>Loading facility data</h2>
+      <p>Reading rooms, metrics, alarms, and the latest measurements from SQLite…</p>
+    </section>
+  } @else if (error() && !dashboard()) {
+    <section class="message-card error-card" role="alert">
+      <h2>Facility backend unavailable</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadDashboard()">Try again</button>
+    </section>
+  } @else {
+    <section class="site-overview" aria-labelledby="rooms-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Factory floor</p>
+          <h2 id="rooms-title">Rooms and production metrics</h2>
+        </div>
+        <p>Every reading and alarm is served by the conventional facility backend.</p>
       </div>
-      <div>
-        <dt>Outside temperature</dt>
-        <dd>{{ incident.telemetry.outsideTemperatureCelsius }} °C</dd>
-      </div>
-      <div>
-        <dt>Rising for</dt>
-        <dd>{{ incident.telemetry.trendDurationMinutes }} minutes</dd>
-      </div>
-      <div>
-        <dt>Door</dt>
-        <dd>{{ incident.telemetry.doorState }}</dd>
-      </div>
-    </dl>
-  </section>
 
-  <div class="actions">
-    <button type="button" (click)="raiseAlarm()" [disabled]="alarmState() === 'raised'">
-      {{ alarmState() === 'raised' ? 'Facilities alarm raised' : 'Raise facilities alarm' }}
-    </button>
-  </div>
+      <div class="mode-switch" role="tablist" aria-label="Reading display mode">
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="displayMode() === 'snapshot'"
+          [class.active]="displayMode() === 'snapshot'"
+          (click)="setDisplayMode('snapshot')"
+        >
+          Snapshot
+          <small>Latest value per metric · live</small>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="displayMode() === 'list'"
+          [class.active]="displayMode() === 'list'"
+          (click)="setDisplayMode('list')"
+        >
+          Reading log
+          <small>Historical readings · filterable</small>
+        </button>
+      </div>
+
+      <section class="room" aria-labelledby="rooms-title">
+        @if (displayMode() === 'list') {
+          <section class="filter-panel" aria-label="Filter persisted readings">
+            <div class="filter-heading">
+              <div>
+                <p class="eyebrow">Historical reading filters</p>
+                <strong>
+                  Showing {{ readingPageStart() }}–{{ readingPageEnd() }} of
+                  {{ readingPage()?.total ?? 0 }} readings
+                </strong>
+              </div>
+              <button class="secondary-button" type="button" (click)="clearFilters()">
+                Clear filters
+              </button>
+            </div>
+            <div class="filter-grid">
+              <label>
+                <span>Updated from</span>
+                <span class="date-filter-control">
+                  <input
+                    type="datetime-local"
+                    [value]="updatedFrom()"
+                    (input)="setFilter('from', $event)"
+                  />
+                  <button
+                    class="date-clear-button"
+                    type="button"
+                    [disabled]="!updatedFrom()"
+                    aria-label="Clear updated from"
+                    (click)="clearDateFilter('from')"
+                  >
+                    Clear
+                  </button>
+                </span>
+              </label>
+              <label>
+                <span>Updated to</span>
+                <span class="date-filter-control">
+                  <input
+                    type="datetime-local"
+                    [value]="updatedTo()"
+                    (input)="setFilter('to', $event)"
+                  />
+                  <button
+                    class="date-clear-button"
+                    type="button"
+                    [disabled]="!updatedTo()"
+                    aria-label="Clear updated to"
+                    (click)="clearDateFilter('to')"
+                  >
+                    Clear
+                  </button>
+                </span>
+              </label>
+              <label>
+                <span>Shift manager</span>
+                <select [value]="shiftManagerFilter()" (change)="setFilter('shiftManager', $event)">
+                  <option value="">All shift managers</option>
+                  @for (manager of shiftManagerOptions(); track manager) {
+                    <option [value]="manager">{{ manager }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Room</span>
+                <select [value]="roomFilter()" (change)="setFilter('room', $event)">
+                  <option value="">All rooms</option>
+                  @for (room of rooms(); track room.id) {
+                    <option [value]="room.id">{{ room.name }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Metric</span>
+                <select [value]="metricFilter()" (change)="setFilter('metric', $event)">
+                  <option value="">All metrics</option>
+                  @for (metric of metricOptions(); track metric.id) {
+                    <option [value]="metric.id">{{ metric.label }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Condition</span>
+                <select [value]="conditionFilter()" (change)="setFilter('condition', $event)">
+                  <option value="">All conditions</option>
+                  <option value="normal">Normal</option>
+                  <option value="warning">Warning</option>
+                  <option value="critical">Critical</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+              </label>
+            </div>
+          </section>
+          <div class="table-shell" tabindex="0" aria-label="Historical readings table">
+            <table class="reading-entries-table">
+              <caption>
+                Persisted metric readings matching the historical filters
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Date and time</th>
+                  <th scope="col">Shift manager</th>
+                  <th scope="col">Room</th>
+                  <th scope="col">Metric</th>
+                  <th scope="col">Value</th>
+                  <th scope="col">Condition</th>
+                </tr>
+              </thead>
+              <tbody>
+                @if (readingsLoading()) {
+                  <tr>
+                    <td class="empty-table" colspan="6">Loading persisted readings…</td>
+                  </tr>
+                } @else {
+                  @for (entry of readingPage()?.entries ?? []; track entry.id) {
+                    <tr class="condition-{{ entry.condition }}">
+                      <td>
+                        <time [attr.datetime]="entry.recordedAt">{{
+                          timeLabel(entry.recordedAt)
+                        }}</time>
+                      </td>
+                      <td class="shift-manager">{{ entry.shiftManagerName }}</td>
+                      <td class="room-cell">
+                        <strong>{{ entry.roomName }}</strong>
+                      </td>
+                      <th class="metric-cell" scope="row">
+                        {{ entry.metricName }}
+                      </th>
+                      <td class="reading-entry-value">{{ readingValue(entry) }}</td>
+                      <td>
+                        <span class="condition-badge">{{ entry.condition }}</span>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td class="empty-table" colspan="6">
+                        No persisted readings match these filters.
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+          <nav class="pagination" aria-label="Reading log pagination">
+            <button
+              class="secondary-button"
+              type="button"
+              [disabled]="readingPageIndex() === 0 || readingsLoading()"
+              (click)="goToReadingPage(readingPageIndex() - 1)"
+            >
+              Previous
+            </button>
+            <span>
+              Page <strong>{{ readingPageIndex() + 1 }}</strong> of
+              <strong>{{ readingPageCount() }}</strong>
+            </span>
+            <button
+              class="secondary-button"
+              type="button"
+              [disabled]="readingPageIndex() + 1 >= readingPageCount() || readingsLoading()"
+              (click)="goToReadingPage(readingPageIndex() + 1)"
+            >
+              Next
+            </button>
+          </nav>
+        } @else {
+          <div class="current-table-heading">
+            <div>
+              <p class="eyebrow">Live overview</p>
+              <h3>Current reading per metric</h3>
+            </div>
+            <span>{{ currentRows().length }} metrics</span>
+          </div>
+          <div class="table-shell" tabindex="0" aria-label="Factory metrics table">
+            <table class="metrics-table">
+              <caption>
+                Current readings, configured targets, history, and alarms for all factory rooms
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Room</th>
+                  <th scope="col">Metric</th>
+                  <th scope="col">Current</th>
+                  <th scope="col">Shift manager</th>
+                  <th scope="col">Trend</th>
+                  <th scope="col">Condition</th>
+                  <th scope="col">Normal range</th>
+                  <th scope="col">History</th>
+                  <th scope="col">Alarm workflow</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of currentRows(); track row.metric.id) {
+                  <tr
+                    class="condition-{{ row.metric.condition }}"
+                    [class.alarm-active]="row.metric.activeAlarm"
+                    [class.live-updated]="latestUpdatedMetricId() === row.metric.id"
+                    [attr.data-metric-id]="row.metric.id"
+                  >
+                    <td class="room-cell">
+                      <strong>{{ row.room.name }}</strong>
+                    </td>
+                    <th class="metric-cell" scope="row">
+                      {{ row.metric.name }}
+                    </th>
+                    <td class="reading">
+                      <strong>{{ metricValue(row.metric) }}</strong>
+                      @if (row.metric.unit) {
+                        <span>{{ row.metric.unit }}</span>
+                      }
+                      <small>{{ timeLabel(row.metric.updatedAt) }}</small>
+                    </td>
+                    <td class="shift-manager">{{ row.metric.shiftManagerName }}</td>
+                    <td class="trend">{{ row.metric.trend }}</td>
+                    <td>
+                      <span class="condition-badge">{{ row.metric.condition }}</span>
+                    </td>
+                    <td class="target">{{ row.metric.target }}</td>
+                    <td>
+                      <button
+                        class="history-button"
+                        type="button"
+                        (click)="showHistory(row.metric)"
+                      >
+                        View 7d
+                      </button>
+                    </td>
+                    <td>
+                      <div class="alarm-action">
+                        <span>{{ alarmState(row.metric) }}</span>
+                        <button
+                          type="button"
+                          (click)="handleAlarm(row.metric)"
+                          [disabled]="busyMetricId() === row.metric.id"
+                          [attr.aria-label]="alarmLabel(row.metric) + ' for ' + row.metric.name"
+                        >
+                          {{
+                            busyMetricId() === row.metric.id ? 'Saving…' : alarmLabel(row.metric)
+                          }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </section>
+  }
+
   <p class="status" role="status">{{ status() }}</p>
 
-  <aside class="limitation" aria-labelledby="limitation-title">
-    <h2 id="limitation-title">What is missing?</h2>
-    <p>
-      This screen can display a known anomaly and expose a predefined action. It cannot tell the
-      person on duty whether checking the door should come before raising the alarm.
-    </p>
-  </aside>
+  @if (selectedMetricId()) {
+    <section class="history-panel" aria-labelledby="history-title">
+      <div class="history-heading">
+        <div>
+          <p class="eyebrow">Database history · last seven days</p>
+          <h2 id="history-title">{{ selectedHistory()?.metric?.name ?? 'Loading history…' }}</h2>
+        </div>
+        <button class="secondary-button" type="button" (click)="closeHistory()">Close</button>
+      </div>
+
+      @if (historyLoading()) {
+        <p>Loading historical readings…</p>
+      } @else if (selectedHistory(); as history) {
+        @if (history.metric.kind === 'numeric') {
+          <div class="chart-summary">
+            <strong>{{ historyRange(history) }}</strong>
+            <span>{{ history.readings.length }} persisted readings</span>
+            <span>Shift managers: {{ shiftManagers(history) }}</span>
+          </div>
+          <svg
+            class="history-chart"
+            viewBox="0 0 760 188"
+            role="img"
+            [attr.aria-label]="'Seven-day history for ' + history.metric.name"
+          >
+            @for (tick of chartTicks(history); track tick.y) {
+              <line
+                class="chart-grid-line"
+                x1="72"
+                [attr.y1]="tick.y"
+                x2="744"
+                [attr.y2]="tick.y"
+              />
+              <text
+                class="y-axis-label"
+                x="64"
+                [attr.y]="tick.y"
+                text-anchor="end"
+                dominant-baseline="middle"
+              >
+                {{ tick.label }}
+              </text>
+            }
+            <line class="chart-axis" x1="72" y1="24" x2="72" y2="168" />
+            <polyline [attr.points]="chartPoints(history)" />
+          </svg>
+        } @else {
+          <ol class="state-timeline">
+            @for (reading of stateChanges(history); track reading.recordedAt) {
+              <li>
+                <time [attr.datetime]="reading.recordedAt">{{
+                  timeLabel(reading.recordedAt)
+                }}</time>
+                <strong>{{ reading.textValue }}</strong>
+                <span>{{ reading.shiftManagerName }}</span>
+              </li>
+            }
+          </ol>
+        }
+      }
+    </section>
+  }
 </main>

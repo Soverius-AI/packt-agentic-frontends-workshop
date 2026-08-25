@@ -8,10 +8,15 @@ two-day workshop.
 
 ## How to use this document
 
-Sections 1--18 define the complete three-hour workshop: its narrative,
+Sections 1--17 define the complete three-hour workshop: its narrative,
 scenario, concepts, guardrails, timing, and implementation checkpoints.
 They are the primary deliverable and should be detailed enough to guide
 both presenters and implementation agents.
+
+**Current implementation status:** Part 1 is complete on the
+`01-base-app` branch. It is the starting point for the workshop, not an
+exercise that participants must build. The remaining AI and protocol stages
+below are planned and still need their own runnable checkpoints.
 
 The final section, **Ideas for a Full Two-Day Workshop**, is deliberately
 different. It is an expansion backlog rather than a finished agenda. It
@@ -37,14 +42,21 @@ becoming extra chapters in the three-hour version.
 
 ## 2. Scenario
 
-The application represents a facilities dashboard. Its first
-deterministic incident is `ROOM-3-HVAC`: the room temperature has risen
-for 30 minutes and now matches the outside temperature, while the door
-state is unknown.
+The application represents Soverius Chocolate. Its first deterministic
+incident concerns the climate-controlled Cooling room and the adjacent
+Packaging hall. On previous days, the cooling-room air temperature enters
+warning at exactly 12:00 and returns to normal at exactly 14:00. On the
+current day it enters warning at 12:00 but does not recover. Humidity moves
+between normal and warning, while the remaining simulated metrics stay in
+their normal ranges. The connecting door has no sensor; whether it is open is
+therefore a hypothesis that a person must check, not a fact in the telemetry.
 
-The Angular/React frontend initially contains a conventional incident
-card, the known telemetry, and a **Raise facilities alarm** action. The
-state is local and deterministic. No backend or AI is involved yet.
+The base application is already a complete conventional system. A Node API
+stores seven days of room and equipment telemetry in SQLite. A conventional
+simulator persists one randomized device reading at a time and publishes it
+to clients that enable continuous updates. The Angular and React hosts show
+current readings and history and let an operator raise, acknowledge, and
+resolve an alarm for any metric. No AI or agentic protocol is involved yet.
 
 ## 3. Autonomy model
 
@@ -53,35 +65,50 @@ Use a recurring visual with:
 - **X-axis:** developer control → AI/user autonomy
 - **Y-axis:** static UI → dynamic UI
 
-Stage UI Autonomy
-
----
-
-Traditional app Static Very low
-Chat/querying Static Low
-Tool calling Static Medium
-A2UI Dynamic, constrained Medium/high
-Generative UI Highly dynamic High
+| Stage           | UI                   | Autonomy    |
+| --------------- | -------------------- | ----------- |
+| Traditional app | Static               | Very low    |
+| Chat/querying   | Static               | Low         |
+| Tool calling    | Static               | Medium      |
+| A2UI            | Dynamic, constrained | Medium/high |
+| Generative UI   | Highly dynamic       | High        |
 
 The developer never simply "gives up control." Control moves from
 defining every screen to defining tools, permissions, approval
 boundaries, component catalogues, execution environments, capability
 APIs, and policies.
 
-## 4. Phase 1 --- Application walkthrough
+## 4. Part 1 --- Completed conventional application
 
-Show the Angular and React versions of the same deterministic facilities
-screen, inspect the shared domain contract, and trigger the manual alarm
-action.
+Start the workshop from the completed `01-base-app` checkpoint. Show the
+Angular version of the deterministic factory application; the React host
+demonstrates that the same backend and shared contracts are framework-neutral.
+Inspect the SQLite history and complete the manual alarm workflow.
+
+The starting application already provides:
+
+- a snapshot table with the latest value for every metric and continuous
+  one-device-at-a-time updates;
+- a reading log with date/time, shift-manager, room, metric, and condition
+  filters plus server-side pagination in pages of 50;
+- seven days of deterministic historical data, including all three daily
+  shifts and their managers;
+- a seven-day metric chart and persisted raise, acknowledge, and resolve
+  alarm workflows; and
+- a Node API, SQLite historian, shared validated contracts, and equivalent
+  Angular and React hosts.
+
+There is deliberately no LLM, chat, CopilotKit, AG-UI, Mastra, A2UI, A2A,
+MCP, or MCP App in Part 1.
 
 ```text
-Shared incident contract
-          │
-          ├──> Angular
-          └──> React
-                  │
-                  ▼
-        Predefined alarm action
+Device updates → SQLite history → Conventional facility API
+                                           │
+                                           ├──> Angular
+                                           └──> React
+                                  │
+                                  ▼
+                    Predefined alarm workflow
 ```
 
 Key message:
@@ -92,59 +119,62 @@ Key message:
 
 This limitation motivates AI.
 
-## 5. Phase 2 --- AI without CopilotKit or AG-UI
+## 5. Part 2 --- Basic conversation with the OpenAI SDK
 
-Add a chat/sidebar beside the grid. Send user text to the Node backend
-and use an LLM SDK directly.
+Add a chat panel beside the existing metric tables. Extend the TypeScript Node
+backend with the official `openai` JavaScript/TypeScript SDK and a small
+application-owned chat endpoint. Configure the SDK to use OpenRouter through
+`baseURL: "https://openrouter.ai/api/v1"`; keep the OpenRouter API key on the
+server.
 
-Example: "Should I raise the alarm, or is there something simple I
-should check first?"
+Part 2 supports only a basic conversation:
 
-Two intents matter:
+- the operator sends a message;
+- the backend sends the conversation history to the model;
+- the model returns an assistant message; and
+- the Angular/React host renders user and assistant messages.
 
-1.  **Data/UI manipulation:** the request can highlight or filter the
-    affected facility.
-2.  **Question answering:** the response can explain what the person on
-    duty should check before escalating. The answer stays in chat.
+Use a deliberately small message contract and a non-streaming request first.
+Short-term context consists only of the messages sent with the request. There
+are no tools, generated SQL, frontend actions, facility-state injection,
+CopilotKit, or AG-UI.
 
-This phase is **already agentic**. Later, CopilotKit/AG-UI do not create
-agency for the first time; they make the integration standardized and
-structured.
+The first questions can be conversational, for example:
 
-Prefer safe application capabilities over arbitrary model-generated SQL,
-e.g. `searchMachines({ alarmSince, orderBy })`. If SQL generation is
-shown, use read-only credentials, schema restrictions, validation,
-limits, and sanitisation/review.
+> What does a warning condition generally mean in an incident-management
+> system?
+
+Then ask the important application-specific question:
+
+> When did the Cooling room enter warning during the last seven days?
+
+The correct Part 2 assistant must say that it cannot inspect the historian. It
+can converse, but it cannot access application data. Before adding that
+capability, use the hand-written chat transport itself as the next limitation.
 
 ### First guardrails
 
-Introduce conversation scope immediately. The industrial assistant
-should reject unrelated general-chat use, control cost, and protect the
-application's purpose.
+Introduce conversation scope immediately. The industrial assistant should
+reject unrelated general-chat use, control cost, and protect the application's
+purpose. Discuss system instructions, rate limits, token budgets, quotas,
+monitoring, logging, and deliberate conversation-retention boundaries.
 
-Discuss system instructions, domain/intent filtering, rate limits, token
-budgets, quotas, monitoring, and logging.
+## 6. Part 3 --- Introduce AG-UI before tool calling
 
-Basic short-term conversation memory can be mentioned here: enough
-context for follow-ups, with deliberate retention boundaries.
-
-## 6. Phase 3 --- The plumbing problem
-
-As requirements grow, the hand-built integration must handle streaming,
-tool calls/results, frontend actions, state, errors, progress, lifecycle
-events, and human approval.
+Keep the assistant chat-only, but use the desire for streaming and explicit run
+lifecycle as pressure on the hand-written `/api/chat` integration. Even this
+small integration must define message payloads, partial text, completion,
+errors, cancellation, and conversation state.
 
 Ask:
 
 > **Why are we designing our own frontend-to-agent protocol?**
 
-This motivates AG-UI.
-
-## 7. Phase 4 --- AG-UI
-
 Present AG-UI as the standard communication layer between agentic
 backends and user-facing applications. Streaming is the initial hook,
-not the entire story.
+not the entire story. Replace the custom chat response with an AG-UI run and
+standard lifecycle/text events, while deliberately keeping the assistant free
+of tools.
 
 First argument:
 
@@ -155,7 +185,11 @@ Before: Angular/React → Custom Protocol → Node + LLM SDK
 After:  Angular/React → AG-UI → Agent Backend
 ```
 
-## 8. Phase 5 --- Backend decoupling
+Checkpoint success is behavioural parity: the same basic conversation now
+streams through AG-UI. No historian query works yet. This sequencing ensures
+that the workshop never implements a native OpenAI-SDK tool-call loop.
+
+## 7. Part 4 --- Mastra and CopilotKit
 
 Start with embedded Node + LLM SDK, then migrate the agent
 implementation to **Mastra** (while mentioning alternatives such as ADK
@@ -171,18 +205,68 @@ Second argument:
 The two explicit AG-UI/CopilotKit arguments are therefore **plumbing**
 and **decoupling**.
 
-## 9. Phase 6 --- CopilotKit and structured frontend tools
+Connect the Angular/React chat through CopilotKit. At this checkpoint the
+standardized frontend/backend path is ready for tools, but the assistant can
+still only exchange messages.
 
-Possible tools include `setMachineFilter`, `selectMachine`, and
-`triggerAlarm`.
+## 8. Part 5 --- Generated SQL through the standardized stack
+
+Add the first and only data tool to the Mastra agent, carried over AG-UI and
+presented by CopilotKit:
+
+```text
+query_historian({ sql, explanation })
+```
+
+The model receives a compact description of the read-only historian schema.
+It translates the user's natural-language question into SQL and supplies that
+SQL as the tool argument. The TypeScript backend validates and executes the
+query, then returns columns and rows that the chat renders in a generic result
+table. Display the generated SQL and the model's short explanation so the
+translation is visible to the audience.
+
+The primary example is:
+
+> Show me when the Cooling room went into warning during the last seven days
+> and when each warning ended.
+
+The generated query can use SQLite CTEs and `LAG()` to detect warning
+transitions. Previous days should show 12:00--14:00; the current day must be
+labelled **Still active** rather than given an invented end time.
+
+The same tool can answer the second question without adding another
+application capability:
+
+> Show me the maximum air temperature for shift manager Charles Bond and,
+> below that, for Denise Weber.
+
+This is the eye-opening moment: one tool can answer useful historian questions
+that were not anticipated as filters or dedicated endpoints. It also creates
+a clear new responsibility. The execution boundary must:
+
+- open SQLite with read-only access;
+- accept one `SELECT` or `WITH` statement only;
+- reject writes, schema changes, pragmas, attachments, and multiple statements;
+- allowlist historian tables and columns;
+- enforce a row limit and execution timeout; and
+- audit the question, generated SQL, and result metadata.
+
+Fixed, parameterized application tools remain the safer production alternative
+and should be discussed as a trade-off, not implemented as the primary
+three-hour example.
+
+CopilotKit can now also expose structured frontend tools. Possible examples
+include `setMetricFilter`, `selectMetric`, and `triggerAlarm`.
 
 ```text
 Agent → CopilotKit → Angular/React Tool → Store → UI
 ```
 
-Narrative correction: this is not the first agentic moment. The
-hand-built version already acted on the application. The improvement is
-a **standardized, structured, reusable integration**.
+Narrative correction: this is not the first agentic moment. The direct SDK
+version already supported conversation. The improvement is a **standardized,
+structured, reusable integration for tools and UI actions**.
+
+## 9. Part 6 --- Human approval and deterministic UI checkpoint
 
 ### Human-in-the-loop
 
@@ -199,8 +283,6 @@ This is a natural place to introduce **auditability**: what was
 recommended, what action was proposed, who approved it, when, and what
 actually executed.
 
-## 10. Deterministic UI checkpoint
-
 Pause and classify the system. AI can change data and trigger
 developer-defined flows, but developers still created the grid, dialogs,
 sidebar, controls, and layout.
@@ -209,7 +291,7 @@ sidebar, controls, and layout.
 
 This motivates A2UI.
 
-## 11. Phase 7 --- A2UI
+## 10. Part 7 --- A2UI
 
 Introduce a **power-user** persona. Instead of a fixed grid, give the
 user an assistant and initially empty canvas.
@@ -243,7 +325,7 @@ memory**.
 Persistence guardrails include user/tenant isolation, retention rules,
 privacy, versioning, and validation before restoring generated UI state.
 
-## 12. Phase 8 --- Generative UI
+## 11. Generative UI comparison
 
 Ask: **What if the approved component catalogue is itself too
 restrictive?**
@@ -288,12 +370,12 @@ Useful distinction:
 > **Auditability:** Who approved or performed a consequential action,
 > and when?
 
-## 13. Phase 9 --- A2A, MCP Apps, and specialist agents
+## 12. Parts 8 and 9 --- A2A, MCP Apps, and specialist agents
 
-Use a room air-conditioning anomaly as the primary A2A scenario. The
-room temperature has risen continuously for 30 minutes and now matches
-the outside temperature. The person on the night shift may be a
-receptionist rather than a trained facilities engineer.
+Use the Cooling room anomaly as the primary A2A scenario. Its air temperature
+has remained in warning since 12:00 and is approaching the temperature in the
+adjacent Packaging hall. The person on the night shift may be a receptionist
+rather than a trained facilities engineer.
 
 The primary agent sends the incident and its trend data to a specialist
 facilities/compliance agent. That external agent returns a simple,
@@ -355,31 +437,30 @@ Mention agent identity, authentication/authorization, trust boundaries,
 data minimisation, distributed tracing, provenance, sandboxing, and
 timeout/failure handling.
 
-## 14. Cross-cutting guardrail progression
+## 13. Cross-cutting guardrail progression
 
-Capability Primary guardrail
-
----
-
-Chat domain/scope filtering
-Data queries restricted data tools
-Tool calling explicit capability APIs
-Consequential actions human approval + audit
-A2UI trusted component catalogue
-Persistent dynamic UI memory/persistence boundaries
-Generative UI sandbox/capability boundary
-A2A identity, authorization, trust boundaries
-MCP App sandbox, CSP, capability and origin policy
+| Capability            | Primary guardrail                                      |
+| --------------------- | ------------------------------------------------------ |
+| Chat                  | Domain/scope filtering                                 |
+| Generated SQL         | Read-only database, validation, allowlists, and limits |
+| Other tool calling    | Explicit capability APIs                               |
+| Consequential actions | Human approval and audit                               |
+| A2UI                  | Trusted component catalogue                            |
+| Persistent dynamic UI | Memory/persistence boundaries                          |
+| Generative UI         | Sandbox/capability boundary                            |
+| A2A                   | Identity, authorization, and trust boundaries          |
+| MCP App               | Sandbox, CSP, capability, and origin policy            |
 
 Closing message:
 
 > **As autonomy increases, operational responsibility increases too.**
 
-## 15. Final end-to-end scenario
+## 14. Final end-to-end scenario
 
-1.  `ROOM-3-HVAC` reports that its room temperature has risen for 30
-    minutes and now matches the outside temperature.
-2.  The night receptionist asks whether an alarm should be raised.
+1.  `cooling-air-temperature` has remained in warning since 12:00 and is
+    approaching the adjacent Packaging hall's air temperature.
+2.  The night receptionist asks whether an alarm should be raised or a simple
+    local check should happen first.
 3.  The primary agent sends the telemetry and incident context to the
     facilities/compliance specialist over A2A.
 4.  The specialist returns a stable case ID and a sourced conditional
@@ -396,7 +477,7 @@ Use this to show that AG-UI, CopilotKit, A2UI, A2A, MCP, and MCP Apps
 solve **different problems in one architecture**. Generative UI is the
 comparison point, not a hands-on implementation in the three-hour format.
 
-## 16. Standards story
+## 15. Standards story
 
 - **AG-UI:** How does a user-facing application communicate with an
   agent?
@@ -413,44 +494,42 @@ comparison point, not a hands-on implementation in the three-hour format.
 
 They are complementary, not competing.
 
-## 17. Suggested three-hour timing
+## 16. Suggested three-hour timing
 
-Section Approx.
-
----
-
-Intro + app walkthrough 15 min
-Raw AI integration + plumbing problem 20 min
-AG-UI 25 min
-Mastra + CopilotKit 20 min
-Human-in-the-loop + guardrails 15 min
-Break/buffer 10 min
-A2UI + generative UI comparison 25 min
-A2A specialist agent 25 min
-MCP resources, tool, and MCP App 20 min
-End-to-end wrap-up 5 min
+| Section                                          | Approx. |
+| ------------------------------------------------ | ------: |
+| Part 1 app walkthrough                           |  15 min |
+| Part 2: basic OpenAI-SDK chat through OpenRouter |  15 min |
+| Part 3: migrate the same chat to AG-UI           |  20 min |
+| Part 4: Mastra + CopilotKit                      |  20 min |
+| Part 5: generated SQL tool                       |  20 min |
+| Human-in-the-loop + guardrails                   |  10 min |
+| Break/buffer                                     |  10 min |
+| A2UI + generative UI comparison                  |  20 min |
+| A2A specialist agent                             |  25 min |
+| MCP resources, tool, and MCP App                 |  20 min |
+| End-to-end wrap-up                               |   5 min |
 
 Rehearse this carefully. The completed reference system should be used
 for the final A2A-to-MCP-App path; code-generating UI is reserved for the
 two-day expansion.
 
-## 18. Implementation strategy
+## 17. Implementation strategy and current status
 
-Use explicit checkpoints/branches rather than continuously mutating one
-demo:
+Use explicit checkpoints/branches rather than continuously mutating one demo.
 
-```text
-01-base-app
-02-ai-chat
-03-agui
-04-mastra
-05-copilotkit-tools
-06-human-in-loop
-07-a2ui
-08-a2a
-09-mcp-app
-10-final
-```
+| Checkpoint             | Workshop responsibility                                                 | Status                                 |
+| ---------------------- | ----------------------------------------------------------------------- | -------------------------------------- |
+| `01-base-app`          | Complete conventional incident-management application                   | **Completed; workshop starting point** |
+| `02-basic-chat`        | Basic conversation through the OpenAI SDK and OpenRouter; no tools      | Planned                                |
+| `03-ag-ui-chat`        | Migrate the same tool-free chat to AG-UI streaming and lifecycle events | Planned                                |
+| `04-mastra-copilotkit` | Decoupled Mastra backend and CopilotKit chat; still no tools            | Planned                                |
+| `05-sql-tool`          | One generated-SQL historian tool through the standardized stack         | Planned                                |
+| `06-human-in-loop`     | Approval-gated alarm actions and correlated audit                       | Planned                                |
+| `07-a2ui`              | Trusted, agent-composed decision surface                                | Planned                                |
+| `08-a2a`               | Delegate the incident to the facilities/compliance specialist           | Planned                                |
+| `09-mcp-app`           | Specialist resources, read-only tool, and portable evidence UI          | Planned                                |
+| `final`                | Rehearsed Angular/React golden path and resilience checks               | Planned                                |
 
 Each checkpoint should be runnable independently and include a short
 README explaining what changed, why it changed, and what limitation
@@ -548,20 +627,29 @@ Runbooks / Laws / Regulations / Company Policies
 The specialist agent can return both a recommendation and the
 provenance/evidence supporting it.
 
-## F. Production readiness
+## F. Advanced natural-language data access
+
+Harden the generated-SQL tool from the three-hour workshop and compare it with
+server-owned, parameterized query tools. Cover query parsing, read-only
+database access, schema allowlists, validation, execution limits, explain
+plans, auditing, and adversarial prompts. Use the same warning-transition and
+shift-manager questions so the trade-off is clear without introducing a
+second scenario.
+
+## G. Production readiness
 
 The two-day version can close with a production-readiness review
 covering security, memory, observability, auditability, evaluation,
 failure modes, cost, latency, testing, and deployment boundaries.
 
-## G. MCP Apps and sandboxing deep dive
+## H. MCP Apps and sandboxing deep dive
 
 Build the double-iframe host architecture, inspect MCP App metadata and
 CSP, enforce capability/origin policy, handle teardown and resizing, and
 test an intentionally hostile app. Compare specialist-owned MCP Apps with
 bounded A2UI and sandboxed code-generating UI.
 
-## H. Hands-on generative UI
+## I. Hands-on generative UI
 
 Implement the code-generating UI path that is intentionally omitted from
 the three-hour workshop. Cover code inspection, sandbox construction,

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 200" role="img" aria-labelledby="title description">
+  <title id="title">Soverius Chocolate Bar emblem</title>
+  <desc id="description">A blue Soverius shield with a white S and a subtle chocolate bar corner.</desc>
+  <defs>
+    <clipPath id="shield-clip">
+      <path d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#shield-clip)">
+    <rect width="90" height="200" fill="#2f57a3"/>
+    <rect x="90" width="90" height="200" fill="#376db4"/>
+
+    <path
+      d="M148 35C121 25 72 25 43 41 22 52 21 71 43 81c13 6 34 9 53 14 18 5 29 11 27 21-3 15-34 25-66 23-15-1-27-4-37-8"
+      fill="none"
+      stroke="#fff"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="17"
+    />
+
+    <path d="M101 145 172 88v89l-71 25Z" fill="#532613"/>
+    <path d="m108 153 24-19v22l-24 18Z" fill="#9a4f28"/>
+    <path d="m138 129 25-20v23l-25 19Z" fill="#b76736"/>
+    <path d="m108 181 24-18v23l-24 16Z" fill="#713317"/>
+    <path d="m138 158 25-19v24l-25 17Z" fill="#8c4421"/>
+    <path d="M134 129v57M104 151l68-54M104 177l68-53" fill="none" stroke="#3b180c" stroke-width="5"/>
+  </g>
+
+  <path
+    d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z"
+    fill="none"
+    stroke="#244b91"
+    stroke-width="3"
+  />
+</svg>

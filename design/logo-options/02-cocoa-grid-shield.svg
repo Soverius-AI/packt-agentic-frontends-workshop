@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 200" role="img" aria-labelledby="title description">
+  <title id="title">Soverius Chocolate Bar cocoa grid shield</title>
+  <desc id="description">A blue shield containing a cocoa grid and a sweeping white S.</desc>
+  <defs>
+    <clipPath id="shield">
+      <path d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#shield)">
+    <rect width="180" height="200" fill="#315fa8"/>
+    <path d="M90 0h90v200H90z" fill="#3972bc"/>
+
+    <g transform="translate(26 29)" fill="#7b391d" stroke="#52230f" stroke-width="4">
+      <rect width="38" height="39" rx="5"/>
+      <rect x="44" width="38" height="39" rx="5"/>
+      <rect x="88" width="38" height="39" rx="5"/>
+      <rect y="45" width="38" height="39" rx="5"/>
+      <rect x="44" y="45" width="38" height="39" rx="5"/>
+      <rect x="88" y="45" width="38" height="39" rx="5"/>
+      <rect y="90" width="38" height="39" rx="5"/>
+      <rect x="44" y="90" width="38" height="39" rx="5"/>
+      <rect x="88" y="90" width="38" height="39" rx="5"/>
+    </g>
+    <g transform="translate(32 35)" fill="#a7582d" opacity=".72">
+      <rect width="26" height="6" rx="3"/>
+      <rect x="44" width="26" height="6" rx="3"/>
+      <rect x="88" width="26" height="6" rx="3"/>
+      <rect y="45" width="26" height="6" rx="3"/>
+      <rect x="44" y="45" width="26" height="6" rx="3"/>
+      <rect x="88" y="45" width="26" height="6" rx="3"/>
+      <rect y="90" width="26" height="6" rx="3"/>
+      <rect x="44" y="90" width="26" height="6" rx="3"/>
+      <rect x="88" y="90" width="26" height="6" rx="3"/>
+    </g>
+
+    <path
+      d="M150 35C119 24 67 27 39 46 23 57 25 73 45 82 62 90 92 91 113 102c22 12 20 31-2 44-22 13-60 14-88-1"
+      fill="none"
+      stroke="#fff"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="18"
+    />
+  </g>
+
+  <path d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z" fill="none" stroke="#23498e" stroke-width="3"/>
+</svg>

@@ -1,86 +1,715 @@
-import { useState } from "react";
-import { ROOM_HVAC_INCIDENT, type AlarmState } from "@packt-workshop/contracts";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  facilityDashboardSchema,
+  facilityReadingPageSchema,
+  metricAlarmSchema,
+  metricHistorySchema,
+  metricUpdateEventSchema,
+  type FacilityDashboard,
+  type FacilityReadingEntry,
+  type FacilityReadingPage,
+  type MetricHistory,
+  type MetricSummary,
+} from "@packt-workshop/contracts";
 import "./App.css";
 
+async function jsonRequest(url: string, init?: RequestInit): Promise<unknown> {
+  const response = await fetch(url, {
+    ...init,
+    headers: { "content-type": "application/json", ...init?.headers },
+  });
+  const body = (await response.json()) as unknown;
+  if (!response.ok) {
+    const message =
+      typeof body === "object" &&
+      body &&
+      "error" in body &&
+      typeof body.error === "string"
+        ? body.error
+        : "Facility request failed.";
+    throw new Error(message);
+  }
+  return body;
+}
+
 export default function App() {
-  const [alarmState, setAlarmState] = useState<AlarmState>("not-raised");
-  const [status, setStatus] = useState(
-    "The anomaly is visible. A person on duty must decide what to do.",
+  const readingPageSize = 50;
+  const [dashboard, setDashboard] = useState<FacilityDashboard>();
+  const [history, setHistory] = useState<MetricHistory>();
+  const [status, setStatus] = useState("Connecting to the facility database…");
+  const [busyMetricId, setBusyMetricId] = useState<string>();
+  const [continuousUpdates, setContinuousUpdates] = useState(false);
+  const [displayMode, setDisplayMode] = useState<"snapshot" | "list">(
+    "snapshot",
+  );
+  const [latestUpdatedMetricId, setLatestUpdatedMetricId] = useState<string>();
+  const [readingPage, setReadingPage] = useState<FacilityReadingPage>();
+  const [readingsLoading, setReadingsLoading] = useState(false);
+  const [readingPageIndex, setReadingPageIndex] = useState(0);
+  const [updatedFrom, setUpdatedFrom] = useState("");
+  const [updatedTo, setUpdatedTo] = useState("");
+  const [shiftManagerFilter, setShiftManagerFilter] = useState("");
+  const [roomFilter, setRoomFilter] = useState("");
+  const [metricFilter, setMetricFilter] = useState("");
+  const [conditionFilter, setConditionFilter] = useState("");
+  const updateSource = useRef<EventSource | undefined>(undefined);
+  const allRows = useMemo(
+    () =>
+      dashboard?.rooms.flatMap((room) =>
+        room.metrics.map((metric) => ({ room, metric })),
+      ) ?? [],
+    [dashboard],
   );
 
-  function raiseAlarm(): void {
-    setAlarmState("raised");
-    setStatus(
-      "The facilities alarm was raised manually by the person on duty.",
-    );
+  async function loadReadingEntries(): Promise<void> {
+    setReadingsLoading(true);
+    const parameters = new URLSearchParams({
+      limit: String(readingPageSize),
+      offset: String(readingPageIndex * readingPageSize),
+    });
+    const add = (name: string, value: string): void => {
+      if (value) parameters.set(name, value);
+    };
+    add("from", updatedFrom ? new Date(updatedFrom).toISOString() : "");
+    add("to", updatedTo ? new Date(updatedTo).toISOString() : "");
+    add("shiftManager", shiftManagerFilter);
+    add("roomId", roomFilter);
+    add("metricId", metricFilter);
+    add("condition", conditionFilter);
+    try {
+      setReadingPage(
+        facilityReadingPageSchema.parse(
+          await jsonRequest(`/api/readings?${parameters.toString()}`),
+        ),
+      );
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Reading query failed.",
+      );
+    } finally {
+      setReadingsLoading(false);
+    }
   }
 
-  const incident = ROOM_HVAC_INCIDENT;
+  async function loadDashboard(): Promise<void> {
+    try {
+      setDashboard(
+        facilityDashboardSchema.parse(await jsonRequest("/api/dashboard")),
+      );
+      setStatus("Live values and alarms loaded from the facility database.");
+    } catch (error) {
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "Facility backend unavailable.",
+      );
+    }
+  }
+
+  useEffect(() => {
+    void loadDashboard();
+    startContinuousUpdates();
+    return () => updateSource.current?.close();
+  }, []);
+
+  useEffect(() => {
+    if (displayMode === "list") void loadReadingEntries();
+  }, [
+    displayMode,
+    updatedFrom,
+    updatedTo,
+    shiftManagerFilter,
+    roomFilter,
+    metricFilter,
+    conditionFilter,
+    readingPageIndex,
+  ]);
+
+  function startContinuousUpdates(): void {
+    if (updateSource.current) return;
+    const source = new EventSource("/api/metric-updates");
+    source.onmessage = (message) => {
+      try {
+        const event = metricUpdateEventSchema.parse(
+          JSON.parse(message.data) as unknown,
+        );
+        setDashboard((current) =>
+          current
+            ? {
+                ...current,
+                generatedAt: event.metric.updatedAt,
+                rooms: current.rooms.map((room) => ({
+                  ...room,
+                  metrics: room.metrics.map((metric) =>
+                    metric.id === event.metric.id ? event.metric : metric,
+                  ),
+                })),
+              }
+            : current,
+        );
+        setLatestUpdatedMetricId(event.metric.id);
+        setStatus(`New device reading received for ${event.metric.name}.`);
+      } catch {
+        setStatus("A live update did not match the facility contract.");
+      }
+    };
+    source.onerror = () => setStatus("The live update stream is reconnecting…");
+    updateSource.current = source;
+    setContinuousUpdates(true);
+    setStatus("Snapshot mode is live. Waiting for the next device reading…");
+  }
+
+  function stopContinuousUpdates(): void {
+    updateSource.current?.close();
+    updateSource.current = undefined;
+    setContinuousUpdates(false);
+    setLatestUpdatedMetricId(undefined);
+    setStatus("Reading log mode. Live snapshot updates are paused.");
+  }
+
+  function changeDisplayMode(mode: "snapshot" | "list"): void {
+    if (mode === displayMode) return;
+    setDisplayMode(mode);
+    setHistory(undefined);
+    if (mode === "snapshot") startContinuousUpdates();
+    else stopContinuousUpdates();
+  }
+
+  async function handleAlarm(metric: MetricSummary): Promise<void> {
+    setBusyMetricId(metric.id);
+    try {
+      if (!metric.activeAlarm) {
+        metricAlarmSchema.parse(
+          await jsonRequest(
+            `/api/metrics/${encodeURIComponent(metric.id)}/alarms`,
+            {
+              method: "POST",
+              body: JSON.stringify({ operatorId: "night-reception" }),
+            },
+          ),
+        );
+        setStatus(`Alarm raised for ${metric.name}.`);
+      } else {
+        const state =
+          metric.activeAlarm.state === "raised" ? "acknowledged" : "resolved";
+        metricAlarmSchema.parse(
+          await jsonRequest(
+            `/api/alarms/${encodeURIComponent(metric.activeAlarm.id)}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({ state, operatorId: "night-reception" }),
+            },
+          ),
+        );
+        setStatus(`Alarm ${state} for ${metric.name}.`);
+      }
+      await loadDashboard();
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Alarm update failed.",
+      );
+    } finally {
+      setBusyMetricId(undefined);
+    }
+  }
+
+  async function showHistory(metric: MetricSummary): Promise<void> {
+    setHistory(undefined);
+    setStatus(`Loading history for ${metric.name}…`);
+    try {
+      setHistory(
+        metricHistorySchema.parse(
+          await jsonRequest(
+            `/api/metrics/${encodeURIComponent(metric.id)}/history?hours=168`,
+          ),
+        ),
+      );
+      setStatus(`Showing the last seven days for ${metric.name}.`);
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "History request failed.",
+      );
+    }
+  }
+
+  function metricValue(metric: MetricSummary): string {
+    if (metric.currentNumericValue !== null) {
+      return new Intl.NumberFormat("en-GB", {
+        maximumFractionDigits: 2,
+      }).format(metric.currentNumericValue);
+    }
+    return metric.currentTextValue ?? "—";
+  }
+
+  function readingValue(reading: FacilityReadingEntry): string {
+    const value =
+      reading.numericValue === null
+        ? (reading.textValue ?? "—")
+        : new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 }).format(
+            reading.numericValue,
+          );
+    return reading.unit ? `${value} ${reading.unit}` : value;
+  }
+
+  function alarmLabel(metric: MetricSummary): string {
+    if (!metric.activeAlarm) return "Raise alarm";
+    return metric.activeAlarm.state === "raised" ? "Acknowledge" : "Resolve";
+  }
+
+  function clearFilters(): void {
+    setUpdatedFrom("");
+    setUpdatedTo("");
+    setShiftManagerFilter("");
+    setRoomFilter("");
+    setMetricFilter("");
+    setConditionFilter("");
+    setReadingPageIndex(0);
+  }
+
+  const readingPageCount = Math.max(
+    1,
+    Math.ceil((readingPage?.total ?? 0) / readingPageSize),
+  );
+  const readingPageStart =
+    readingPage && readingPage.total > 0 ? readingPage.offset + 1 : 0;
+  const readingPageEnd = readingPage
+    ? readingPage.offset + readingPage.entries.length
+    : 0;
 
   return (
     <main>
       <header className="page-header">
-        <div>
-          <p className="eyebrow">Stage 1 · React host</p>
-          <h1>Northstar facility operations</h1>
-          <p className="subtitle">
-            A conventional, deterministic application. No AI is involved.
-          </p>
+        <div className="brand-lockup">
+          <a
+            className="corporate-logo-link"
+            href="https://soverius.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit the Soverius AI website"
+          >
+            <img
+              className="corporate-logo"
+              src="/soverius-ai-original.png"
+              alt="Soverius AI"
+            />
+          </a>
+          <div className="brand-copy">
+            <p className="eyebrow">Soverius Chocolate operations</p>
+            <h1 className="product-title">Incident Management</h1>
+            <p className="subtitle">
+              Persistent factory telemetry, historical readings, and operator
+              alarms. No AI is involved.
+            </p>
+            <p className="stage-label">
+              Stage 1 · Conventional full-stack application
+            </p>
+          </div>
         </div>
-        <span className={`live alarm-${alarmState}`}>
-          Alarm: {alarmState === "raised" ? "raised" : "not raised"}
-        </span>
+        <div className="summary">
+          <span className="database">SQLite connected</span>
+          <span
+            className={`mode-state${continuousUpdates ? " mode-state-live" : ""}`}
+          >
+            <span aria-hidden="true" />
+            {continuousUpdates ? "Snapshot live" : "Reading log"}
+          </span>
+          <span
+            className={dashboard?.activeAlarmCount ? "alarms active" : "alarms"}
+          >
+            {dashboard?.activeAlarmCount ?? 0} active alarms
+          </span>
+          <button
+            className="secondary"
+            type="button"
+            onClick={() => void loadDashboard()}
+          >
+            Refresh
+          </button>
+        </div>
       </header>
 
-      <section className="incident" aria-labelledby="incident-title">
-        <div>
-          <p className="eyebrow">Facilities anomaly</p>
-          <h2 id="incident-title">{incident.assetId}</h2>
-          <p>{incident.summary}</p>
-        </div>
-        <dl>
-          <div>
-            <dt>Room temperature</dt>
-            <dd>{incident.telemetry.roomTemperatureCelsius} °C</dd>
+      {dashboard ? (
+        <section className="room" aria-labelledby="metrics-title">
+          <div
+            className="mode-switch"
+            role="tablist"
+            aria-label="Reading display mode"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={displayMode === "snapshot"}
+              className={displayMode === "snapshot" ? "active" : ""}
+              onClick={() => changeDisplayMode("snapshot")}
+            >
+              Snapshot
+              <small>Latest value per metric · live</small>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={displayMode === "list"}
+              className={displayMode === "list" ? "active" : ""}
+              onClick={() => changeDisplayMode("list")}
+            >
+              Reading log
+              <small>Historical readings · filterable</small>
+            </button>
           </div>
-          <div>
-            <dt>Outside temperature</dt>
-            <dd>{incident.telemetry.outsideTemperatureCelsius} °C</dd>
-          </div>
-          <div>
-            <dt>Rising for</dt>
-            <dd>{incident.telemetry.trendDurationMinutes} minutes</dd>
-          </div>
-          <div>
-            <dt>Door</dt>
-            <dd>{incident.telemetry.doorState}</dd>
-          </div>
-        </dl>
-      </section>
+          {displayMode === "list" ? (
+            <>
+              <section
+                className="filter-panel"
+                aria-label="Filter persisted readings"
+              >
+                <div className="filter-heading">
+                  <div>
+                    <p className="eyebrow">Historical reading filters</p>
+                    <strong>
+                      Showing {readingPageStart}–{readingPageEnd} of{" "}
+                      {readingPage?.total ?? 0} readings
+                    </strong>
+                  </div>
+                  <button
+                    className="secondary"
+                    type="button"
+                    onClick={clearFilters}
+                  >
+                    Clear filters
+                  </button>
+                </div>
+                <div className="filter-grid">
+                  <label>
+                    <span>Updated from</span>
+                    <span className="date-filter-control">
+                      <input
+                        type="datetime-local"
+                        value={updatedFrom}
+                        onChange={(event) => {
+                          setUpdatedFrom(event.target.value);
+                          setReadingPageIndex(0);
+                        }}
+                      />
+                      <button
+                        className="date-clear-button"
+                        type="button"
+                        disabled={!updatedFrom}
+                        aria-label="Clear updated from"
+                        onClick={() => {
+                          setUpdatedFrom("");
+                          setReadingPageIndex(0);
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </span>
+                  </label>
+                  <label>
+                    <span>Updated to</span>
+                    <span className="date-filter-control">
+                      <input
+                        type="datetime-local"
+                        value={updatedTo}
+                        onChange={(event) => {
+                          setUpdatedTo(event.target.value);
+                          setReadingPageIndex(0);
+                        }}
+                      />
+                      <button
+                        className="date-clear-button"
+                        type="button"
+                        disabled={!updatedTo}
+                        aria-label="Clear updated to"
+                        onClick={() => {
+                          setUpdatedTo("");
+                          setReadingPageIndex(0);
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </span>
+                  </label>
+                  <label>
+                    <span>Shift manager</span>
+                    <select
+                      value={shiftManagerFilter}
+                      onChange={(event) => {
+                        setShiftManagerFilter(event.target.value);
+                        setReadingPageIndex(0);
+                      }}
+                    >
+                      <option value="">All shift managers</option>
+                      {dashboard.shiftManagers.map((manager) => (
+                        <option key={manager} value={manager}>
+                          {manager}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Room</span>
+                    <select
+                      value={roomFilter}
+                      onChange={(event) => {
+                        setRoomFilter(event.target.value);
+                        setReadingPageIndex(0);
+                      }}
+                    >
+                      <option value="">All rooms</option>
+                      {dashboard.rooms.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Metric</span>
+                    <select
+                      value={metricFilter}
+                      onChange={(event) => {
+                        setMetricFilter(event.target.value);
+                        setReadingPageIndex(0);
+                      }}
+                    >
+                      <option value="">All metrics</option>
+                      {allRows.map(({ room, metric }) => (
+                        <option key={metric.id} value={metric.id}>
+                          {room.name} · {metric.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Condition</span>
+                    <select
+                      value={conditionFilter}
+                      onChange={(event) => {
+                        setConditionFilter(event.target.value);
+                        setReadingPageIndex(0);
+                      }}
+                    >
+                      <option value="">All conditions</option>
+                      <option value="normal">Normal</option>
+                      <option value="warning">Warning</option>
+                      <option value="critical">Critical</option>
+                      <option value="unavailable">Unavailable</option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+              <div
+                className="table-shell"
+                tabIndex={0}
+                aria-label="Historical readings table"
+              >
+                <table className="reading-entries-table">
+                  <caption>
+                    Persisted metric readings matching the historical filters
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Date and time</th>
+                      <th scope="col">Shift manager</th>
+                      <th scope="col">Room</th>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Value</th>
+                      <th scope="col">Condition</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {readingsLoading ? (
+                      <tr>
+                        <td className="empty-table" colSpan={6}>
+                          Loading persisted readings…
+                        </td>
+                      </tr>
+                    ) : readingPage?.entries.length ? (
+                      readingPage.entries.map((entry) => (
+                        <tr
+                          key={entry.id}
+                          className={`condition-${entry.condition}`}
+                        >
+                          <td>
+                            <time dateTime={entry.recordedAt}>
+                              {new Date(entry.recordedAt).toLocaleString(
+                                "en-GB",
+                              )}
+                            </time>
+                          </td>
+                          <td className="shift-manager">
+                            {entry.shiftManagerName}
+                          </td>
+                          <td className="room-cell">
+                            <strong>{entry.roomName}</strong>
+                          </td>
+                          <th className="metric-cell" scope="row">
+                            {entry.metricName}
+                          </th>
+                          <td className="reading-entry-value">
+                            {readingValue(entry)}
+                          </td>
+                          <td>
+                            <span className="condition">{entry.condition}</span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="empty-table" colSpan={6}>
+                          No persisted readings match these filters.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <nav className="pagination" aria-label="Reading log pagination">
+                <button
+                  className="secondary"
+                  type="button"
+                  disabled={readingPageIndex === 0 || readingsLoading}
+                  onClick={() => setReadingPageIndex((page) => page - 1)}
+                >
+                  Previous
+                </button>
+                <span>
+                  Page <strong>{readingPageIndex + 1}</strong> of{" "}
+                  <strong>{readingPageCount}</strong>
+                </span>
+                <button
+                  className="secondary"
+                  type="button"
+                  disabled={
+                    readingPageIndex + 1 >= readingPageCount || readingsLoading
+                  }
+                  onClick={() => setReadingPageIndex((page) => page + 1)}
+                >
+                  Next
+                </button>
+              </nav>
+            </>
+          ) : (
+            <>
+              <div className="current-table-heading">
+                <div>
+                  <p className="eyebrow">Live overview</p>
+                  <h2>Current reading per metric</h2>
+                </div>
+                <span>{allRows.length} metrics</span>
+              </div>
+              <div
+                className="table-shell"
+                tabIndex={0}
+                aria-label="Factory metrics table"
+              >
+                <table>
+                  <caption id="metrics-title">
+                    Factory rooms and production metrics
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Room</th>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Current</th>
+                      <th scope="col">Shift manager</th>
+                      <th scope="col">Trend</th>
+                      <th scope="col">Condition</th>
+                      <th scope="col">Normal range</th>
+                      <th scope="col">History</th>
+                      <th scope="col">Alarm</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allRows.map(({ room, metric }) => (
+                      <tr
+                        key={metric.id}
+                        className={`condition-${metric.condition}${latestUpdatedMetricId === metric.id ? " live-updated" : ""}`}
+                      >
+                        <td className="room-cell">
+                          <strong>{room.name}</strong>
+                        </td>
+                        <th className="metric-cell" scope="row">
+                          {metric.name}
+                        </th>
+                        <td className="reading">
+                          <strong>{metricValue(metric)}</strong> {metric.unit}
+                        </td>
+                        <td className="shift-manager">
+                          {metric.shiftManagerName}
+                        </td>
+                        <td>{metric.trend}</td>
+                        <td>
+                          <span className="condition">{metric.condition}</span>
+                        </td>
+                        <td>{metric.target}</td>
+                        <td>
+                          <button
+                            className="secondary"
+                            onClick={() => void showHistory(metric)}
+                          >
+                            View 7d
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => void handleAlarm(metric)}
+                            disabled={busyMetricId === metric.id}
+                          >
+                            {busyMetricId === metric.id
+                              ? "Saving…"
+                              : alarmLabel(metric)}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
+      ) : (
+        <section className="message">
+          <h2>Loading facility data</h2>
+          <p>Reading rooms, metrics, alarms, and measurements from SQLite…</p>
+        </section>
+      )}
 
-      <div className="actions">
-        <button
-          type="button"
-          onClick={raiseAlarm}
-          disabled={alarmState === "raised"}
-        >
-          {alarmState === "raised"
-            ? "Facilities alarm raised"
-            : "Raise facilities alarm"}
-        </button>
-      </div>
       <p className="status" role="status">
         {status}
       </p>
 
-      <aside className="limitation" aria-labelledby="limitation-title">
-        <h2 id="limitation-title">What is missing?</h2>
-        <p>
-          This screen can display a known anomaly and expose a predefined
-          action. It cannot tell the person on duty whether checking the door
-          should come before raising the alarm.
-        </p>
-      </aside>
+      {history && (
+        <section className="history" aria-labelledby="history-title">
+          <div className="room-heading">
+            <div>
+              <p className="eyebrow">Database history · last seven days</p>
+              <h2 id="history-title">{history.metric.name}</h2>
+            </div>
+            <button className="secondary" onClick={() => setHistory(undefined)}>
+              Close
+            </button>
+          </div>
+          <div className="history-values">
+            {history.readings.slice(-12).map((reading) => (
+              <span key={reading.recordedAt}>
+                <time dateTime={reading.recordedAt}>
+                  {new Date(reading.recordedAt).toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
+                <strong>
+                  {reading.numericValue ?? reading.textValue}{" "}
+                  {history.metric.unit}
+                </strong>
+                <small>{reading.shiftManagerName}</small>
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

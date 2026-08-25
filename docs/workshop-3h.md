@@ -2,39 +2,51 @@
 
 The workshop uses one prebuilt reference system and selectively changes or reveals parts of it. It does not attempt to type every service from scratch.
 
+Part 1 is complete on `01-base-app` and is the workshop's starting state. It
+is a fully functional conventional application with no AI. Every later
+checkpoint should be introduced as a response to a limitation visible in the
+preceding checkpoint.
+
 ## Learning outcome
 
 Participants should be able to assign a precise job to AG-UI, CopilotKit, Mastra, A2UI, A2A, MCP, and MCP Apps—and identify the guardrail introduced at each increase in autonomy.
 
 ## Timing
 
-|      Time | Segment                                         | Runnable checkpoint |
-| --------: | ----------------------------------------------- | ------------------- |
-| 0:00–0:15 | Room HVAC scenario and deterministic UI         | 01                  |
-| 0:15–0:35 | Raw assistant and the plumbing problem          | 02                  |
-| 0:35–1:00 | AG-UI lifecycle and state snapshots             | 03                  |
-| 1:00–1:20 | Mastra backend tools and CopilotKit integration | 04                  |
-| 1:20–1:35 | Human approval and audit boundary               | 05                  |
-| 1:35–1:45 | Break and buffer                                | —                   |
-| 1:45–2:10 | Bounded A2UI decision surface                   | 06                  |
-| 2:10–2:35 | A2A facilities/compliance specialist            | 07                  |
-| 2:35–2:55 | MCP resources, tool, and portable MCP App       | 08                  |
-| 2:55–3:00 | Recap and two-day expansion                     | final               |
+|      Time | Segment                                          | Runnable checkpoint |
+| --------: | ------------------------------------------------ | ------------------- |
+| 0:00–0:15 | Part 1: completed conventional app walkthrough   | 01                  |
+| 0:15–0:30 | Part 2: basic OpenAI-SDK chat via OpenRouter     | 02                  |
+| 0:30–0:50 | Part 3: migrate the same tool-free chat to AG-UI | 03                  |
+| 0:50–1:10 | Part 4: Mastra and CopilotKit; still no tools    | 04                  |
+| 1:10–1:30 | Part 5: generated SQL through AG-UI              | 05                  |
+| 1:30–1:40 | Human approval and audit boundary                | 06                  |
+| 1:40–1:50 | Break and buffer                                 | —                   |
+| 1:50–2:10 | Bounded A2UI decision surface                    | 07                  |
+| 2:10–2:35 | A2A facilities/compliance specialist             | 08                  |
+| 2:35–2:55 | MCP resources, tool, and portable MCP App        | 09                  |
+| 2:55–3:00 | Recap and two-day expansion                      | final               |
 
 Generative UI is compared with A2UI and MCP Apps, but code-generating UI is not implemented in the three-hour workshop.
 
 ## Golden path
 
-1. Open either framework host and inspect the `ROOM-3-HVAC` anomaly: its temperature has risen for 30 minutes and now matches the outside temperature.
-2. Choose **Ask facilities specialist**.
-3. Follow the correlation ID through the coordinator and A2A service.
-4. Inspect the conditional recommendation: check the door; if open, close and observe; if closed, call the maintenance electrician.
-5. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
-6. Approve or reject `review-alarm` and verify that the human decision—not the specialist—appears in the audit trail.
-7. Read the audit trail and distinguish operational tracing from accountability.
+1. Open Part 1 and demonstrate snapshot mode, continuous updates, the reading log, filters, pagination, seven-day history, shift managers, and the manual alarm lifecycle.
+2. In Part 2, exchange ordinary user and assistant messages through the TypeScript backend, OpenAI SDK, and OpenRouter. Ask a historian-specific question and show that chat has no access to application data.
+3. In Part 3, repeat the conversation after migrating the tool-free chat to AG-UI. Show streaming and lifecycle events, but confirm that the assistant still cannot inspect the historian.
+4. In Part 4, move the agent to Mastra and connect the host through CopilotKit without changing that capability boundary. The chat still has no tools.
+5. In Part 5, ask: **Show me when the Cooling room went into warning during the last seven days and when each warning ended.** Inspect the SQL generated for the single `query_historian` tool and its generic result table. Previous days end at 14:00; today's warning is **Still active**.
+6. Ask: **Show me the maximum air temperature for shift manager Charles Bond and, below that, for Denise Weber.** Show that the same SQL tool answers a different, previously unanticipated question.
+7. Establish the incident evidence: air temperature has remained in warning since 12:00, humidity can cross its warning threshold, and the connecting door has no sensor and must be checked manually.
+8. Choose **Ask facilities specialist**.
+9. Follow the correlation ID through the coordinator and A2A service.
+10. Inspect the conditional recommendation: check the connecting door; if open, close and observe; if closed, call cooling/electrical maintenance and place affected batches on quality hold when required by the fictional plant policy.
+11. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
+12. Approve or reject `review-alarm`, then read the audit trail and distinguish operational tracing from accountability.
 
 ## Failure demonstrations
 
+- submit a write statement or a second SQL statement: the historian boundary rejects it before SQLite execution;
 - stop the compliance service: the coordinator applies a deadline, retries once, records `operation-failed`, and returns an explicit error;
 - submit the same correlation ID twice: the assessment is idempotent;
 - submit the same operator decision twice: the second response is `already-decided`;

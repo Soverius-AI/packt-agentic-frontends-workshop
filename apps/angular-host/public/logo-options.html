@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/soverius-chocolate-bar.svg" />
+    <title>Soverius Chocolate Bar · Logo options</title>
+    <style>
+      :root {
+        color: #211c18;
+        background: #f4f1eb;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: #76573f;
+        font-size: 0.75rem;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 6vw, 4rem);
+        letter-spacing: -0.05em;
+      }
+
+      .intro {
+        max-width: 680px;
+        margin: 12px 0 32px;
+        color: #655d56;
+        line-height: 1.55;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+
+      article {
+        display: grid;
+        grid-template-rows: 290px auto;
+        overflow: hidden;
+        border: 1px solid #d9d0c5;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 14px 44px #3b2c2110;
+      }
+
+      article.selected {
+        border: 2px solid #315fa8;
+        box-shadow: 0 16px 46px #315fa826;
+      }
+
+      .logo-stage {
+        display: grid;
+        place-items: center;
+        padding: 32px;
+        background: linear-gradient(135deg, #fff, #f2ede5);
+      }
+
+      .logo-stage img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .details {
+        padding: 20px;
+        border-top: 1px solid #e6ded4;
+      }
+
+      h2 {
+        margin: 0 0 7px;
+        font-size: 1.08rem;
+      }
+
+      .selected-label {
+        display: inline-block;
+        margin-bottom: 9px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #dfe9f8;
+        color: #23498e;
+        font-size: 0.68rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .details p {
+        min-height: 3em;
+        margin: 0 0 16px;
+        color: #655d56;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      a {
+        color: #315fa8;
+        font-weight: 750;
+        text-underline-offset: 3px;
+      }
+
+      .back {
+        display: inline-block;
+        margin-top: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Brand exploration</p>
+      <h1>Soverius Chocolate Bar</h1>
+      <p class="intro">
+        Four compact shield directions derived from the Soverius identity. The cocoa-grid shield
+        remains the selected compact seal and favicon.
+      </p>
+
+      <section class="options" aria-label="Logo options">
+        <article>
+          <div class="logo-stage">
+            <img src="/logo-options/01-corner-chocolate-shield.svg" alt="Corner chocolate shield" />
+          </div>
+          <div class="details">
+            <h2>01 · Corner shield</h2>
+            <p>The original Soverius shield with a restrained chocolate-bar corner.</p>
+            <a href="/logo-options/01-corner-chocolate-shield.svg">Open SVG</a>
+          </div>
+        </article>
+
+        <article class="selected">
+          <div class="logo-stage">
+            <img src="/logo-options/02-cocoa-grid-shield.svg" alt="Cocoa-grid shield" />
+          </div>
+          <div class="details">
+            <span class="selected-label">Selected</span>
+            <h2>02 · Cocoa-grid shield</h2>
+            <p>The most literal chocolate interpretation while retaining the shield.</p>
+            <a href="/logo-options/02-cocoa-grid-shield.svg">Open SVG</a>
+          </div>
+        </article>
+
+        <article>
+          <div class="logo-stage">
+            <img src="/logo-options/03-wrapped-chocolate-bar.svg" alt="Wrapped chocolate bar" />
+          </div>
+          <div class="details">
+            <h2>03 · Wrapped bar</h2>
+            <p>A friendlier product mark with the Soverius ribbon wrapped around a bar.</p>
+            <a href="/logo-options/03-wrapped-chocolate-bar.svg">Open SVG</a>
+          </div>
+        </article>
+
+        <article>
+          <div class="logo-stage">
+            <img src="/logo-options/04-minimal-cocoa-crest.svg" alt="Minimal cocoa crest" />
+          </div>
+          <div class="details">
+            <h2>04 · Minimal crest</h2>
+            <p>A restrained corporate direction with an abstract cocoa-colored base.</p>
+            <a href="/logo-options/04-minimal-cocoa-crest.svg">Open SVG</a>
+          </div>
+        </article>
+      </section>
+
+      <a class="back" href="/">← Back to the factory dashboard</a>
+    </main>
+  </body>
+</html>

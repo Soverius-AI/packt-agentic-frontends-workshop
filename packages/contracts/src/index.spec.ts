@@ -1,29 +1,97 @@
 import { describe, expect, it } from "vitest";
-import { facilityIncidentSchema, ROOM_HVAC_INCIDENT } from "./index.js";
+import {
+  alarmActionRequestSchema,
+  facilityDashboardSchema,
+  metricUpdateEventSchema,
+  raiseAlarmRequestSchema,
+} from "./index.js";
 
 describe("Stage 1 facility contracts", () => {
-  it("provides deterministic room climate telemetry", () => {
-    expect(ROOM_HVAC_INCIDENT).toMatchObject({
-      incidentId: "INC-HVAC-03",
-      assetId: "ROOM-3-HVAC",
-      telemetry: {
-        roomTemperatureCelsius: 29,
-        outsideTemperatureCelsius: 29,
-        trendDurationMinutes: 30,
-        doorState: "unknown",
-      },
+  it("describes rooms containing independently alarmable metrics", () => {
+    const dashboard = facilityDashboardSchema.parse({
+      siteName: "Soverius Chocolate Bar",
+      generatedAt: "2026-08-24T18:00:00.000Z",
+      activeAlarmCount: 0,
+      shiftManagers: ["Charles Bond", "Denise Weber", "Martin Thompson"],
+      rooms: [
+        {
+          id: "cooling-room",
+          name: "Cooling room",
+          areaType: "Climate-controlled storage",
+          description: "Chocolate conditioning and storage before packaging.",
+          metrics: [
+            {
+              id: "cooling-air-temperature",
+              roomId: "cooling-room",
+              equipmentName: null,
+              name: "Air temperature",
+              kind: "numeric",
+              unit: "°C",
+              currentNumericValue: 21.2,
+              currentTextValue: null,
+              shiftManagerName: "Denise Weber",
+              condition: "warning",
+              trend: "Rising for 30 min",
+              target: "16–18 °C",
+              detail: "Approaching the adjacent packaging hall temperature.",
+              updatedAt: "2026-08-24T18:00:00.000Z",
+              activeAlarm: null,
+            },
+          ],
+        },
+      ],
     });
+
+    expect(dashboard.rooms[0]?.metrics[0]?.condition).toBe("warning");
   });
 
-  it("rejects an invalid trend duration", () => {
-    expect(() =>
-      facilityIncidentSchema.parse({
-        ...ROOM_HVAC_INCIDENT,
-        telemetry: {
-          ...ROOM_HVAC_INCIDENT.telemetry,
-          trendDurationMinutes: 0,
+  it("defaults alarm actions to the workshop night receptionist", () => {
+    expect(raiseAlarmRequestSchema.parse({}).operatorId).toBe(
+      "night-reception",
+    );
+    expect(
+      alarmActionRequestSchema.parse({ state: "resolved" }).operatorId,
+    ).toBe("night-reception");
+  });
+
+  it("validates individual live metric updates", () => {
+    const metric = facilityDashboardSchema.parse({
+      siteName: "Soverius Chocolate Bar",
+      generatedAt: "2026-08-24T18:00:00.000Z",
+      activeAlarmCount: 0,
+      shiftManagers: ["Charles Bond", "Denise Weber", "Martin Thompson"],
+      rooms: [
+        {
+          id: "cooling-room",
+          name: "Cooling room",
+          areaType: "Storage",
+          description: "Chocolate storage.",
+          metrics: [
+            {
+              id: "cooling-air-temperature",
+              roomId: "cooling-room",
+              equipmentName: null,
+              name: "Air temperature",
+              kind: "numeric",
+              unit: "°C",
+              currentNumericValue: 21.4,
+              currentTextValue: null,
+              shiftManagerName: "Denise Weber",
+              condition: "warning",
+              trend: "Rising",
+              target: "16–18 °C",
+              detail: "Updated sensor value.",
+              updatedAt: "2026-08-24T18:00:00.000Z",
+              activeAlarm: null,
+            },
+          ],
         },
-      }),
-    ).toThrow();
+      ],
+    }).rooms[0]!.metrics[0]!;
+
+    expect(
+      metricUpdateEventSchema.parse({ type: "metric.updated", metric }).metric
+        .id,
+    ).toBe("cooling-air-temperature");
   });
 });

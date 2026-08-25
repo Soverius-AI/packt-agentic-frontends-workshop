@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 200" role="img" aria-labelledby="title description">
+  <title id="title">Soverius Chocolate Bar minimal cocoa crest</title>
+  <desc id="description">A minimal blue and cocoa shield divided by a crisp white S.</desc>
+  <defs>
+    <clipPath id="shield">
+      <path d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#shield)">
+    <rect width="180" height="200" fill="#3266ae"/>
+    <path d="M0 149 180 70v130H0Z" fill="#6f3218"/>
+    <path d="M0 162 180 83v20L0 182Z" fill="#a95a30"/>
+
+    <path
+      d="M150 35C122 25 72 26 42 43 21 55 22 72 43 82 58 89 84 91 106 99 27 133 26 134 25 135 12 141 25 148 48 151 82 155 119 145 132 127 146 107 128 96 108 90"
+      fill="none"
+      stroke="#fff"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="16"
+    />
+
+    <path d="M118 144v36M145 132v36M104 158h57M104 177h57" fill="none" stroke="#4c1e0d" stroke-width="4" opacity=".9"/>
+  </g>
+
+  <path d="M90 7C49 7 18 14 10 25v79c0 42 25 70 80 89 55-19 80-47 80-89V25C162 14 131 7 90 7Z" fill="none" stroke="#244b91" stroke-width="3"/>
+</svg>
