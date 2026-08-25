@@ -517,6 +517,11 @@ two-day expansion.
 ## 17. Implementation strategy and current status
 
 Use explicit checkpoints/branches rather than continuously mutating one demo.
+`main` is the cumulative source of truth: it contains the latest implemented
+state plus all workshop plans and handoff documentation. A numbered checkpoint
+branch remains fixed as the independently runnable snapshot for that stage.
+After completing a stage, merge it into `main`, preserve the numbered branch,
+and create the next checkpoint branch from the updated `main`.
 
 | Checkpoint             | Workshop responsibility                                                 | Status                                 |
 | ---------------------- | ----------------------------------------------------------------------- | -------------------------------------- |

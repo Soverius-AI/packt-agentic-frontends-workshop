@@ -1,5 +1,17 @@
 # Runnable checkpoints
 
+## Branching model
+
+`main` is the cumulative source of truth. It must always contain the latest
+implemented workshop state, the complete runnable project, the workshop plan,
+the checkpoint map, and the implementation brief for the next step.
+
+Each numbered branch is an immutable teaching snapshot. When a step is
+completed, preserve its branch at that state and merge the same changes into
+`main`. Start the next numbered branch from the updated `main` branch. This
+keeps every workshop stage independently runnable without allowing the
+canonical project knowledge to drift away from `main`.
+
 This `01-base-app` branch implements the completed first part and is the
 starting point of the workshop. It contains the complete conventional
 chocolate-factory application: API, seven-day SQLite history, asynchronous
@@ -32,3 +44,5 @@ Before presenting a checkpoint, verify:
 3. the corresponding guardrail is observable in the UI or logs;
 4. both framework hosts still consume the same shared contracts;
 5. the next checkpoint is motivated by a concrete missing capability.
+6. `main` contains this checkpoint and the current plan before work begins on
+   the next numbered branch.
