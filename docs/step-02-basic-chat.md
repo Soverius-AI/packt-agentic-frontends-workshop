@@ -6,10 +6,10 @@ Extend the completed `01-base-app` checkpoint with an application-owned chat
 that supports ordinary user/assistant conversation. This step deliberately
 does not give the model access to facility data or application actions.
 
-Create the runnable checkpoint as `02-basic-chat` from the updated `main`
-branch. Preserve `01-base-app` as the completed, independently runnable
-starting point. When Step 2 is complete, merge it back into `main` before
-starting Step 3.
+Create the runnable checkpoint as `02-basic-chat` directly from
+`01-base-app`. Preserve `01-base-app` as the completed, independently runnable
+starting point. Do not merge the checkpoint into `main`; create
+`03-ag-ui-chat` from the completed `02-basic-chat` milestone.
 
 ## Fixed decisions
 

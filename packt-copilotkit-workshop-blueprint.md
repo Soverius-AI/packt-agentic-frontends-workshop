@@ -517,11 +517,11 @@ two-day expansion.
 ## 17. Implementation strategy and current status
 
 Use explicit checkpoints/branches rather than continuously mutating one demo.
-`main` is the cumulative source of truth: it contains the latest implemented
-state plus all workshop plans and handoff documentation. A numbered checkpoint
-branch remains fixed as the independently runnable snapshot for that stage.
-After completing a stage, merge it into `main`, preserve the numbered branch,
-and create the next checkpoint branch from the updated `main`.
+`main` is the canonical home of the overall project knowledge, workshop plan,
+branch map, and handoff documentation. Numbered branches are cumulative,
+independently runnable webinar milestones and are never merged. Create each
+new numbered branch directly from the previous milestone (`02-basic-chat`
+from `01-base-app`, then `03-ag-ui-chat` from `02-basic-chat`, and so on).
 
 | Checkpoint             | Workshop responsibility                                                 | Status                                 |
 | ---------------------- | ----------------------------------------------------------------------- | -------------------------------------- |
