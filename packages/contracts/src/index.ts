@@ -129,14 +129,30 @@ const facilityDateFilterValueSchema = z
   ])
   .nullable();
 
-export const facilityViewFiltersSchema = z.object({
-  from: facilityDateFilterValueSchema,
-  to: facilityDateFilterValueSchema,
-  shiftManager: nullableFilterValueSchema,
-  roomId: nullableFilterValueSchema,
-  metricId: nullableFilterValueSchema,
-  condition: metricConditionSchema.nullable(),
-});
+export const facilityViewFiltersSchema = z
+  .object({
+    from: facilityDateFilterValueSchema.describe(
+      'Start boundary; use "now", an ISO date-time, a browser-local date-time, or null.',
+    ),
+    to: facilityDateFilterValueSchema.describe(
+      'End boundary; use "now", an ISO date-time, a browser-local date-time, or null.',
+    ),
+    shiftManager: nullableFilterValueSchema.describe(
+      "Exact shift-manager name from availableFilters.shiftManagers, or null.",
+    ),
+    roomId: nullableFilterValueSchema.describe(
+      "Exact room ID from availableFilters.rooms, never a room name or invented ID, or null.",
+    ),
+    metricId: nullableFilterValueSchema.describe(
+      "Exact metric ID from availableFilters.metrics, never a metric label or invented ID, or null.",
+    ),
+    condition: metricConditionSchema
+      .nullable()
+      .describe(
+        "Reading condition: normal, warning, critical, unavailable, or null. Do not use a severity field.",
+      ),
+  })
+  .strict();
 export type FacilityViewFilters = z.infer<typeof facilityViewFiltersSchema>;
 
 export const facilityViewStateSchema = z.object({
@@ -145,23 +161,146 @@ export const facilityViewStateSchema = z.object({
 });
 export type FacilityViewState = z.infer<typeof facilityViewStateSchema>;
 
-const facilityViewFilterPatchSchema = facilityViewFiltersSchema.partial();
+const facilityViewFilterPatchSchema = facilityViewFiltersSchema
+  .partial()
+  .strict();
 
-export const configureFacilityViewSchema = z.discriminatedUnion("action", [
-  z.object({
-    action: z.literal("set_view"),
-    view: facilityViewModeSchema,
-  }),
-  z.object({
-    action: z.literal("update_filters"),
-    filters: facilityViewFilterPatchSchema,
-  }),
-  z.object({
-    action: z.literal("clear_filters"),
-    filters: z.array(facilityViewFilterNameSchema).min(1).optional(),
-  }),
+const configureFacilityViewCommandSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("set_view"),
+      view: facilityViewModeSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("update_filters"),
+      filters: facilityViewFilterPatchSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("clear_filters"),
+      filters: z.array(facilityViewFilterNameSchema).min(1).optional(),
+    })
+    .strict(),
 ]);
+
+export const configureFacilityViewSchema = z
+  .object({
+    action: z
+      .enum(["set_view", "update_filters", "clear_filters"])
+      .describe("Perform exactly one facility-view action."),
+    view: facilityViewModeSchema
+      .optional()
+      .describe("Required only for set_view."),
+    filters: z
+      .union([
+        facilityViewFilterPatchSchema,
+        z.array(facilityViewFilterNameSchema).min(1),
+      ])
+      .optional()
+      .describe(
+        "For update_filters, an object containing only values to change. For clear_filters, an optional list of filter names to clear.",
+      ),
+  })
+  .strict()
+  .transform((input, context) => {
+    const candidate =
+      input.action === "set_view"
+        ? { action: input.action, view: input.view }
+        : input.action === "update_filters"
+          ? { action: input.action, filters: input.filters }
+          : {
+              action: input.action,
+              filters: Array.isArray(input.filters) ? input.filters : undefined,
+            };
+    const result = configureFacilityViewCommandSchema.safeParse(candidate);
+    if (!result.success) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "Use exactly one action shape: set_view with view, update_filters with a filter object, or clear_filters with an optional filter-name list.",
+      });
+      return z.NEVER;
+    }
+    return result.data;
+  });
 export type ConfigureFacilityView = z.infer<typeof configureFacilityViewSchema>;
+
+export type FacilityViewAvailableOptions = {
+  rooms: readonly { id: string; name: string }[];
+  metrics: readonly { id: string; label: string }[];
+  shiftManagers: readonly string[];
+};
+
+function optionKey(value: string): string {
+  return value
+    .toLocaleLowerCase("en")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .sort()
+    .join("-");
+}
+
+function resolveOptionId(
+  name: "roomId" | "metricId",
+  value: string,
+  options: readonly { id: string; label: string }[],
+): string {
+  const exact = options.find(
+    (option) =>
+      option.id.toLocaleLowerCase("en") === value.toLocaleLowerCase("en") ||
+      option.label.toLocaleLowerCase("en") === value.toLocaleLowerCase("en"),
+  );
+  if (exact) return exact.id;
+
+  const key = optionKey(value);
+  const equivalent = options.filter(
+    (option) => optionKey(option.id) === key || optionKey(option.label) === key,
+  );
+  if (equivalent.length === 1) return equivalent[0]!.id;
+  throw new Error(
+    `Unknown ${name} "${value}". Use one of: ${options.map((option) => option.id).join(", ")}.`,
+  );
+}
+
+export function resolveFacilityViewAvailableOptions(
+  command: ConfigureFacilityView,
+  options: FacilityViewAvailableOptions,
+): ConfigureFacilityView {
+  if (command.action !== "update_filters") return command;
+
+  const filters = { ...command.filters };
+  if (filters.roomId) {
+    filters.roomId = resolveOptionId(
+      "roomId",
+      filters.roomId,
+      options.rooms.map(({ id, name }) => ({ id, label: name })),
+    );
+  }
+  if (filters.metricId) {
+    filters.metricId = resolveOptionId(
+      "metricId",
+      filters.metricId,
+      options.metrics,
+    );
+  }
+  if (filters.shiftManager) {
+    const manager = options.shiftManagers.find(
+      (candidate) =>
+        candidate.toLocaleLowerCase("en") ===
+        filters.shiftManager?.toLocaleLowerCase("en"),
+    );
+    if (!manager) {
+      throw new Error(
+        `Unknown shiftManager "${filters.shiftManager}". Use one of: ${options.shiftManagers.join(", ")}.`,
+      );
+    }
+    filters.shiftManager = manager;
+  }
+  return { ...command, filters };
+}
 
 export const emptyFacilityViewFilters = (): FacilityViewFilters => ({
   from: null,

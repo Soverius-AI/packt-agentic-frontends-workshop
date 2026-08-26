@@ -16,6 +16,7 @@ import {
   configureFacilityViewSchema,
   metricConditionSchema,
   resolveFacilityViewDates,
+  resolveFacilityViewAvailableOptions,
 } from '@packt-workshop/contracts';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
@@ -109,7 +110,7 @@ export class App {
     registerFrontendTool({
       name: 'configure_facility_view',
       description:
-        'Control the visible facility view and reading-log filters. Use set_view only to select snapshot or reading-log. Use update_filters to patch filters, omitting every value that should remain unchanged; the literal "now" means the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
+        'Control the visible facility view and reading-log filters with exactly one action per call. Use set_view only to select snapshot or reading-log. Use update_filters to patch filters, omitting every value that should remain unchanged; use the condition field for normal, warning, critical, or unavailable, roomId and metricId must use exact IDs from availableFilters, and the literal "now" means the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
       parameters: configureFacilityViewSchema,
       agentId: 'default',
       followUp: true,
@@ -121,8 +122,30 @@ export class App {
   }
 
   async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
+    const validation = configureFacilityViewSchema.safeParse(command);
+    if (!validation.success) {
+      return {
+        ok: false,
+        state: this.facilityViewState(),
+        error: validation.error.issues[0]?.message ?? 'Invalid facility view command.',
+      };
+    }
+    let validatedCommand = validation.data;
+    try {
+      validatedCommand = resolveFacilityViewAvailableOptions(validatedCommand, {
+        rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
+        metrics: this.metricOptions(),
+        shiftManagers: this.shiftManagerOptions(),
+      });
+    } catch (error) {
+      return {
+        ok: false,
+        state: this.facilityViewState(),
+        error: error instanceof Error ? error.message : 'Invalid facility filter option.',
+      };
+    }
     const next = resolveFacilityViewDates(
-      applyFacilityViewCommand(this.facilityViewState(), command),
+      applyFacilityViewCommand(this.facilityViewState(), validatedCommand),
     );
     const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'list';
     const viewChanged = nextDisplayMode !== this.displayMode();

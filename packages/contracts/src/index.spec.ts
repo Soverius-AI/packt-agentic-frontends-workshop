@@ -8,6 +8,7 @@ import {
   metricUpdateEventSchema,
   raiseAlarmRequestSchema,
   resolveFacilityViewDates,
+  resolveFacilityViewAvailableOptions,
 } from "./index.js";
 
 describe("Stage 1 facility contracts", () => {
@@ -120,6 +121,91 @@ describe("Stage 1 facility contracts", () => {
       ...current,
       filters: { ...current.filters, from: "now" },
     });
+  });
+
+  it("advertises a root object schema and rejects combined action payloads", () => {
+    const jsonSchema = configureFacilityViewSchema[
+      "~standard"
+    ].jsonSchema.input({ target: "draft-07" }) as {
+      type?: string;
+      properties?: Record<string, unknown>;
+      required?: string[];
+    };
+
+    expect(jsonSchema.type).toBe("object");
+    expect(Object.keys(jsonSchema.properties ?? {})).toEqual([
+      "action",
+      "view",
+      "filters",
+    ]);
+    expect(jsonSchema.required).toContain("action");
+    expect(
+      configureFacilityViewSchema.safeParse({
+        update_filters: {
+          condition: "warning",
+          roomId: "Cooling room",
+        },
+        set_view: "reading-log",
+      }).success,
+    ).toBe(false);
+    expect(
+      configureFacilityViewSchema.safeParse({
+        action: "update_filters",
+        filters: { roomId: "room-cooling-01", severity: "warning" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("uses action as the authority and removes irrelevant provider-supplied fields", () => {
+    expect(
+      configureFacilityViewSchema.parse({
+        action: "set_view",
+        view: "reading-log",
+        filters: { roomId: null, condition: null },
+      }),
+    ).toEqual({ action: "set_view", view: "reading-log" });
+    expect(
+      configureFacilityViewSchema.parse({
+        action: "update_filters",
+        view: "reading-log",
+        filters: { condition: "warning" },
+      }),
+    ).toEqual({ action: "update_filters", filters: { condition: "warning" } });
+  });
+
+  it("resolves bounded option labels and aliases without accepting unknown IDs", () => {
+    const command = configureFacilityViewSchema.parse({
+      action: "update_filters",
+      filters: { roomId: "ROOM_COOLING" },
+    });
+    const options = {
+      rooms: [
+        { id: "cooling-room", name: "Cooling room" },
+        { id: "packaging-hall", name: "Packaging hall" },
+      ],
+      metrics: [
+        {
+          id: "cooling-air-temperature",
+          label: "Cooling room · Air temperature",
+        },
+      ],
+      shiftManagers: ["Denise Weber"],
+    };
+
+    expect(resolveFacilityViewAvailableOptions(command, options)).toEqual({
+      action: "update_filters",
+      filters: { roomId: "cooling-room" },
+    });
+
+    expect(() =>
+      resolveFacilityViewAvailableOptions(
+        {
+          action: "update_filters",
+          filters: { roomId: "room-cooling-01" },
+        },
+        options,
+      ),
+    ).toThrow(/Unknown roomId.*cooling-room/);
   });
 
   it("sets the view without changing any filters", () => {

@@ -64,8 +64,34 @@ const dashboard = {
   siteName: "Soverius Chocolate Bar",
   generatedAt: "2026-08-24T20:00:00.000Z",
   activeAlarmCount: 0,
-  shiftManagers: [],
-  rooms: [],
+  shiftManagers: ["Denise Weber"],
+  rooms: [
+    {
+      id: "cooling-room",
+      name: "Cooling room",
+      areaType: "Chocolate conditioning and storage",
+      description: "Chocolate rests before packaging.",
+      metrics: [
+        {
+          id: "cooling-air-temperature",
+          roomId: "cooling-room",
+          equipmentName: null,
+          name: "Air temperature",
+          kind: "numeric",
+          unit: "°C",
+          currentNumericValue: 21.4,
+          currentTextValue: null,
+          shiftManagerName: "Denise Weber",
+          condition: "warning",
+          trend: "Rising for 30 min",
+          target: "16–18 °C",
+          detail: "Persisted facility measurement.",
+          updatedAt: "2026-08-24T20:00:00.000Z",
+          activeAlarm: null,
+        },
+      ],
+    },
+  ],
 };
 
 describe("React CopilotKit host", () => {
@@ -120,6 +146,15 @@ describe("React CopilotKit host", () => {
   });
 
   it("patches the date without resetting the rest of the frontend state", async () => {
+    await act(async () => {
+      await vi.waitFor(() => {
+        const context = JSON.parse(
+          container.querySelector('[data-testid="view-context"]')
+            ?.textContent ?? "{}",
+        ) as { availableFilters?: { rooms?: unknown[] } };
+        expect(context.availableFilters?.rooms).toHaveLength(1);
+      });
+    });
     await act(async () => {
       container
         .querySelector<HTMLButtonElement>('[data-testid="set-view"]')

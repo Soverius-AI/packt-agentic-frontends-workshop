@@ -61,6 +61,13 @@ remains unchanged. For `clear_filters`, an omitted filter list clears all
 filters; a supplied list clears only those filters. Switching views always
 preserves the filters.
 
+The model-facing JSON Schema is one root object with `action`, `view`, and
+`filters` properties. The `action` value is authoritative: provider-filled
+irrelevant properties are discarded before applying the command. The browser
+validates every payload, resolves bounded room/metric labels or token-equivalent
+aliases to their canonical IDs, and returns a structured error for unknown
+options without changing the current state.
+
 The agent receives this bounded frontend context on every run:
 
 ```text

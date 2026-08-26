@@ -386,6 +386,33 @@ describe('App', () => {
     expect(compiled.querySelector('.reading-entries-table')).toBeTruthy();
   });
 
+  it('rejects malformed frontend tool payloads instead of reporting a false update', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const tool = TestBed.inject(CopilotKit).core.getTool({
+      toolName: 'configure_facility_view',
+      agentId: 'default',
+    });
+    const runTool = tool?.handler as ((args: unknown) => Promise<unknown>) | undefined;
+
+    await expect(
+      runTool!({
+        update_filters: { condition: 'warning', roomId: 'Cooling room' },
+        set_view: 'reading-log',
+      }),
+    ).resolves.toMatchObject({ ok: false });
+    await expect(
+      runTool!({ action: 'update_filters', filters: { roomId: 'room-cooling-01' } }),
+    ).resolves.toMatchObject({ ok: false, error: expect.stringMatching(/Unknown roomId/) });
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain(
+      'Snapshot',
+    );
+    expect(compiled.querySelector('.reading-entries-table')).toBeNull();
+  });
+
   it('presents the Step 5 frontend-tool milestone without historian access', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();

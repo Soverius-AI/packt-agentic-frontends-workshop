@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   applyFacilityViewCommand,
+  configureFacilityViewSchema,
   type ConfigureFacilityView,
   facilityDashboardSchema,
   facilityReadingPageSchema,
@@ -23,6 +24,7 @@ import {
   type MetricHistory,
   type MetricSummary,
   resolveFacilityViewDates,
+  resolveFacilityViewAvailableOptions,
 } from "@packt-workshop/contracts";
 import "./App.css";
 
@@ -118,6 +120,16 @@ export default function App() {
     }),
     [allRows, dashboard, facilityViewState],
   );
+  const facilityViewAvailableOptionsRef = useRef({
+    rooms: facilityViewContext.availableFilters.rooms,
+    metrics: facilityViewContext.availableFilters.metrics,
+    shiftManagers: facilityViewContext.availableFilters.shiftManagers,
+  });
+  facilityViewAvailableOptionsRef.current = {
+    rooms: facilityViewContext.availableFilters.rooms,
+    metrics: facilityViewContext.availableFilters.metrics,
+    shiftManagers: facilityViewContext.availableFilters.shiftManagers,
+  };
 
   async function loadReadingEntries(): Promise<void> {
     setReadingsLoading(true);
@@ -326,9 +338,35 @@ export default function App() {
 
   const configureFacilityView = useCallback(
     async (command: ConfigureFacilityView): Promise<unknown> => {
+      const validation = configureFacilityViewSchema.safeParse(command);
+      if (!validation.success) {
+        return {
+          ok: false,
+          state: facilityViewStateRef.current,
+          error:
+            validation.error.issues[0]?.message ??
+            "Invalid facility view command.",
+        };
+      }
+      let validatedCommand = validation.data;
+      try {
+        validatedCommand = resolveFacilityViewAvailableOptions(
+          validatedCommand,
+          facilityViewAvailableOptionsRef.current,
+        );
+      } catch (error) {
+        return {
+          ok: false,
+          state: facilityViewStateRef.current,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Invalid facility filter option.",
+        };
+      }
       const current = facilityViewStateRef.current;
       const next = resolveFacilityViewDates(
-        applyFacilityViewCommand(current, command),
+        applyFacilityViewCommand(current, validatedCommand),
       );
       facilityViewStateRef.current = next;
 
