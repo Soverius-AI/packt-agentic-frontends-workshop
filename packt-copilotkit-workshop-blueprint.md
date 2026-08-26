@@ -159,7 +159,7 @@ reject unrelated general-chat use, control cost, and protect the application's
 purpose. Discuss system instructions, rate limits, token budgets, quotas,
 monitoring, logging, and deliberate conversation-retention boundaries.
 
-## 6. Part 3 --- Introduce AG-UI before tool calling
+## 6. Part 3 --- CopilotKit and AG-UI before tool calling
 
 Keep the assistant chat-only, but use the desire for streaming and explicit run
 lifecycle as pressure on the hand-written `/api/chat` integration. Even this
@@ -170,30 +170,31 @@ Ask:
 
 > **Why are we designing our own frontend-to-agent protocol?**
 
-Present AG-UI as the standard communication layer between agentic
-backends and user-facing applications. Streaming is the initial hook,
-not the entire story. Replace the custom chat response with an AG-UI run and
-standard lifecycle/text events, while deliberately keeping the assistant free
-of tools.
+Present CopilotKit as the application integration and chat layer, and AG-UI as
+the standard communication protocol between that UI and agentic backends.
+Replace the custom chat component and endpoint with CopilotKit's Angular/React
+chat, Copilot Runtime, and a tool-free BuiltInAgent. Configure the same Gemma
+model through OpenRouter using the AI SDK provider. Streaming is the initial
+hook, not the entire story.
 
 First argument:
 
 > **Plumbing:** stop implementing infrastructure conventions ourselves.
 
 ```text
-Before: Angular/React → Custom Protocol → Node + LLM SDK
-After:  Angular/React → AG-UI → Agent Backend
+Before: Angular/React → Custom chat/API → OpenAI SDK → OpenRouter
+After:  CopilotKit chat → Copilot Runtime/AG-UI → BuiltInAgent → OpenRouter
 ```
 
 Checkpoint success is behavioural parity: the same basic conversation now
-streams through AG-UI. No historian query works yet. This sequencing ensures
-that the workshop never implements a native OpenAI-SDK tool-call loop.
+streams through AG-UI and its lifecycle is visible, but no historian query
+works yet. This sequencing ensures that the workshop never implements a native
+OpenAI-SDK tool-call loop.
 
-## 7. Part 4 --- Mastra and CopilotKit
+## 7. Part 4 --- Replace BuiltInAgent with Mastra
 
-Start with embedded Node + LLM SDK, then migrate the agent
-implementation to **Mastra** (while mentioning alternatives such as ADK
-or LangGraph).
+Replace CopilotKit's embedded BuiltInAgent with a **Mastra** agent while
+mentioning alternatives such as ADK or LangGraph.
 
 The frontend contract should remain conceptually stable.
 
@@ -202,12 +203,10 @@ Second argument:
 > **Decoupling:** the frontend is not tightly coupled to one agent
 > framework.
 
-The two explicit AG-UI/CopilotKit arguments are therefore **plumbing**
-and **decoupling**.
-
-Connect the Angular/React chat through CopilotKit. At this checkpoint the
-standardized frontend/backend path is ready for tools, but the assistant can
-still only exchange messages.
+The frontend remains on CopilotKit and the AG-UI contract remains stable. This
+makes the decoupling argument concrete: changing the agent framework does not
+require another chat rewrite. At this checkpoint the standardized path is
+ready for tools, but the assistant can still only exchange messages.
 
 ## 8. Part 5 --- Generated SQL through the standardized stack
 
@@ -500,8 +499,8 @@ They are complementary, not competing.
 | ------------------------------------------------ | ------: |
 | Part 1 app walkthrough                           |  15 min |
 | Part 2: basic OpenAI-SDK chat through OpenRouter |  15 min |
-| Part 3: migrate the same chat to AG-UI           |  20 min |
-| Part 4: Mastra + CopilotKit                      |  20 min |
+| Part 3: CopilotKit chat + AG-UI + BuiltInAgent   |  20 min |
+| Part 4: replace BuiltInAgent with Mastra         |  20 min |
 | Part 5: generated SQL tool                       |  20 min |
 | Human-in-the-loop + guardrails                   |  10 min |
 | Break/buffer                                     |  10 min |
@@ -521,20 +520,20 @@ Use explicit checkpoints/branches rather than continuously mutating one demo.
 branch map, and handoff documentation. Numbered branches are cumulative,
 independently runnable webinar milestones and are never merged. Create each
 new numbered branch directly from the previous milestone (`02-basic-chat`
-from `01-base-app`, then `03-ag-ui-chat` from `02-basic-chat`, and so on).
+from `01-base-app`, then `03-copilotkit-ag-ui` from `02-basic-chat`, and so on).
 
-| Checkpoint             | Workshop responsibility                                                 | Status                                 |
-| ---------------------- | ----------------------------------------------------------------------- | -------------------------------------- |
-| `01-base-app`          | Complete conventional incident-management application                   | **Completed; workshop starting point** |
-| `02-basic-chat`        | Basic conversation through the OpenAI SDK and OpenRouter; no tools      | Planned                                |
-| `03-ag-ui-chat`        | Migrate the same tool-free chat to AG-UI streaming and lifecycle events | Planned                                |
-| `04-mastra-copilotkit` | Decoupled Mastra backend and CopilotKit chat; still no tools            | Planned                                |
-| `05-sql-tool`          | One generated-SQL historian tool through the standardized stack         | Planned                                |
-| `06-human-in-loop`     | Approval-gated alarm actions and correlated audit                       | Planned                                |
-| `07-a2ui`              | Trusted, agent-composed decision surface                                | Planned                                |
-| `08-a2a`               | Delegate the incident to the facilities/compliance specialist           | Planned                                |
-| `09-mcp-app`           | Specialist resources, read-only tool, and portable evidence UI          | Planned                                |
-| `final`                | Rehearsed Angular/React golden path and resilience checks               | Planned                                |
+| Checkpoint            | Workshop responsibility                                             | Status                                 |
+| --------------------- | ------------------------------------------------------------------- | -------------------------------------- |
+| `01-base-app`         | Complete conventional incident-management application               | **Completed; workshop starting point** |
+| `02-basic-chat`       | Basic conversation through the OpenAI SDK and OpenRouter; no tools  | **Completed**                          |
+| `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | Planned                                |
+| `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | Planned                                |
+| `05-sql-tool`         | One generated-SQL historian tool through the standardized stack     | Planned                                |
+| `06-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
+| `07-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |
+| `08-a2a`              | Delegate the incident to the facilities/compliance specialist       | Planned                                |
+| `09-mcp-app`          | Specialist resources, read-only tool, and portable evidence UI      | Planned                                |
+| `final`               | Rehearsed Angular/React golden path and resilience checks           | Planned                                |
 
 Each checkpoint should be runnable independently and include a short
 README explaining what changed, why it changed, and what limitation
