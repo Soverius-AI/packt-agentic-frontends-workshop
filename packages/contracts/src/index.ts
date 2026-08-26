@@ -149,9 +149,12 @@ const facilityViewFilterPatchSchema = facilityViewFiltersSchema.partial();
 
 export const configureFacilityViewSchema = z.discriminatedUnion("action", [
   z.object({
-    action: z.literal("update"),
-    view: facilityViewModeSchema.optional(),
-    filters: facilityViewFilterPatchSchema.optional(),
+    action: z.literal("set_view"),
+    view: facilityViewModeSchema,
+  }),
+  z.object({
+    action: z.literal("update_filters"),
+    filters: facilityViewFilterPatchSchema,
   }),
   z.object({
     action: z.literal("clear_filters"),
@@ -173,25 +176,29 @@ export function applyFacilityViewCommand(
   current: FacilityViewState,
   command: ConfigureFacilityView,
 ): FacilityViewState {
-  if (command.action === "update") {
+  if (command.action === "set_view") {
+    return { ...current, view: command.view };
+  }
+
+  if (command.action === "update_filters") {
     const patch = command.filters;
     return {
-      view: command.view ?? current.view,
+      view: current.view,
       filters: {
-        from: patch?.from !== undefined ? patch.from : current.filters.from,
-        to: patch?.to !== undefined ? patch.to : current.filters.to,
+        from: patch.from !== undefined ? patch.from : current.filters.from,
+        to: patch.to !== undefined ? patch.to : current.filters.to,
         shiftManager:
-          patch?.shiftManager !== undefined
+          patch.shiftManager !== undefined
             ? patch.shiftManager
             : current.filters.shiftManager,
         roomId:
-          patch?.roomId !== undefined ? patch.roomId : current.filters.roomId,
+          patch.roomId !== undefined ? patch.roomId : current.filters.roomId,
         metricId:
-          patch?.metricId !== undefined
+          patch.metricId !== undefined
             ? patch.metricId
             : current.filters.metricId,
         condition:
-          patch?.condition !== undefined
+          patch.condition !== undefined
             ? patch.condition
             : current.filters.condition,
       },

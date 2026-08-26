@@ -232,7 +232,9 @@ Add the first application capability without giving the agent backend data
 access. Angular and React each expose the same CopilotKit frontend tool:
 
 ```text
-configure_facility_view({ action, view?, filters? })
+configure_facility_view({ action: "set_view", view })
+configure_facility_view({ action: "update_filters", filters })
+configure_facility_view({ action: "clear_filters", filters? })
 ```
 
 The frontend also supplies bounded context containing the current view, active
@@ -240,10 +242,11 @@ filters, and the available room, metric, shift-manager, and condition options.
 It does not supply readings, historian results, alarm details, or unrestricted
 application state.
 
-The tool can switch between snapshot and reading-log views, patch any subset
-of the existing filters, and clear selected or all filters. Its central rule is
-patch semantics: omitted values remain unchanged. The browser resolves the
-literal `now` at execution time.
+`set_view` switches between snapshot and reading-log without touching filters.
+`update_filters` patches any subset of the existing filters, and
+`clear_filters` clears selected or all filters. The central rule is patch
+semantics: omitted values remain unchanged. The browser resolves the literal
+`now` at execution time.
 
 ```text
 Current view/filter state → AG-UI context → Agent

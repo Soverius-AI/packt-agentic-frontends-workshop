@@ -112,7 +112,7 @@ describe("Stage 1 facility contracts", () => {
       },
     };
     const command = configureFacilityViewSchema.parse({
-      action: "update",
+      action: "update_filters",
       filters: { from: "now" },
     });
 
@@ -120,6 +120,27 @@ describe("Stage 1 facility contracts", () => {
       ...current,
       filters: { ...current.filters, from: "now" },
     });
+  });
+
+  it("sets the view without changing any filters", () => {
+    const current: FacilityViewState = {
+      view: "snapshot",
+      filters: {
+        from: "2026-08-25T08:00",
+        to: null,
+        shiftManager: "Charles Bond",
+        roomId: "cooling-room",
+        metricId: null,
+        condition: "warning",
+      },
+    };
+
+    expect(
+      applyFacilityViewCommand(current, {
+        action: "set_view",
+        view: "reading-log",
+      }),
+    ).toEqual({ ...current, view: "reading-log" });
   });
 
   it("clears selected filters or all filters without changing the view", () => {

@@ -101,6 +101,8 @@ export default function App() {
       updatedTo,
     ],
   );
+  const facilityViewStateRef = useRef(facilityViewState);
+  facilityViewStateRef.current = facilityViewState;
   const facilityViewContext = useMemo(
     () => ({
       ...facilityViewState,
@@ -324,9 +326,11 @@ export default function App() {
 
   const configureFacilityView = useCallback(
     async (command: ConfigureFacilityView): Promise<unknown> => {
+      const current = facilityViewStateRef.current;
       const next = resolveFacilityViewDates(
-        applyFacilityViewCommand(facilityViewState, command),
+        applyFacilityViewCommand(current, command),
       );
+      facilityViewStateRef.current = next;
 
       setUpdatedFrom(next.filters.from ?? "");
       setUpdatedTo(next.filters.to ?? "");
@@ -335,7 +339,12 @@ export default function App() {
       setMetricFilter(next.filters.metricId ?? "");
       setConditionFilter(next.filters.condition ?? "");
       setReadingPageIndex(0);
-      changeDisplayMode(next.view === "snapshot" ? "snapshot" : "list");
+      if (next.view !== current.view) {
+        setDisplayMode(next.view === "snapshot" ? "snapshot" : "list");
+        setHistory(undefined);
+        if (next.view === "snapshot") startContinuousUpdates();
+        else stopContinuousUpdates();
+      }
       setStatus("The assistant updated the facility view.");
 
       return {
@@ -344,7 +353,7 @@ export default function App() {
         message: "Facility view updated. Unspecified values were preserved.",
       };
     },
-    [facilityViewState],
+    [],
   );
 
   const readingPageCount = Math.max(

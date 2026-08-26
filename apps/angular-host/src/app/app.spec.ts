@@ -363,11 +363,14 @@ describe('App', () => {
 
     expect(runTool).toBeTruthy();
     await runTool!({
-      action: 'update',
+      action: 'set_view',
       view: 'reading-log',
+    });
+    await runTool!({
+      action: 'update_filters',
       filters: { roomId: 'cooling-room', condition: 'warning', from: '2026-08-25T08:00' },
     });
-    await runTool!({ action: 'update', filters: { from: 'now' } });
+    await runTool!({ action: 'update_filters', filters: { from: 'now' } });
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;

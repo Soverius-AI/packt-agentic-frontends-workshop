@@ -30,13 +30,17 @@ from this checkpoint.
 
 ## Frontend contract
 
-The single frontend tool accepts two actions:
+The single frontend tool accepts three explicit actions:
 
 ```text
 configure_facility_view({
-  action: "update",
-  view?: "snapshot" | "reading-log",
-  filters?: {
+  action: "set_view",
+  view: "snapshot" | "reading-log"
+})
+
+configure_facility_view({
+  action: "update_filters",
+  filters: {
     from?: datetime | "now" | null,
     to?: datetime | "now" | null,
     shiftManager?: string | null,
@@ -52,9 +56,10 @@ configure_facility_view({
 })
 ```
 
-For `update`, every omitted field remains unchanged. For `clear_filters`, an
-omitted filter list clears all filters; a supplied list clears only those
-filters. Switching views also preserves the filters.
+`set_view` changes only the view. For `update_filters`, every omitted filter
+remains unchanged. For `clear_filters`, an omitted filter list clears all
+filters; a supplied list clears only those filters. Switching views always
+preserves the filters.
 
 The agent receives this bounded frontend context on every run:
 

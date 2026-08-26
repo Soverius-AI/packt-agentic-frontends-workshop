@@ -109,7 +109,7 @@ export class App {
     registerFrontendTool({
       name: 'configure_facility_view',
       description:
-        'Update the visible facility view and reading-log filters. Updates are patches: omit every value that should remain unchanged. Use the literal "now" for the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
+        'Control the visible facility view and reading-log filters. Use set_view only to select snapshot or reading-log. Use update_filters to patch filters, omitting every value that should remain unchanged; the literal "now" means the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
       parameters: configureFacilityViewSchema,
       agentId: 'default',
       followUp: true,

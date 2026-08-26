@@ -17,11 +17,18 @@ vi.mock("./CopilotChatPanel", () => ({
       CopilotKit chat
       <pre data-testid="view-context">{JSON.stringify(viewContext)}</pre>
       <button
+        data-testid="set-view"
+        onClick={() =>
+          void onConfigureView({ action: "set_view", view: "reading-log" })
+        }
+      >
+        Set view
+      </button>
+      <button
         data-testid="configure-view"
         onClick={() =>
           void onConfigureView({
-            action: "update",
-            view: "reading-log",
+            action: "update_filters",
             filters: {
               from: "2026-08-25T08:00",
               roomId: "cooling-room",
@@ -35,7 +42,10 @@ vi.mock("./CopilotChatPanel", () => ({
       <button
         data-testid="change-date"
         onClick={() =>
-          void onConfigureView({ action: "update", filters: { from: "now" } })
+          void onConfigureView({
+            action: "update_filters",
+            filters: { from: "now" },
+          })
         }
       >
         Change date
@@ -111,6 +121,9 @@ describe("React CopilotKit host", () => {
 
   it("patches the date without resetting the rest of the frontend state", async () => {
     await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="set-view"]')
+        ?.click();
       container
         .querySelector<HTMLButtonElement>('[data-testid="configure-view"]')
         ?.click();
