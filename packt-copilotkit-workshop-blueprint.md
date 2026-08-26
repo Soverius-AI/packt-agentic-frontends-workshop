@@ -195,17 +195,26 @@ Start with embedded Node + LLM SDK, then migrate the agent
 implementation to **Mastra** (while mentioning alternatives such as ADK
 or LangGraph).
 
-The frontend contract should remain conceptually stable.
+Run that agent in a separate local Mastra service. Keep both frontends pointed
+at the existing CopilotKit endpoint in the facility service, which bridges the
+request to Mastra over AG-UI. The frontend contract remains stable while the
+agent framework moves behind a service boundary:
+
+```text
+Angular/React → facility service/Copilot Runtime → Mastra service → OpenRouter
+                                                    │
+                                                    └→ Studio observability
+```
 
 Second argument:
 
 > **Decoupling:** the frontend is not tightly coupled to one agent
 > framework.
 
-The two explicit AG-UI/CopilotKit arguments are therefore **plumbing**
-and **decoupling**.
-
-Connect the Angular/React chat through CopilotKit. At this checkpoint the
+The two explicit AG-UI/CopilotKit arguments are therefore **plumbing** and
+**decoupling**. Open Mastra Studio's **Observability → Traces** view and inspect
+the same run initiated from Angular or React. This makes the new backend
+boundary and its operational benefit visible. At this checkpoint the
 standardized frontend/backend path is ready for tools, but the assistant can
 still only exchange messages.
 
