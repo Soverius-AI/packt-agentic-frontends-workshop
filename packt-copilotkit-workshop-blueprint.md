@@ -202,7 +202,16 @@ OpenAI-SDK tool-call loop.
 Replace CopilotKit's embedded BuiltInAgent with a **Mastra** agent while
 mentioning alternatives such as ADK or LangGraph.
 
-The frontend contract should remain conceptually stable.
+Run that agent in a separate local Mastra service. Keep both frontends pointed
+at the existing CopilotKit endpoint in the facility service, which bridges the
+request to Mastra over AG-UI. The frontend contract remains stable while the
+agent framework moves behind a service boundary:
+
+```text
+Angular/React → facility service/Copilot Runtime → Mastra service → OpenRouter
+                                                    │
+                                                    └→ Studio observability
+```
 
 Second argument:
 
@@ -211,8 +220,11 @@ Second argument:
 
 The frontend remains on CopilotKit and the AG-UI contract remains stable. This
 makes the decoupling argument concrete: changing the agent framework does not
-require another chat rewrite. At this checkpoint the standardized path is
-ready for tools, but the assistant can still only exchange messages.
+require another chat rewrite. Open Mastra Studio's **Observability → Traces**
+view and inspect the same run initiated from Angular or React. This makes the
+new backend boundary and its operational benefit visible. At this checkpoint
+the standardized path is ready for tools, but the assistant can still only
+exchange messages.
 
 ## 8. Part 5 --- Generated SQL through the standardized stack
 

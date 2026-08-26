@@ -38,6 +38,26 @@ The conventional SQLite application remains intact. This checkpoint does
 **not** contain tools, SQL generation, facility-state injection, persistent
 chat memory, human approval, A2UI, A2A, MCP, or an MCP App.
 
+## Workspace layout
+
+The workshop product is split into browser and server applications because
+they run in different environments:
+
+| Folder                  | Role                                                          |
+| ----------------------- | ------------------------------------------------------------- |
+| `apps/angular-host`     | Angular browser frontend                                      |
+| `apps/react-host`       | Alternative React browser frontend                            |
+| `apps/facility-service` | Facility API, SQLite, telemetry, alarms, and Copilot endpoint |
+| `apps/agent-service`    | Mastra agent service, Studio, and observability               |
+| `packages/contracts`    | Shared schemas and TypeScript contracts; not a runnable app   |
+
+Angular and React are alternative views of the same product. Both call the
+facility service, which forwards agent runs to the Mastra service:
+
+```text
+Angular or React -> facility service (:3001) -> Mastra service (:4111)
+```
+
 ## Run it
 
 Requirements: Node 24 LTS or newer and pnpm 11.
