@@ -2,7 +2,7 @@
   "name": "packt-agentic-frontends-workshop",
   "version": "0.1.0",
   "private": true,
-  "description": "Checkpoint 02: basic application-aware chat for the Packt Agentic Frontends workshop.",
+  "description": "Checkpoint 03: CopilotKit and AG-UI streaming for the Packt Agentic Frontends workshop.",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {

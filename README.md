@@ -1,14 +1,13 @@
-# Part 2 / Checkpoint 02 — Basic application-aware chat
+# Part 3 / Checkpoint 03 — CopilotKit and AG-UI streaming
 
 This branch extends the completed conventional application with the first AI
 capability in the three-hour **Hands-On Agentic Frontends with AG-UI and
 CopilotKit** workshop.
 
-It adds an ordinary multi-turn conversation through Gemma 4 on OpenRouter. A
-minimal system prompt tells the model which application it is embedded in, but
-the model receives no facility state and has no application capabilities. The
-goal is to make the difference between application context and application
-access visible before introducing AG-UI.
+It replaces the Checkpoint 02 custom chat transport with CopilotKit's prebuilt
+chat, Copilot Runtime, a tool-free BuiltInAgent, and AG-UI streaming. A minimal
+system prompt still tells Gemma 4 which application it is embedded in, but the
+model receives no facility state and has no application capabilities.
 
 ## Scenario
 
@@ -18,21 +17,23 @@ A person on night duty can inspect seven days of stored telemetry, use the conti
 
 The assistant can understand what a user means by the Cooling room, but it
 cannot answer when that room entered warning because it cannot inspect the
-historian. That missing capability motivates Checkpoint 03.
+historian. The standardized agent path is now ready for Mastra in Checkpoint 04.
 
 ## What this checkpoint adds
 
-- equivalent accessible chat panels in Angular 22 and React 19;
-- one non-streaming `POST /api/chat` endpoint in the existing Node service;
-- the official OpenAI SDK pointed at OpenRouter;
+- CopilotKit's prebuilt inline chat in Angular 22 and React 19;
+- Copilot Runtime mounted at `/api/copilotkit` in the existing Node service;
+- one tool-free BuiltInAgent named `default`;
+- AG-UI run lifecycle, text streaming, cancellation, and terminal errors;
+- `@ai-sdk/openai` pointed at OpenRouter;
 - `google/gemma-4-31b-it` as the configurable default model;
-- browser-owned short-term conversation history; and
-- shared validation plus backend and frontend tests.
+- lazy chat feature boundaries so the conventional application shell remains
+  lightweight; and
+- agent discovery plus backend and frontend tests.
 
 The conventional SQLite application remains intact. This checkpoint does
-**not** contain tools, SQL generation, facility-state injection, streaming,
-persistent chat memory, human approval, CopilotKit, AG-UI, Mastra, A2UI, A2A,
-MCP, or an MCP App.
+**not** contain tools, SQL generation, facility-state injection, persistent
+chat memory, human approval, Mastra, A2UI, A2A, MCP, or an MCP App.
 
 ## Run it
 
@@ -59,6 +60,10 @@ Default URLs:
 
 The live stream is available at `GET /api/metric-updates`. The UI only subscribes while **Continuous updates** is enabled; the backend continues recording simulated device readings in SQLite.
 
+CopilotKit agent discovery is available at `GET /api/copilotkit/info`. In the
+React host, the CopilotKit Inspector appears automatically on localhost; in
+either host, the browser network panel exposes AG-UI lifecycle and text events.
+
 Build and test the checkpoint with:
 
 ```bash
@@ -67,10 +72,9 @@ pnpm check
 
 ## Teaching point
 
-> A model can understand the application's domain and maintain a conversation
-> without being connected to the application's current data or actions.
+> AG-UI standardizes a streaming agent interaction without giving the agent
+> application data or tools.
 
-Checkpoint 03 replaces this custom chat with CopilotKit's chat component,
-Copilot Runtime, a tool-free BuiltInAgent, and AG-UI streaming. Checkpoint 04
-then replaces BuiltInAgent with Mastra without changing the chat capability.
+Checkpoint 04 replaces BuiltInAgent with Mastra without rewriting either
+CopilotKit frontend or changing the chat-only capability boundary.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

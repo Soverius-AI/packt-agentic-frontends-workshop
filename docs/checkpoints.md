@@ -26,13 +26,14 @@ main                 canonical knowledge and overall project
 This preserves the exact state needed to walk forward through the webinar
 without changing an earlier milestone.
 
-This `02-basic-chat` branch extends the completed `01-base-app` starting point.
-It contains the complete conventional
+This `03-copilotkit-ag-ui` branch extends the completed `02-basic-chat`
+checkpoint. It contains the complete conventional
 chocolate-factory application: API, seven-day SQLite history, asynchronous
 device updates, Angular and React hosts, filters, server-side pagination, and
-persistent alarms. It adds an application-aware but data-blind multi-turn chat
-through Gemma 4 on OpenRouter. The later rows describe the planned progression;
-they do not yet have checkpoint branches.
+persistent alarms. It replaces the custom blocking chat transport with
+CopilotKit, a tool-free BuiltInAgent, and AG-UI streaming while preserving the
+same data-blind capability boundary. Checkpoint 04 and later rows remain
+planned progression and do not yet have checkpoint branches.
 
 | Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -47,8 +48,9 @@ they do not yet have checkpoint branches.
 | `09-mcp-app`          | MCP corpus, `get_case_analysis`, portable app                              | production concerns need deeper treatment                     |
 | `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
-The implementation contract for the next checkpoint is in
-[Step 3 implementation brief](./step-03-copilotkit-ag-ui.md).
+The completed checkpoint contract is in
+[Step 3 implementation brief](./step-03-copilotkit-ag-ui.md). Create
+`04-mastra-agent` directly from this branch for the next milestone.
 
 ## Readiness check per checkpoint
 

@@ -238,85 +238,20 @@ p {
   color: #655d56;
   font-size: 0.82rem;
 }
-.conversation {
-  display: grid;
+.copilot-chat-shell {
+  display: block;
   flex: 1;
-  align-content: start;
-  gap: 10px;
   min-height: 0;
-  padding: 14px;
-  margin: 0 0 14px;
-  overflow-y: auto;
   border: 1px solid #ded6cd;
   border-radius: 12px;
   background: #faf8f4;
-  list-style: none;
+  overflow: hidden;
 }
-.chat-message {
-  max-width: 92%;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #ece3d8;
-}
-.chat-message-user {
-  justify-self: end;
-  background: #684529;
-  color: #fff;
-}
-.chat-message strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.68rem;
-}
-.chat-message p {
+.chat-loading {
+  padding: 20px;
   margin: 0;
-  white-space: pre-wrap;
-}
-.chat-empty,
-.chat-pending {
   color: #655d56;
-  font-size: 0.8rem;
-}
-.chat-error {
-  padding: 9px 10px;
-  border-left: 4px solid #b53b2d;
-  background: #fff2ef;
-  color: #71291f;
-  font-size: 0.8rem;
-}
-.chat-form {
-  grid-area: form;
-  display: grid;
-  gap: 8px;
-}
-.chat-form label {
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-.chat-form textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 10px;
-  border: 1px solid #b9aa9c;
-  border-radius: 9px;
-  color: #211c18;
-  background: #fff;
-  font: inherit;
-  line-height: 1.45;
-}
-.chat-form textarea:focus-visible {
-  outline: 3px solid #d38a2e;
-  outline-offset: 2px;
-}
-.chat-form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.chat-form-actions small {
-  color: #6d655e;
-  font-size: 0.68rem;
+  font-size: 0.82rem;
 }
 .room-heading,
 .message,

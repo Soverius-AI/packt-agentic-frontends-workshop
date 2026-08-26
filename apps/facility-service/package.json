@@ -9,8 +9,9 @@
     "test": "vitest --run src"
   },
   "dependencies": {
-    "@packt-workshop/contracts": "workspace:*",
-    "openai": "^7.5.0"
+    "@ai-sdk/openai": "^3.0.101",
+    "@copilotkit/runtime": "^1.69.2",
+    "@packt-workshop/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

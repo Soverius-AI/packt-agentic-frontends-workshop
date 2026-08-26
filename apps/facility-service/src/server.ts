@@ -5,11 +5,10 @@ import {
 } from "node:http";
 import {
   alarmActionRequestSchema,
-  chatRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
-import { ChatServiceError, type ChatService } from "./chat.js";
+import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
 import type { LiveTelemetry } from "./live-telemetry.js";
 import {
   FacilityRepository,
@@ -53,12 +52,17 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
 export const createFacilityServer = (
   repository: FacilityRepository,
   telemetry: LiveTelemetry,
-  chat: ChatService,
+  copilotRuntime: NodeCopilotListener,
 ) =>
   createServer(async (request, response) => {
     try {
       const method = request.method ?? "GET";
       const url = new URL(request.url ?? "/", "http://localhost");
+
+      if (url.pathname.startsWith("/api/copilotkit")) {
+        await copilotRuntime(request, response);
+        return;
+      }
 
       if (method === "GET" && url.pathname === "/api/health") {
         sendJson(response, 200, { status: "ok", database: "sqlite" });
@@ -95,12 +99,6 @@ export const createFacilityServer = (
           condition ? metricConditionSchema.parse(condition) : undefined,
         );
         sendJson(response, 200, repository.getReadingEntries(filters));
-        return;
-      }
-
-      if (method === "POST" && url.pathname === "/api/chat") {
-        const body = chatRequestSchema.parse(await readBody(request));
-        sendJson(response, 200, await chat.reply(body.messages));
         return;
       }
 
@@ -168,10 +166,6 @@ export const createFacilityServer = (
       sendJson(response, 404, { error: "Not found" });
     } catch (error) {
       if (error instanceof FacilityRepositoryError) {
-        sendJson(response, error.statusCode, { error: error.message });
-        return;
-      }
-      if (error instanceof ChatServiceError) {
         sendJson(response, error.statusCode, { error: error.message });
         return;
       }

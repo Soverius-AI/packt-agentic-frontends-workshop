@@ -1,57 +1,26 @@
 <aside aria-labelledby="chat-title">
   <div class="chat-heading">
     <div>
-      <p class="eyebrow">Gemma 4 via OpenRouter</p>
+      <p class="eyebrow">CopilotKit · AG-UI streaming</p>
       <h2 id="chat-title">Factory assistant</h2>
     </div>
-    <span>Chat only</span>
+    <span>Tool-free</span>
   </div>
   <p class="chat-boundary">
-    The assistant understands this application’s domain, but it cannot see its current data or
-    perform actions.
+    The assistant understands this application’s domain, but it cannot see its current data, inspect
+    the historian, or perform actions.
   </p>
 
-  <ol
-    #conversation
-    class="conversation"
-    role="log"
-    aria-live="polite"
-    aria-label="Chat conversation"
-  >
-    @for (message of messages(); track $index) {
-      <li class="chat-message chat-message-{{ message.role }}">
-        <strong>{{ message.role === 'user' ? 'You' : 'Assistant' }}</strong>
-        <p>{{ message.content }}</p>
-      </li>
-    } @empty {
-      <li class="chat-empty">Ask a general question about incident management.</li>
+  <div class="copilot-chat-shell">
+    @if (chatComponent() && chatInjector()) {
+      <ng-container
+        [ngComponentOutlet]="chatComponent()!"
+        [ngComponentOutletEnvironmentInjector]="chatInjector()"
+      />
+    } @else if (loadError()) {
+      <p class="chat-error" role="alert">The streaming chat could not be loaded.</p>
+    } @else {
+      <p class="chat-loading" role="status">Loading the streaming chat…</p>
     }
-    @if (pending()) {
-      <li class="chat-message chat-message-assistant chat-pending" role="status">
-        <strong>Assistant</strong>
-        <p>Thinking…</p>
-      </li>
-    }
-  </ol>
-
-  @if (error()) {
-    <p class="chat-error" role="alert">{{ error() }}</p>
-  }
-
-  <form class="chat-form" (submit)="send(); $event.preventDefault()">
-    <label for="chat-message">Message</label>
-    <textarea
-      id="chat-message"
-      rows="4"
-      [formField]="chatForm.content"
-      (keydown)="handleKeydown($event)"
-      aria-describedby="chat-help"
-    ></textarea>
-    <div class="chat-form-actions">
-      <small id="chat-help">Enter adds a line · Ctrl/⌘ + Enter sends</small>
-      <button type="submit" [disabled]="pending() || chatForm().invalid()">
-        {{ pending() ? 'Sending…' : 'Send' }}
-      </button>
-    </div>
-  </form>
+  </div>
 </aside>

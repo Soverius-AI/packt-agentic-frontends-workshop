@@ -9,6 +9,16 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
 
+minimumReleaseAgeExclude:
+  - "@copilotkit/runtime@1.69.2"
+  - "@copilotkit/shared@1.69.2"
+  - "@copilotkit/a2ui-renderer@1.69.2"
+  - "@copilotkit/core@1.69.2"
+  - "@copilotkit/react-core@1.69.2"
+  - "@copilotkit/runtime-client-gql@1.69.2"
+  - "@copilotkit/web-components@1.69.2"
+  - "@copilotkit/web-inspector@1.69.2"
+
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - esbuild

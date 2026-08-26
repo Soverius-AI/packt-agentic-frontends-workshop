@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
-  chatResponseSchema,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
   metricHistorySchema,
   metricUpdateEventSchema,
-  type ChatMessage,
   type FacilityDashboard,
   type FacilityReadingEntry,
   type FacilityReadingPage,
@@ -14,6 +12,8 @@ import {
   type MetricSummary,
 } from "@packt-workshop/contracts";
 import "./App.css";
+
+const CopilotChatPanel = lazy(() => import("./CopilotChatPanel"));
 
 async function jsonRequest(url: string, init?: RequestInit): Promise<unknown> {
   const response = await fetch(url, {
@@ -54,11 +54,6 @@ export default function App() {
   const [roomFilter, setRoomFilter] = useState("");
   const [metricFilter, setMetricFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
-  const [chatMessages, setChatMessages] = useState<readonly ChatMessage[]>([]);
-  const [chatDraft, setChatDraft] = useState("");
-  const [chatPending, setChatPending] = useState(false);
-  const [chatError, setChatError] = useState<string>();
-  const conversationRef = useRef<HTMLOListElement>(null);
   const updateSource = useRef<EventSource | undefined>(undefined);
   const allRows = useMemo(
     () =>
@@ -118,11 +113,6 @@ export default function App() {
     startContinuousUpdates();
     return () => updateSource.current?.close();
   }, []);
-
-  useEffect(() => {
-    const conversation = conversationRef.current;
-    if (conversation) conversation.scrollTop = conversation.scrollHeight;
-  }, [chatMessages, chatPending]);
 
   useEffect(() => {
     if (displayMode === "list") void loadReadingEntries();
@@ -278,39 +268,6 @@ export default function App() {
     setReadingPageIndex(0);
   }
 
-  async function sendChat(
-    event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    event.preventDefault();
-    const content = chatDraft.trim();
-    if (!content || chatPending) return;
-    const previousMessages = chatMessages;
-    const messages: readonly ChatMessage[] = [
-      ...previousMessages,
-      { role: "user", content },
-    ];
-    setChatMessages(messages);
-    setChatPending(true);
-    setChatError(undefined);
-    try {
-      const response = chatResponseSchema.parse(
-        await jsonRequest("/api/chat", {
-          method: "POST",
-          body: JSON.stringify({ messages }),
-        }),
-      );
-      setChatMessages([...messages, response.message]);
-      setChatDraft("");
-    } catch (error) {
-      setChatMessages(previousMessages);
-      setChatError(
-        error instanceof Error ? error.message : "Chat request failed.",
-      );
-    } finally {
-      setChatPending(false);
-    }
-  }
-
   const readingPageCount = Math.max(
     1,
     Math.ceil((readingPage?.total ?? 0) / readingPageSize),
@@ -343,10 +300,10 @@ export default function App() {
             <h1 className="product-title">Incident Management</h1>
             <p className="subtitle">
               Persistent factory telemetry, historical readings, operator
-              alarms, and a basic application-aware chat.
+              alarms, and standardized streaming agent chat.
             </p>
             <p className="stage-label">
-              Stage 2 · Basic chat · No application data access
+              Stage 3 · CopilotKit + AG-UI · No application data access
             </p>
           </div>
         </div>
@@ -780,83 +737,24 @@ export default function App() {
         <aside className="chat-panel" aria-labelledby="chat-title">
           <div className="chat-heading">
             <div>
-              <p className="eyebrow">Gemma 4 via OpenRouter</p>
+              <p className="eyebrow">CopilotKit · AG-UI streaming</p>
               <h2 id="chat-title">Factory assistant</h2>
             </div>
-            <span>Chat only</span>
+            <span>Tool-free</span>
           </div>
           <p className="chat-boundary">
             The assistant understands this application’s domain, but it cannot
-            see its current data or perform actions.
+            see its current data, inspect the historian, or perform actions.
           </p>
-
-          <ol
-            ref={conversationRef}
-            className="conversation"
-            role="log"
-            aria-live="polite"
-            aria-label="Chat conversation"
-          >
-            {chatMessages.length === 0 && (
-              <li className="chat-empty">
-                Ask a general question about incident management.
-              </li>
-            )}
-            {chatMessages.map((message, index) => (
-              <li
-                className={`chat-message chat-message-${message.role}`}
-                key={`${message.role}-${index}`}
-              >
-                <strong>{message.role === "user" ? "You" : "Assistant"}</strong>
-                <p>{message.content}</p>
-              </li>
-            ))}
-            {chatPending && (
-              <li
-                className="chat-message chat-message-assistant chat-pending"
-                role="status"
-              >
-                <strong>Assistant</strong>
-                <p>Thinking…</p>
-              </li>
-            )}
-          </ol>
-
-          {chatError && (
-            <p className="chat-error" role="alert">
-              {chatError}
-            </p>
-          )}
-
-          <form
-            className="chat-form"
-            onSubmit={(event) => void sendChat(event)}
-          >
-            <label htmlFor="chat-message">Message</label>
-            <textarea
-              id="chat-message"
-              rows={4}
-              maxLength={4_000}
-              required
-              value={chatDraft}
-              onChange={(event) => setChatDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-                  event.preventDefault();
-                  event.currentTarget.form?.requestSubmit();
-                }
-              }}
-              aria-describedby="chat-help"
-            />
-            <div className="chat-form-actions">
-              <small id="chat-help">
-                Enter adds a line · Ctrl/⌘ + Enter sends
-              </small>
-              <button type="submit" disabled={chatPending || !chatDraft.trim()}>
-                {chatPending ? "Sending…" : "Send"}
-              </button>
-            </div>
-          </form>
+          <div className="copilot-chat-shell">
+            <Suspense
+              fallback={
+                <p className="chat-loading">Loading the streaming chat…</p>
+              }
+            >
+              <CopilotChatPanel />
+            </Suspense>
+          </div>
         </aside>
       </div>
     </main>

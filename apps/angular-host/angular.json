@@ -23,7 +23,15 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "allowedCommonJsDependencies": ["ajv", "ajv-formats", "content-type"],
+            "allowedCommonJsDependencies": [
+              "@jetbrains/websandbox",
+              "ajv",
+              "ajv-formats",
+              "chalk",
+              "content-type",
+              "node-fetch",
+              "partial-json"
+            ],
             "assets": [
               {
                 "glob": "**/*",

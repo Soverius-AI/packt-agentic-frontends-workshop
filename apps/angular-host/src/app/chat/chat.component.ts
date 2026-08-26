@@ -1,66 +1,65 @@
-import { Component, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
-import { FormField, form, maxLength, required, submit } from '@angular/forms/signals';
-import type { ChatMessage } from '@packt-workshop/contracts';
-import { ChatApi } from './chat-api';
+import { NgComponentOutlet } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  createEnvironmentInjector,
+  DestroyRef,
+  EnvironmentInjector,
+  inject,
+  signal,
+  type Type,
+} from '@angular/core';
 
 @Component({
   selector: 'app-chat',
-  imports: [FormField],
+  imports: [NgComponentOutlet],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
 })
 export class ChatComponent {
-  readonly #api = inject(ChatApi);
-  private readonly conversation = viewChild<ElementRef<HTMLOListElement>>('conversation');
+  readonly #parentInjector = inject(EnvironmentInjector);
+  readonly #destroyRef = inject(DestroyRef);
 
-  protected readonly messages = signal<readonly ChatMessage[]>([]);
-  protected readonly pending = signal(false);
-  protected readonly error = signal<string | undefined>(undefined);
-  protected readonly draft = signal({ content: '' });
-  protected readonly chatForm = form(this.draft, (path) => {
-    required(path.content, { message: 'Enter a message.' });
-    maxLength(path.content, 4_000, { message: 'Keep the message below 4,000 characters.' });
-  });
+  protected readonly chatComponent = signal<Type<unknown> | undefined>(undefined);
+  protected readonly chatInjector = signal<EnvironmentInjector | undefined>(undefined);
+  protected readonly loadError = signal(false);
 
   constructor() {
-    effect(() => {
-      this.messages();
-      this.pending();
-      const conversation = this.conversation()?.nativeElement;
-      if (!conversation) return;
-      queueMicrotask(() => {
-        conversation.scrollTop = conversation.scrollHeight;
-      });
-    });
+    afterNextRender(() => void this.#loadChat());
+    this.#destroyRef.onDestroy(() => this.chatInjector()?.destroy());
   }
 
-  protected send(): void {
-    if (this.pending()) return;
-    submit(this.chatForm, async () => {
-      const content = this.draft().content.trim();
-      if (!content) return;
-      const previousMessages = this.messages();
-      const messages: readonly ChatMessage[] = [...previousMessages, { role: 'user', content }];
-      this.messages.set(messages);
-      this.pending.set(true);
-      this.error.set(undefined);
-      try {
-        const response = await this.#api.send(messages);
-        this.messages.set([...messages, response.message]);
-        this.draft.set({ content: '' });
-        this.chatForm().reset();
-      } catch (error) {
-        this.messages.set(previousMessages);
-        this.error.set(error instanceof Error ? error.message : 'Unexpected chat error.');
-      } finally {
-        this.pending.set(false);
-      }
-    });
-  }
+  async #loadChat(): Promise<void> {
+    try {
+      const {
+        CopilotChat,
+        CopilotKit,
+        CopilotkitAgentFactory,
+        CopilotkitThreadsFactory,
+        provideCopilotChatLabels,
+        provideCopilotKit,
+      } = await import('@copilotkit/angular');
+      if (this.#destroyRef.destroyed) return;
 
-  protected handleKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'Enter' || (!event.ctrlKey && !event.metaKey)) return;
-    event.preventDefault();
-    this.send();
+      this.chatInjector.set(
+        createEnvironmentInjector(
+          [
+            provideCopilotKit({ runtimeUrl: '/api/copilotkit' }),
+            CopilotKit,
+            CopilotkitAgentFactory,
+            CopilotkitThreadsFactory,
+            provideCopilotChatLabels({
+              chatInputPlaceholder: 'Ask about incident management…',
+              welcomeMessageText: 'Ask a general question about incident management.',
+              chatDisclaimerText: 'Chat cannot access current facility data or perform actions.',
+            }),
+          ],
+          this.#parentInjector,
+        ),
+      );
+      this.chatComponent.set(CopilotChat);
+    } catch {
+      this.loadError.set(true);
+    }
   }
 }

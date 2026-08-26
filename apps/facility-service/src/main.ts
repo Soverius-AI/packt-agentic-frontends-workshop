@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { LiveTelemetry } from "./live-telemetry.js";
 import { createFacilityServer } from "./server.js";
 import { FacilityRepository } from "./repository.js";
-import { createChatService } from "./chat.js";
+import { createWorkshopCopilotRuntime } from "./copilot-runtime.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const environmentPath = resolve(packageRoot, "../../.env");
@@ -18,11 +18,11 @@ const databasePath = resolve(
 const repository = new FacilityRepository(databasePath);
 repository.initialize();
 const telemetry = new LiveTelemetry(repository);
-const chat = createChatService({
+const copilotRuntime = createWorkshopCopilotRuntime({
   apiKey: process.env["OPENROUTER_API_KEY"],
   model: process.env["OPENROUTER_MODEL"],
 });
-const server = createFacilityServer(repository, telemetry, chat);
+const server = createFacilityServer(repository, telemetry, copilotRuntime);
 
 server.listen(port, "127.0.0.1", () => {
   telemetry.start();

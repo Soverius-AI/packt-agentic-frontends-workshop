@@ -89,3 +89,12 @@ data access.
 - No application tools or facility data are sent to the model.
 - Existing conventional application behaviour remains green.
 - Backend, Angular, React, and production-build checks pass.
+
+## Implemented checkpoint
+
+The `03-copilotkit-ag-ui` branch implements this contract with CopilotKit
+Runtime 1.69, CopilotKit Angular 0.3, and the v2 React frontend. Both hosts load
+the rich chat renderer as a deferred feature so the conventional application
+shell remains within its existing initial-build boundary. React exposes the
+Inspector on localhost; both hosts expose the same AG-UI stream through the
+shared runtime in the browser network panel.
