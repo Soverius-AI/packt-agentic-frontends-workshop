@@ -12,9 +12,26 @@
 }
 
 main {
-  max-width: 1380px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 38px 24px 72px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: stretch;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #d9d0c5;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 48px #3b2c2112;
+}
+
+.site-overview {
+  min-width: 0;
 }
 
 .page-header,
@@ -195,6 +212,15 @@ p {
   box-shadow: 0 14px 44px #3b2c2110;
 }
 
+.workspace-grid .room {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.workspace-grid .mode-switch {
+  margin-left: 0;
+}
+
 .room-heading,
 .message-card,
 .history-panel {
@@ -230,7 +256,34 @@ button:focus-visible {
 }
 
 .metrics-table {
-  min-width: 1380px;
+  min-width: 820px;
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 12px 7px;
+  font-size: 0.72rem;
+}
+
+.metrics-table .shift-manager,
+.metrics-table .reading,
+.metrics-table .trend,
+.metrics-table .alarm-action {
+  min-width: 0;
+}
+
+.metrics-table .reading strong {
+  font-size: 1.05rem;
+}
+
+.metrics-table .alarm-action {
+  gap: 5px;
+}
+
+.metrics-table .alarm-action button,
+.metrics-table .secondary-button {
+  padding: 7px 8px;
+  font-size: 0.7rem;
 }
 
 .reading-entries-table {
@@ -635,6 +688,16 @@ button:disabled {
 
 .state-timeline time {
   color: #6d655e;
+}
+
+@media (max-width: 1100px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-grid {
+    padding: 18px;
+  }
 }
 
 @media (max-width: 780px) {

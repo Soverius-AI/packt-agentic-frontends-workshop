@@ -26,12 +26,13 @@ main                 canonical knowledge and overall project
 This preserves the exact state needed to walk forward through the webinar
 without changing an earlier milestone.
 
-This `01-base-app` branch implements the completed first part and is the
-starting point of the workshop. It contains the complete conventional
+This `02-basic-chat` branch extends the completed `01-base-app` starting point.
+It contains the complete conventional
 chocolate-factory application: API, seven-day SQLite history, asynchronous
 device updates, Angular and React hosts, filters, server-side pagination, and
-persistent alarms. It deliberately contains no AI. The later rows describe
-the planned progression; they do not yet have checkpoint branches.
+persistent alarms. It adds an application-aware but data-blind multi-turn chat
+through Gemma 4 on OpenRouter. The later rows describe the planned progression;
+they do not yet have checkpoint branches.
 
 | Checkpoint             | Reveal or enable                                                        | Limitation that motivates the next step                       |
 | ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |

@@ -5,9 +5,11 @@ import {
 } from "node:http";
 import {
   alarmActionRequestSchema,
+  chatRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
+import { ChatServiceError, type ChatService } from "./chat.js";
 import type { LiveTelemetry } from "./live-telemetry.js";
 import {
   FacilityRepository,
@@ -51,6 +53,7 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
 export const createFacilityServer = (
   repository: FacilityRepository,
   telemetry: LiveTelemetry,
+  chat: ChatService,
 ) =>
   createServer(async (request, response) => {
     try {
@@ -92,6 +95,12 @@ export const createFacilityServer = (
           condition ? metricConditionSchema.parse(condition) : undefined,
         );
         sendJson(response, 200, repository.getReadingEntries(filters));
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/chat") {
+        const body = chatRequestSchema.parse(await readBody(request));
+        sendJson(response, 200, await chat.reply(body.messages));
         return;
       }
 
@@ -159,6 +168,10 @@ export const createFacilityServer = (
       sendJson(response, 404, { error: "Not found" });
     } catch (error) {
       if (error instanceof FacilityRepositoryError) {
+        sendJson(response, error.statusCode, { error: error.message });
+        return;
+      }
+      if (error instanceof ChatServiceError) {
         sendJson(response, error.statusCode, { error: error.message });
         return;
       }

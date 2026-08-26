@@ -19,7 +19,7 @@ starting point. Do not merge the checkpoint into `main`; create
   OpenAI-compatible endpoint.
 - Use `OPENROUTER_API_KEY` only on the server.
 - Make the model configurable through `OPENROUTER_MODEL`.
-- Use `openai/gpt-4.1-mini` as the workshop default and document how to
+- Use `google/gemma-4-31b-it` as the workshop default and document how to
   override it.
 - Start with a non-streaming request. Streaming is introduced with AG-UI in
   Step 3.
@@ -46,10 +46,16 @@ type ChatResponse = {
 };
 ```
 
-The backend adds the workshop's system instruction, validates and limits the
+The backend adds a minimal static system instruction, validates and limits the
 incoming history, calls OpenRouter through the OpenAI SDK, and returns one
 assistant message. It must produce a clear configuration error when the API
 key is missing and must never return or log the key.
+
+The system instruction may explain that the assistant is embedded in the
+Soverius Chocolate Factory incident-management application and that users may
+refer to its rooms, metrics, warnings, alarms, and history. It must not include
+current readings, selected UI state, database records, or inferred facility
+facts. This makes the assistant application-aware but data-blind.
 
 ## UI shape
 
@@ -74,12 +80,14 @@ Step 2 contains no:
 - generated SQL or historian/database access;
 - selected-room or selected-metric context injection;
 - frontend actions;
+- human approval or other human-in-the-loop flows;
 - streaming;
 - AG-UI, CopilotKit, or Mastra; or
 - persistent conversation memory.
 
-The system instruction should keep the assistant within the fictional
-incident-management domain and make it honest about this boundary. A question
+The system instruction should give the assistant only enough static context to
+understand the fictional incident-management domain and make it honest about
+this boundary. A question
 such as "When did the Cooling room enter warning during the last seven days?"
 must not be answered from invented data; the assistant should explain that it
 cannot inspect the historian yet.

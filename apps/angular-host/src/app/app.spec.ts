@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import type {
+  ChatMessage,
   FacilityDashboard,
   FacilityReadingPage,
   MetricAlarm,
@@ -9,6 +10,7 @@ import type {
 } from '@packt-workshop/contracts';
 import { vi } from 'vitest';
 import { App } from './app';
+import { ChatApi } from './chat/chat-api';
 import { FacilityApi } from './facility-api';
 
 const metric = (
@@ -146,13 +148,27 @@ describe('App', () => {
       return stopUpdates;
     }),
   };
+  const chatApi = {
+    send: vi.fn(async (messages: readonly ChatMessage[]) => ({
+      message: {
+        role: 'assistant' as const,
+        content:
+          messages.length === 1
+            ? 'A warning marks a condition that needs attention.'
+            : 'I understand the Cooling room reference, but I cannot inspect its history.',
+      },
+    })),
+  };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     liveUpdateListener = undefined;
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [{ provide: FacilityApi, useValue: api }],
+      providers: [
+        { provide: FacilityApi, useValue: api },
+        { provide: ChatApi, useValue: chatApi },
+      ],
     }).compileComponents();
   });
 
@@ -340,5 +356,37 @@ describe('App', () => {
     expect(api.getReadingEntries).toHaveBeenLastCalledWith(
       expect.objectContaining({ limit: 50, offset: 50 }),
     );
+  });
+
+  it('keeps a multi-turn chat while sending no facility state', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const textarea = compiled.querySelector<HTMLTextAreaElement>('#chat-message')!;
+    const form = compiled.querySelector<HTMLFormElement>('.chat-form')!;
+
+    textarea.value = 'What does a warning mean?';
+    textarea.dispatchEvent(new Event('input'));
+    form.dispatchEvent(new Event('submit'));
+    await fixture.whenStable();
+
+    expect(chatApi.send).toHaveBeenLastCalledWith([
+      { role: 'user', content: 'What does a warning mean?' },
+    ]);
+    expect(compiled.querySelector('.conversation')?.textContent).toContain(
+      'A warning marks a condition that needs attention.',
+    );
+
+    textarea.value = 'When did the Cooling room enter warning?';
+    textarea.dispatchEvent(new Event('input'));
+    form.dispatchEvent(new Event('submit'));
+    await fixture.whenStable();
+
+    expect(chatApi.send).toHaveBeenLastCalledWith([
+      { role: 'user', content: 'What does a warning mean?' },
+      { role: 'assistant', content: 'A warning marks a condition that needs attention.' },
+      { role: 'user', content: 'When did the Cooling room enter warning?' },
+    ]);
+    expect(JSON.stringify(chatApi.send.mock.lastCall)).not.toContain('currentNumericValue');
   });
 });

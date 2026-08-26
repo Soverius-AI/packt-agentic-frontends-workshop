@@ -1,8 +1,14 @@
-# Part 1 / Checkpoint 01 — Conventional facility application
+# Part 2 / Checkpoint 02 — Basic application-aware chat
 
-This completed branch is the starting state of the three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
+This branch extends the completed conventional application with the first AI
+capability in the three-hour **Hands-On Agentic Frontends with AG-UI and
+CopilotKit** workshop.
 
-It deliberately contains no AI or agentic protocols. The goal is to establish the conventional application and expose its limitation before introducing an assistant.
+It adds an ordinary multi-turn conversation through Gemma 4 on OpenRouter. A
+minimal system prompt tells the model which application it is embedded in, but
+the model receives no facility state and has no application capabilities. The
+goal is to make the difference between application context and application
+access visible before introducing AG-UI.
 
 ## Scenario
 
@@ -10,23 +16,31 @@ Soverius Chocolate has two adjacent production areas: a climate-controlled **Coo
 
 A person on night duty can inspect seven days of stored telemetry, use the continuously updated snapshot, raise an alarm for any metric, and acknowledge or resolve it. In snapshot mode, individual devices report at randomized intervals and every new reading is persisted. The application cannot interpret the combined evidence and recommend checking the connecting door before calling maintenance.
 
-That missing capability motivates Checkpoint 02.
+The assistant can understand what a user means by the Cooling room, but it
+cannot answer when that room entered warning because it cannot inspect the
+historian. That missing capability motivates Checkpoint 03.
 
-## What this checkpoint contains
+## What this checkpoint adds
 
-- Angular 22 and React 19 implementations of the same conventional UI
-- a conventional Node HTTP API backed by SQLite
-- two rooms, eleven metrics, and deterministic historical readings
-- randomized, one-device-at-a-time live readings over a server-sent event stream
-- persisted raise, acknowledge, and resolve alarm workflows per metric
-- one shared, validated facilities-domain contract
-- unit tests and production builds
+- equivalent accessible chat panels in Angular 22 and React 19;
+- one non-streaming `POST /api/chat` endpoint in the existing Node service;
+- the official OpenAI SDK pointed at OpenRouter;
+- `google/gemma-4-31b-it` as the configurable default model;
+- browser-owned short-term conversation history; and
+- shared validation plus backend and frontend tests.
 
-It does **not** contain CopilotKit, AG-UI, Mastra, A2UI, A2A, MCP, an MCP App, or an LLM.
+The conventional SQLite application remains intact. This checkpoint does
+**not** contain tools, SQL generation, facility-state injection, streaming,
+persistent chat memory, human approval, CopilotKit, AG-UI, Mastra, A2UI, A2A,
+MCP, or an MCP App.
 
 ## Run it
 
 Requirements: Node 24 LTS or newer and pnpm 11.
+
+Copy `.env.example` to `.env` and replace the placeholder with an OpenRouter
+API key. `OPENROUTER_MODEL` is optional and defaults to
+`google/gemma-4-31b-it`.
 
 ```bash
 pnpm install
@@ -53,7 +67,8 @@ pnpm check
 
 ## Teaching point
 
-> A complete traditional application can store history, evaluate predefined rules, and execute anticipated workflows. It still cannot interpret an unfamiliar combination of evidence or explain what the person on duty should do first.
+> A model can understand the application's domain and maintain a conversation
+> without being connected to the application's current data or actions.
 
-The later AI and protocol checkpoints are planned but not yet implemented.
+Checkpoint 03 migrates this same tool-free chat to AG-UI and adds streaming.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

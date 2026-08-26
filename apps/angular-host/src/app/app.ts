@@ -8,6 +8,7 @@ import type {
   MetricSummary,
   MetricUpdateEvent,
 } from '@packt-workshop/contracts';
+import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
 
 type DisplayMode = 'snapshot' | 'list';
@@ -15,6 +16,7 @@ const READING_PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-root',
+  imports: [ChatComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

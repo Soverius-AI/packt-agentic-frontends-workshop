@@ -127,6 +127,11 @@ application-owned chat endpoint. Configure the SDK to use OpenRouter through
 `baseURL: "https://openrouter.ai/api/v1"`; keep the OpenRouter API key on the
 server.
 
+Use `google/gemma-4-31b-it` as the default model. Add a minimal static system
+instruction that tells Gemma it is embedded in the Soverius Chocolate Factory
+incident-management application and names the domain concepts users may refer
+to. Do not include current readings, UI state, or database content.
+
 Part 2 supports only a basic conversation:
 
 - the operator sends a message;
@@ -136,8 +141,8 @@ Part 2 supports only a basic conversation:
 
 Use a deliberately small message contract and a non-streaming request first.
 Short-term context consists only of the messages sent with the request. There
-are no tools, generated SQL, frontend actions, facility-state injection,
-CopilotKit, or AG-UI.
+are no tools, generated SQL, frontend actions, facility-state injection, human
+approval, CopilotKit, or AG-UI.
 
 The first questions can be conversational, for example:
 
@@ -148,8 +153,9 @@ Then ask the important application-specific question:
 
 > When did the Cooling room enter warning during the last seven days?
 
-The correct Part 2 assistant must say that it cannot inspect the historian. It
-can converse, but it cannot access application data. Before adding that
+The correct Part 2 assistant understands what the Cooling room refers to but
+must say that it cannot inspect the historian. It can converse with static
+application context, but it cannot access application data. Before adding that
 capability, use the hand-written chat transport itself as the next limitation.
 
 ### First guardrails

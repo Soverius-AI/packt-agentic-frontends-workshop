@@ -10,9 +10,24 @@ body {
   margin: 0;
 }
 main {
-  max-width: 1380px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 38px 24px 72px;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+  align-items: stretch;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #d9d0c5;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 48px #3b2c2112;
+}
+.facility-workspace {
+  min-width: 0;
 }
 .page-header,
 .summary,
@@ -169,12 +184,139 @@ p {
 }
 .room,
 .message,
-.history {
+.history,
+.chat-panel {
   margin-bottom: 22px;
   border: 1px solid #d9d0c5;
   border-radius: 18px;
   background: #fff;
   box-shadow: 0 14px 44px #3b2c2110;
+}
+.chat-panel {
+  position: static;
+  display: flex;
+  align-self: stretch;
+  flex-direction: column;
+  min-height: 780px;
+  margin: -22px -22px -22px 0;
+  padding: 22px;
+  overflow: hidden;
+  border: 0;
+  border-left: 1px solid #e0d8cf;
+  border-radius: 0;
+  background: #faf8f4;
+  box-shadow: none;
+  contain: size;
+}
+.workspace-grid .room {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+.workspace-grid .mode-switch {
+  margin-left: 0;
+}
+.chat-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.chat-heading h2 {
+  margin: 3px 0 0;
+}
+.chat-heading > span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #e8e4ee;
+  color: #473e55;
+  font-size: 0.68rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.chat-boundary {
+  margin: 14px 0;
+  color: #655d56;
+  font-size: 0.82rem;
+}
+.conversation {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
+  padding: 14px;
+  margin: 0 0 14px;
+  overflow-y: auto;
+  border: 1px solid #ded6cd;
+  border-radius: 12px;
+  background: #faf8f4;
+  list-style: none;
+}
+.chat-message {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ece3d8;
+}
+.chat-message-user {
+  justify-self: end;
+  background: #684529;
+  color: #fff;
+}
+.chat-message strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.68rem;
+}
+.chat-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.chat-empty,
+.chat-pending {
+  color: #655d56;
+  font-size: 0.8rem;
+}
+.chat-error {
+  padding: 9px 10px;
+  border-left: 4px solid #b53b2d;
+  background: #fff2ef;
+  color: #71291f;
+  font-size: 0.8rem;
+}
+.chat-form {
+  grid-area: form;
+  display: grid;
+  gap: 8px;
+}
+.chat-form label {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.chat-form textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid #b9aa9c;
+  border-radius: 9px;
+  color: #211c18;
+  background: #fff;
+  font: inherit;
+  line-height: 1.45;
+}
+.chat-form textarea:focus-visible {
+  outline: 3px solid #d38a2e;
+  outline-offset: 2px;
+}
+.chat-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.chat-form-actions small {
+  color: #6d655e;
+  font-size: 0.68rem;
 }
 .room-heading,
 .message,
@@ -255,9 +397,32 @@ p {
 }
 table {
   width: 100%;
-  min-width: 1320px;
   border-collapse: collapse;
   text-align: left;
+}
+.metrics-table {
+  min-width: 820px;
+}
+.metrics-table th,
+.metrics-table td {
+  padding: 12px 7px;
+  font-size: 0.72rem;
+}
+.metrics-table tbody tr > :first-child {
+  width: auto;
+}
+.metrics-table .shift-manager {
+  min-width: 0;
+}
+.metrics-table .reading strong {
+  font-size: 1.05rem;
+}
+.metrics-table button {
+  padding: 7px 8px;
+  font-size: 0.7rem;
+}
+.reading-entries-table {
+  min-width: 900px;
 }
 
 .shift-manager {
@@ -424,6 +589,24 @@ button:focus-visible,
 .history-values small {
   color: #6d655e;
   font-size: 0.7rem;
+}
+@media (max-width: 1100px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .chat-panel {
+    position: static;
+    order: -1;
+    margin: 0;
+    padding: 20px 0 22px;
+    min-height: 480px;
+    border-left: 0;
+    border-bottom: 1px solid #e0d8cf;
+    background: transparent;
+  }
+  .workspace-grid {
+    padding: 18px;
+  }
 }
 @media (max-width: 780px) {
   .page-header,
