@@ -32,8 +32,9 @@ chocolate-factory application: API, seven-day SQLite history, asynchronous
 device updates, Angular and React hosts, filters, server-side pagination, and
 persistent alarms. CopilotKit and AG-UI still provide the frontend contract,
 but a tool-free Mastra agent now replaces BuiltInAgent while preserving the
-same data-blind capability boundary. Checkpoint 05 and later rows remain
-planned progression and do not yet have checkpoint branches.
+same data-blind capability boundary. Its real frontend-triggered runs are
+persisted and inspectable in the local Mastra Studio. Checkpoint 05 and later
+rows remain planned progression and do not yet have checkpoint branches.
 
 | Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |

@@ -9,3 +9,5 @@ coverage/
 .env.local
 .pnpm-store/
 apps/facility-service/**/data/
+.mastra/
+apps/agent-service/**/data/

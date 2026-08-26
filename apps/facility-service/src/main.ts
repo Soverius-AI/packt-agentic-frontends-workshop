@@ -19,8 +19,7 @@ const repository = new FacilityRepository(databasePath);
 repository.initialize();
 const telemetry = new LiveTelemetry(repository);
 const copilotRuntime = createWorkshopCopilotRuntime({
-  apiKey: process.env["OPENROUTER_API_KEY"],
-  model: process.env["OPENROUTER_MODEL"],
+  mastraBaseUrl: process.env["MASTRA_BASE_URL"],
 });
 const server = createFacilityServer(repository, telemetry, copilotRuntime);
 

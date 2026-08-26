@@ -20,6 +20,12 @@ minimumReleaseAgeExclude:
   - "@copilotkit/web-components@1.69.2"
   - "@copilotkit/web-inspector@1.69.2"
   - "@mastra/core@1.62.0"
+  - "@mastra/client-js@1.42.1"
+  - "@mastra/deployer@1.62.0"
+  - "@mastra/libsql@1.22.0"
+  - "@mastra/observability@1.17.2"
+  - "@mastra/server@1.62.0"
+  - mastra@1.26.1
 
 onlyBuiltDependencies:
   - "@parcel/watcher"

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "dev": "node --enable-source-maps dist/main.js",
     "start": "node --enable-source-maps dist/main.js",
     "test": "vitest --run src"
   },
@@ -12,9 +13,8 @@
     "@ag-ui/client": "0.0.57",
     "@ag-ui/core": "0.0.57",
     "@ag-ui/mastra": "1.1.0",
-    "@ai-sdk/openai": "^3.0.101",
     "@copilotkit/runtime": "^1.69.2",
-    "@mastra/core": "1.62.0",
+    "@mastra/client-js": "1.42.1",
     "@packt-workshop/contracts": "workspace:*"
   },
   "devDependencies": {

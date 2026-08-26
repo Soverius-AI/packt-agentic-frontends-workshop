@@ -23,15 +23,16 @@ capability in Checkpoint 05.
 ## What this checkpoint adds
 
 - one tool-free Mastra agent exposed as `default` through Copilot Runtime;
-- the AG-UI Mastra bridge inside the existing Node service;
+- a local Mastra service with Studio and persisted observability;
+- the AG-UI Mastra bridge in the facility service, connected to that agent;
 - unchanged CopilotKit inline chat in Angular 22 and React 19;
 - AG-UI run lifecycle, text streaming, cancellation, and terminal errors;
 - `@ai-sdk/openai` pointed at OpenRouter;
 - `google/gemma-4-31b-it` as the configurable default model;
 - a direct Angular component integration with scoped layout and
   streaming-scroll compatibility, plus a lazy React chat boundary; and
-- Mastra boundary, AG-UI streaming, provider-failure, discovery, backend, and
-  frontend tests.
+- Mastra capability-boundary, CopilotKit discovery, backend, and frontend
+  tests.
 
 The conventional SQLite application remains intact. This checkpoint does
 **not** contain tools, SQL generation, facility-state injection, persistent
@@ -50,7 +51,9 @@ pnpm install
 pnpm dev
 ```
 
-`pnpm dev` starts the facility backend and Angular host together. To use React instead, run `pnpm dev:backend` and `pnpm dev:react` in separate terminals.
+`pnpm dev` starts the facility backend, Mastra service, Mastra Studio, and
+Angular host together. To use React instead, run `pnpm dev:backend` and
+`pnpm dev:react` in separate terminals.
 
 Default URLs:
 
@@ -59,12 +62,16 @@ Default URLs:
 | Angular | `http://localhost:4200` |
 | React   | `http://localhost:5173` |
 | API     | `http://localhost:3001` |
+| Studio  | `http://localhost:4111` |
 
 The live stream is available at `GET /api/metric-updates`. The UI only subscribes while **Continuous updates** is enabled; the backend continues recording simulated device readings in SQLite.
 
 CopilotKit agent discovery is available at `GET /api/copilotkit/info`. In the
 React host, the CopilotKit Inspector appears automatically on localhost; in
 either host, the browser network panel exposes AG-UI lifecycle and text events.
+Open Mastra Studio and select **Observability** to inspect the corresponding
+agent run, model generation, timing, input, and output. Studio reads the same
+locally persisted execution records created by chats from either frontend.
 
 Build and test the checkpoint with:
 

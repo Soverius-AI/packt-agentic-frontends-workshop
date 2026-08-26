@@ -15,8 +15,10 @@ Create `04-mastra-agent` directly from the completed
 
 - Keep Angular and React pointed at the same `/api/copilotkit` endpoint.
 - Keep the runtime agent id `default` so neither frontend changes.
-- Run the Mastra agent in the existing TypeScript Node facility service.
-- Bridge the local Mastra agent into Copilot Runtime through AG-UI.
+- Run the agent in a local Mastra service so its real executions are visible
+  in Mastra Studio.
+- Bridge the remote Mastra agent into the existing Copilot Runtime through
+  AG-UI.
 - Keep Gemma 4 through OpenRouter and the existing server-only
   `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` configuration.
 - Preserve the exact Checkpoint 03 system prompt and data-blind boundary.
@@ -26,9 +28,15 @@ Create `04-mastra-agent` directly from the completed
 ## Backend shape
 
 Create one Mastra `Agent` with id `default`, the existing static instructions,
-and the OpenRouter AI SDK model. Wrap that local agent with the Mastra AG-UI
-bridge and register it as `default` in `CopilotRuntime`. Continue mounting the
-same CopilotKit Node listener at `/api/copilotkit`.
+and the OpenRouter AI SDK model. Register it in a Mastra instance served on
+port 4111. The facility service uses the Mastra client and AG-UI bridge to
+register that remote agent as `default` in `CopilotRuntime`, while continuing
+to mount the same CopilotKit Node listener at `/api/copilotkit`.
+
+The Mastra instance uses local LibSQL storage plus the Mastra storage exporter.
+Consequently, a chat initiated in Angular or React produces a persisted trace
+that can be inspected in Studio at `http://localhost:4111`. Studio observes the
+production workshop agent; it does not run a duplicate demonstration agent.
 
 The bridge uses `@ag-ui/mastra` 1.1.0 with the AG-UI 0.0.57 packages pinned by
 CopilotKit Runtime 1.69.2. The package's CommonJS export is loaded deliberately:
@@ -37,6 +45,17 @@ package, which fails when executed directly by Node without bundling.
 
 Existing facility routes, SQLite access, telemetry, alarm workflows, and
 frontend code remain unchanged.
+
+The execution path is:
+
+```text
+Angular or React -> /api/copilotkit (facility service, :3001)
+                 -> AG-UI Mastra bridge
+                 -> Mastra agent service (:4111)
+                 -> OpenRouter / Gemma 4
+
+Mastra Studio (:4111) <- persisted observability from those same agent runs
+```
 
 ## Capability boundary
 
@@ -60,9 +79,10 @@ The new capability is backend-framework substitution, not data access.
 3. Exchange an ordinary message and inspect the AG-UI lifecycle and streamed
    text events.
 4. Explain that the backend run now belongs to a Mastra agent.
-5. Ask when the Cooling room entered warning and show that the assistant still
+5. Open Mastra Studio's Observability view and inspect that same run.
+6. Ask when the Cooling room entered warning and show that the assistant still
    cannot inspect the historian.
-6. Motivate Checkpoint 05: add one constrained, read-only historian capability
+7. Motivate Checkpoint 05: add one constrained, read-only historian capability
    without changing the frontend-to-agent protocol.
 
 ## Completion criteria
@@ -70,7 +90,9 @@ The new capability is backend-framework substitution, not data access.
 - The branch is based directly on `03-copilotkit-ag-ui`.
 - Angular and React retain their existing CopilotKit integration unchanged.
 - `/api/copilotkit/info` still advertises the `default` agent.
-- A local Mastra agent, rather than BuiltInAgent, produces the response.
+- A Mastra agent running in the local Mastra service, rather than BuiltInAgent,
+  produces the response.
+- The same frontend-triggered run appears in Mastra Studio observability.
 - Runs stream AG-UI lifecycle and text events.
 - Provider failure terminates the stream and cancellation remains owned by the
   unchanged Copilot Runtime runner.
@@ -83,6 +105,7 @@ The new capability is backend-framework substitution, not data access.
 
 The `04-mastra-agent` branch implements this contract with Mastra Core 1.62,
 the Mastra AG-UI bridge 1.1, CopilotKit Runtime 1.69, Angular 22, and React 19.
-The backend tests assert the tool-free instructions boundary, Mastra-to-AG-UI
-streaming, provider-failure termination, runtime discovery, and removal of the
-obsolete custom chat route.
+The backend tests assert the tool-free instructions boundary, remote runtime
+discovery, and removal of the obsolete custom chat route. A live verification
+request through CopilotKit confirms AG-UI streaming and a matching successful
+trace in Mastra observability.
