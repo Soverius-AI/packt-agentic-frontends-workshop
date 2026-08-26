@@ -70,5 +70,7 @@ pnpm check
 > A model can understand the application's domain and maintain a conversation
 > without being connected to the application's current data or actions.
 
-Checkpoint 03 migrates this same tool-free chat to AG-UI and adds streaming.
+Checkpoint 03 replaces this custom chat with CopilotKit's chat component,
+Copilot Runtime, a tool-free BuiltInAgent, and AG-UI streaming. Checkpoint 04
+then replaces BuiltInAgent with Mastra without changing the chat capability.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

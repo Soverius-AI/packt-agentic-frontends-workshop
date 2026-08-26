@@ -4,7 +4,7 @@ This is an expansion backlog, not a finished two-day agenda. Keep the same facil
 
 ## Candidate hands-on modules
 
-- Build the basic SDK chat, migrate it to AG-UI and Mastra/CopilotKit, and only then add the generated-SQL tool rather than starting from the completed coordinator.
+- Build the basic SDK chat, replace it with CopilotKit plus AG-UI, move the agent from BuiltInAgent to Mastra, and only then add the generated-SQL tool rather than starting from the completed coordinator.
 - Add streaming tool-call events, cancellation, reconnect/resume, and state-delta exercises.
 - Replace the deterministic compliance corpus with a versioned RAG pipeline over supplied fictional legislation and plant policies; evaluate retrieval and citations.
 - Harden the generated-SQL historian tool and compare it with server-owned parameterized tools using query parsing, read-only access, schema allowlists, validation, execution limits, and audit records.

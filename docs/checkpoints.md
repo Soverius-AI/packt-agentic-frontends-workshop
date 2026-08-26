@@ -14,8 +14,8 @@ branch. Instead, create each new milestone directly from its predecessor:
 main                 canonical knowledge and overall project
 01-base-app          Part 1 snapshot
 └── 02-basic-chat    Part 2 snapshot, based on 01-base-app
-    └── 03-ag-ui-chat
-        └── 04-mastra-copilotkit
+    └── 03-copilotkit-ag-ui
+        └── 04-mastra-agent
             └── 05-sql-tool
                 └── 06-human-in-loop
                     └── 07-a2ui
@@ -34,21 +34,21 @@ persistent alarms. It adds an application-aware but data-blind multi-turn chat
 through Gemma 4 on OpenRouter. The later rows describe the planned progression;
 they do not yet have checkpoint branches.
 
-| Checkpoint             | Reveal or enable                                                        | Limitation that motivates the next step                       |
-| ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `01-base-app`          | complete conventional app, live metrics, seven-day history, alarms      | fixed screens cannot answer unanticipated historian questions |
-| `02-basic-chat`        | ordinary conversation through OpenAI SDK and OpenRouter; no tools       | the model cannot inspect application data                     |
-| `03-ag-ui-chat`        | migrate the same tool-free chat to AG-UI streaming and lifecycle events | the protocol is stable, but backend concerns are still mixed  |
-| `04-mastra-copilotkit` | move to Mastra and CopilotKit while remaining chat-only                 | the standardized stack is ready for application capabilities  |
-| `05-sql-tool`          | one generated-SQL historian tool and generic result table               | consequential tools need an authority boundary                |
-| `06-human-in-loop`     | approve/reject and correlated audit                                     | presentation is still entirely predetermined                  |
-| `07-a2ui`              | trusted decision component catalogue                                    | specialist knowledge belongs behind another boundary          |
-| `08-a2a`               | facilities/compliance Agent Card and conditional runbook                | a case result still needs explorable evidence and UI          |
-| `09-mcp-app`           | MCP corpus, `get_case_analysis`, portable app                           | production concerns need deeper treatment                     |
-| `final`                | both hosts, resilience, audit, and full golden path                     | opens the two-day expansion backlog                           |
+| Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
+| --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `01-base-app`         | complete conventional app, live metrics, seven-day history, alarms         | fixed screens cannot answer unanticipated historian questions |
+| `02-basic-chat`       | ordinary conversation through OpenAI SDK and OpenRouter; no tools          | the model cannot inspect application data                     |
+| `03-copilotkit-ag-ui` | replace the custom chat with CopilotKit, BuiltInAgent, and AG-UI streaming | the standardized path still uses an embedded agent            |
+| `04-mastra-agent`     | replace BuiltInAgent with Mastra while keeping CopilotKit chat-only        | the standardized stack is ready for application capabilities  |
+| `05-sql-tool`         | one generated-SQL historian tool and generic result table                  | consequential tools need an authority boundary                |
+| `06-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
+| `07-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
+| `08-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |
+| `09-mcp-app`          | MCP corpus, `get_case_analysis`, portable app                              | production concerns need deeper treatment                     |
+| `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
 The implementation contract for the next checkpoint is in
-[Step 2 implementation brief](./step-02-basic-chat.md).
+[Step 3 implementation brief](./step-03-copilotkit-ag-ui.md).
 
 ## Readiness check per checkpoint
 

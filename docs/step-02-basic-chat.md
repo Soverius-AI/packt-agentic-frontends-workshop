@@ -9,7 +9,7 @@ does not give the model access to facility data or application actions.
 Create the runnable checkpoint as `02-basic-chat` directly from
 `01-base-app`. Preserve `01-base-app` as the completed, independently runnable
 starting point. Do not merge the checkpoint into `main`; create
-`03-ag-ui-chat` from the completed `02-basic-chat` milestone.
+`03-copilotkit-ag-ui` from the completed `02-basic-chat` milestone.
 
 ## Fixed decisions
 
@@ -100,8 +100,8 @@ cannot inspect the historian yet.
 3. Ask when the Cooling room entered warning during the last seven days.
 4. Show that the assistant cannot inspect the application's data.
 
-That limitation motivates Step 3: migrate the same tool-free conversation to
-AG-UI before adding any tool calling.
+That limitation motivates Step 3: replace the custom chat UI and transport
+with CopilotKit, Copilot Runtime, and AG-UI streaming before adding tools.
 
 ## Completion criteria
 
