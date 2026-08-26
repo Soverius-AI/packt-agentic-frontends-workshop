@@ -27,8 +27,8 @@ historian. The standardized agent path is now ready for Mastra in Checkpoint 04.
 - AG-UI run lifecycle, text streaming, cancellation, and terminal errors;
 - `@ai-sdk/openai` pointed at OpenRouter;
 - `google/gemma-4-31b-it` as the configurable default model;
-- lazy chat feature boundaries so the conventional application shell remains
-  lightweight; and
+- a direct Angular component integration with scoped layout and
+  streaming-scroll compatibility, plus a lazy React chat boundary; and
 - agent discovery plus backend and frontend tests.
 
 The conventional SQLite application remains intact. This checkpoint does

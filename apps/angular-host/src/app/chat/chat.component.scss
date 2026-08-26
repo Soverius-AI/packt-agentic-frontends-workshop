@@ -1,8 +1,11 @@
 :host {
+  position: sticky;
+  top: 24px;
   display: flex;
-  align-self: stretch;
+  align-self: start;
+  height: clamp(520px, calc(100vh - 48px), 900px);
   min-width: 0;
-  min-height: 780px;
+  min-height: 0;
   margin: -22px -22px -22px 0;
   padding: 22px;
   overflow: hidden;
@@ -77,24 +80,11 @@ copilot-chat {
   height: 100%;
 }
 
-.chat-loading {
-  padding: 20px;
-  margin: 0;
-  color: #655d56;
-  font-size: 0.82rem;
-}
-
-.chat-error {
-  padding: 12px;
-  margin: 0;
-  color: #71291f;
-  background: #fff2ef;
-  font-size: 0.82rem;
-}
-
 @media (max-width: 1100px) {
   :host {
+    position: static;
     order: -1;
+    height: 620px;
     min-height: 480px;
     margin: 0;
     padding: 20px 0 22px;

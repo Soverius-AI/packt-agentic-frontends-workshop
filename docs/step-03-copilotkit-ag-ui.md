@@ -49,7 +49,11 @@ unchanged.
 - Preserve the shared visual workspace and explicit notice that chat cannot
   access current application data.
 - Import CopilotKit's supported stylesheet and keep keyboard, accessibility,
-  scrolling, pending, and error behaviour provided by the component.
+  pending, and error behaviour provided by the component.
+- Keep the Angular chat component direct. Use only a scoped compatibility
+  layer to place its composer in normal layout flow, remove the obsolete
+  overlay feather, and follow streamed tokens until the user deliberately
+  scrolls away.
 - Show streaming text and use the Inspector or network stream to make AG-UI
   run lifecycle events visible during the workshop.
 
@@ -94,7 +98,9 @@ data access.
 
 The `03-copilotkit-ag-ui` branch implements this contract with CopilotKit
 Runtime 1.69, CopilotKit Angular 0.3, and the v2 React frontend. Both hosts load
-the rich chat renderer as a deferred feature so the conventional application
-shell remains within its existing initial-build boundary. React exposes the
-Inspector on localhost; both hosts expose the same AG-UI stream through the
-shared runtime in the browser network panel.
+the same prebuilt chat directly in their existing workspace; React keeps the
+renderer behind its existing lazy feature boundary. Angular renders
+`CopilotChat` directly and adds a scoped streaming-scroll directive plus layout
+overrides for the fixed workspace panel. React exposes the Inspector on
+localhost; both hosts expose the same AG-UI stream through the shared runtime in
+the browser network panel.

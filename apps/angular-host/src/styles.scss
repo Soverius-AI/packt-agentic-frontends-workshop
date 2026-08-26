@@ -1,1 +1,18 @@
 @import '@copilotkit/angular/styles.css';
+
+app-chat copilot-chat-view-scroll-view > div {
+  height: 100% !important;
+}
+
+app-chat copilot-chat-view .copilotKitChat > copilot-slot {
+  display: block;
+  flex: 0 0 auto;
+}
+
+app-chat copilot-chat-view-input-container > div {
+  position: static !important;
+}
+
+app-chat copilot-chat-view-feather {
+  display: none;
+}

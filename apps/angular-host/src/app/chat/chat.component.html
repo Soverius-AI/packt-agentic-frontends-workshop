@@ -12,15 +12,6 @@
   </p>
 
   <div class="copilot-chat-shell">
-    @if (chatComponent() && chatInjector()) {
-      <ng-container
-        [ngComponentOutlet]="chatComponent()!"
-        [ngComponentOutletEnvironmentInjector]="chatInjector()"
-      />
-    } @else if (loadError()) {
-      <p class="chat-error" role="alert">The streaming chat could not be loaded.</p>
-    } @else {
-      <p class="chat-loading" role="status">Loading the streaming chat…</p>
-    }
+    <copilot-chat agentId="default" appStreamingAutoScroll />
   </div>
 </aside>
