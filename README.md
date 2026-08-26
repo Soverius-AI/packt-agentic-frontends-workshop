@@ -1,13 +1,13 @@
-# Part 3 / Checkpoint 03 — CopilotKit and AG-UI streaming
+# Part 4 / Checkpoint 04 — Mastra behind CopilotKit and AG-UI
 
-This branch extends the completed conventional application with the first AI
-capability in the three-hour **Hands-On Agentic Frontends with AG-UI and
-CopilotKit** workshop.
+This branch extends the completed CopilotKit and AG-UI checkpoint in the
+three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
-It replaces the Checkpoint 02 custom chat transport with CopilotKit's prebuilt
-chat, Copilot Runtime, a tool-free BuiltInAgent, and AG-UI streaming. A minimal
-system prompt still tells Gemma 4 which application it is embedded in, but the
-model receives no facility state and has no application capabilities.
+It replaces Checkpoint 03's BuiltInAgent with a tool-free Mastra agent behind
+the same Copilot Runtime and AG-UI endpoint. The Angular and React frontends do
+not change. A minimal system prompt still tells Gemma 4 which application it is
+embedded in, but the model receives no facility state and has no application
+capabilities.
 
 ## Scenario
 
@@ -17,23 +17,25 @@ A person on night duty can inspect seven days of stored telemetry, use the conti
 
 The assistant can understand what a user means by the Cooling room, but it
 cannot answer when that room entered warning because it cannot inspect the
-historian. The standardized agent path is now ready for Mastra in Checkpoint 04.
+historian. The standardized Mastra path is now ready for its first application
+capability in Checkpoint 05.
 
 ## What this checkpoint adds
 
-- CopilotKit's prebuilt inline chat in Angular 22 and React 19;
-- Copilot Runtime mounted at `/api/copilotkit` in the existing Node service;
-- one tool-free BuiltInAgent named `default`;
+- one tool-free Mastra agent exposed as `default` through Copilot Runtime;
+- the AG-UI Mastra bridge inside the existing Node service;
+- unchanged CopilotKit inline chat in Angular 22 and React 19;
 - AG-UI run lifecycle, text streaming, cancellation, and terminal errors;
 - `@ai-sdk/openai` pointed at OpenRouter;
 - `google/gemma-4-31b-it` as the configurable default model;
 - a direct Angular component integration with scoped layout and
   streaming-scroll compatibility, plus a lazy React chat boundary; and
-- agent discovery plus backend and frontend tests.
+- Mastra boundary, AG-UI streaming, provider-failure, discovery, backend, and
+  frontend tests.
 
 The conventional SQLite application remains intact. This checkpoint does
 **not** contain tools, SQL generation, facility-state injection, persistent
-chat memory, human approval, Mastra, A2UI, A2A, MCP, or an MCP App.
+chat memory, human approval, A2UI, A2A, MCP, or an MCP App.
 
 ## Run it
 
@@ -72,9 +74,10 @@ pnpm check
 
 ## Teaching point
 
-> AG-UI standardizes a streaming agent interaction without giving the agent
-> application data or tools.
+> AG-UI keeps the frontend contract stable while the backend agent framework
+> changes from BuiltInAgent to Mastra.
 
-Checkpoint 04 replaces BuiltInAgent with Mastra without rewriting either
-CopilotKit frontend or changing the chat-only capability boundary.
+Checkpoint 05 adds the first application capability: one constrained,
+read-only generated-SQL historian tool. Until then, the Mastra agent remains
+chat-only and data-blind.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

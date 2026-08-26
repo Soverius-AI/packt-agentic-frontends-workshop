@@ -532,8 +532,8 @@ from `01-base-app`, then `03-copilotkit-ag-ui` from `02-basic-chat`, and so on).
 | --------------------- | ------------------------------------------------------------------- | -------------------------------------- |
 | `01-base-app`         | Complete conventional incident-management application               | **Completed; workshop starting point** |
 | `02-basic-chat`       | Basic conversation through the OpenAI SDK and OpenRouter; no tools  | **Completed**                          |
-| `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | Planned                                |
-| `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | Planned                                |
+| `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | **Completed**                          |
+| `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | **Completed**                          |
 | `05-sql-tool`         | One generated-SQL historian tool through the standardized stack     | Planned                                |
 | `06-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
 | `07-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |

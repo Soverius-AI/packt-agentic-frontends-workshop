@@ -8,6 +8,7 @@ allowBuilds:
   esbuild: true
   lmdb: true
   msgpackr-extract: true
+  protobufjs: true
 
 minimumReleaseAgeExclude:
   - "@copilotkit/runtime@1.69.2"
@@ -18,6 +19,7 @@ minimumReleaseAgeExclude:
   - "@copilotkit/runtime-client-gql@1.69.2"
   - "@copilotkit/web-components@1.69.2"
   - "@copilotkit/web-inspector@1.69.2"
+  - "@mastra/core@1.62.0"
 
 onlyBuiltDependencies:
   - "@parcel/watcher"

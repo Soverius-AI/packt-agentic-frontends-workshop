@@ -9,8 +9,12 @@
     "test": "vitest --run src"
   },
   "dependencies": {
+    "@ag-ui/client": "0.0.57",
+    "@ag-ui/core": "0.0.57",
+    "@ag-ui/mastra": "1.1.0",
     "@ai-sdk/openai": "^3.0.101",
     "@copilotkit/runtime": "^1.69.2",
+    "@mastra/core": "1.62.0",
     "@packt-workshop/contracts": "workspace:*"
   },
   "devDependencies": {
