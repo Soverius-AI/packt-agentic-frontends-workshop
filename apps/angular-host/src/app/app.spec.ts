@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { CopilotKit, provideCopilotKit } from '@copilotkit/angular';
 import type {
   FacilityDashboard,
   FacilityReadingPage,
@@ -158,7 +159,10 @@ describe('App', () => {
     });
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [{ provide: FacilityApi, useValue: api }],
+      providers: [
+        provideCopilotKit({ runtimeUrl: '/api/copilotkit' }),
+        { provide: FacilityApi, useValue: api },
+      ],
     }).compileComponents();
   });
 
@@ -348,12 +352,43 @@ describe('App', () => {
     );
   });
 
-  it('presents the Step 3 CopilotKit milestone without changing facility data access', async () => {
+  it('patches the facility view through the frontend tool without resetting other filters', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const tool = TestBed.inject(CopilotKit).core.getTool({
+      toolName: 'configure_facility_view',
+      agentId: 'default',
+    });
+    const runTool = tool?.handler as ((args: unknown) => Promise<unknown>) | undefined;
+
+    expect(runTool).toBeTruthy();
+    await runTool!({
+      action: 'update',
+      view: 'reading-log',
+      filters: { roomId: 'cooling-room', condition: 'warning', from: '2026-08-25T08:00' },
+    });
+    await runTool!({ action: 'update', filters: { from: 'now' } });
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inputs = compiled.querySelectorAll<HTMLInputElement>('input[type="datetime-local"]');
+    const selects = compiled.querySelectorAll<HTMLSelectElement>('.filter-grid select');
+    expect(inputs[0]!.value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+    expect(Array.from(selects, (select) => select.value)).toEqual([
+      '',
+      'cooling-room',
+      '',
+      'warning',
+    ]);
+    expect(compiled.querySelector('.reading-entries-table')).toBeTruthy();
+  });
+
+  it('presents the Step 5 frontend-tool milestone without historian access', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.textContent).toContain('Stage 3 · CopilotKit + AG-UI');
+    expect(compiled.textContent).toContain('Stage 5 · Frontend view tool');
     expect(compiled.textContent).toMatch(/CopilotKit chat|Loading the streaming chat/);
     expect(api.getDashboard).toHaveBeenCalledOnce();
   });

@@ -9,7 +9,7 @@ application capability.
 
 Create `04-mastra-agent` directly from the completed
 `03-copilotkit-ag-ui` checkpoint. Preserve all earlier milestones and create
-`05-sql-tool` directly from this checkpoint.
+`05-frontend-tool` directly from this checkpoint.
 
 ## Fixed decisions
 
@@ -82,8 +82,8 @@ The new capability is backend-framework substitution, not data access.
 5. Open Mastra Studio's Observability view and inspect that same run.
 6. Ask when the Cooling room entered warning and show that the assistant still
    cannot inspect the historian.
-7. Motivate Checkpoint 05: add one constrained, read-only historian capability
-   without changing the frontend-to-agent protocol.
+7. Motivate Checkpoint 05: expose bounded view state and one browser-side tool
+   that can adjust the predetermined UI without granting historian access.
 
 ## Completion criteria
 

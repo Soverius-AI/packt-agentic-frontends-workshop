@@ -104,6 +104,137 @@ export const facilityReadingPageSchema = z.object({
 });
 export type FacilityReadingPage = z.infer<typeof facilityReadingPageSchema>;
 
+export const facilityViewModeSchema = z.enum(["snapshot", "reading-log"]);
+export type FacilityViewMode = z.infer<typeof facilityViewModeSchema>;
+
+export const facilityViewFilterNameSchema = z.enum([
+  "from",
+  "to",
+  "shiftManager",
+  "roomId",
+  "metricId",
+  "condition",
+]);
+export type FacilityViewFilterName = z.infer<
+  typeof facilityViewFilterNameSchema
+>;
+
+const nullableFilterValueSchema = z.string().min(1).nullable();
+const localDateTimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/;
+const facilityDateFilterValueSchema = z
+  .union([
+    z.literal("now"),
+    z.iso.datetime(),
+    z.string().regex(localDateTimePattern),
+  ])
+  .nullable();
+
+export const facilityViewFiltersSchema = z.object({
+  from: facilityDateFilterValueSchema,
+  to: facilityDateFilterValueSchema,
+  shiftManager: nullableFilterValueSchema,
+  roomId: nullableFilterValueSchema,
+  metricId: nullableFilterValueSchema,
+  condition: metricConditionSchema.nullable(),
+});
+export type FacilityViewFilters = z.infer<typeof facilityViewFiltersSchema>;
+
+export const facilityViewStateSchema = z.object({
+  view: facilityViewModeSchema,
+  filters: facilityViewFiltersSchema,
+});
+export type FacilityViewState = z.infer<typeof facilityViewStateSchema>;
+
+const facilityViewFilterPatchSchema = facilityViewFiltersSchema.partial();
+
+export const configureFacilityViewSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("update"),
+    view: facilityViewModeSchema.optional(),
+    filters: facilityViewFilterPatchSchema.optional(),
+  }),
+  z.object({
+    action: z.literal("clear_filters"),
+    filters: z.array(facilityViewFilterNameSchema).min(1).optional(),
+  }),
+]);
+export type ConfigureFacilityView = z.infer<typeof configureFacilityViewSchema>;
+
+export const emptyFacilityViewFilters = (): FacilityViewFilters => ({
+  from: null,
+  to: null,
+  shiftManager: null,
+  roomId: null,
+  metricId: null,
+  condition: null,
+});
+
+export function applyFacilityViewCommand(
+  current: FacilityViewState,
+  command: ConfigureFacilityView,
+): FacilityViewState {
+  if (command.action === "update") {
+    const patch = command.filters;
+    return {
+      view: command.view ?? current.view,
+      filters: {
+        from: patch?.from !== undefined ? patch.from : current.filters.from,
+        to: patch?.to !== undefined ? patch.to : current.filters.to,
+        shiftManager:
+          patch?.shiftManager !== undefined
+            ? patch.shiftManager
+            : current.filters.shiftManager,
+        roomId:
+          patch?.roomId !== undefined ? patch.roomId : current.filters.roomId,
+        metricId:
+          patch?.metricId !== undefined
+            ? patch.metricId
+            : current.filters.metricId,
+        condition:
+          patch?.condition !== undefined
+            ? patch.condition
+            : current.filters.condition,
+      },
+    };
+  }
+
+  if (!command.filters) {
+    return { ...current, filters: emptyFacilityViewFilters() };
+  }
+
+  const filters = { ...current.filters };
+  for (const filter of command.filters) filters[filter] = null;
+  return { ...current, filters };
+}
+
+function toLocalDateTimeInput(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function resolveFacilityViewDates(
+  state: FacilityViewState,
+  now = new Date(),
+): FacilityViewState {
+  const resolveDate = (value: string | null): string | null => {
+    if (value === null) return null;
+    if (value === "now") return toLocalDateTimeInput(now);
+    if (localDateTimePattern.test(value)) return value.slice(0, 16);
+    return toLocalDateTimeInput(new Date(value));
+  };
+
+  return {
+    ...state,
+    filters: {
+      ...state.filters,
+      from: resolveDate(state.filters.from),
+      to: resolveDate(state.filters.to),
+    },
+  };
+}
+
 export const raiseAlarmRequestSchema = z.object({
   operatorId: z.string().min(1).default("night-reception"),
 });

@@ -14,7 +14,8 @@ export const appConfig: ApplicationConfig = {
     provideCopilotChatLabels({
       chatInputPlaceholder: 'Ask about incident management…',
       welcomeMessageText: 'Ask a general question about incident management.',
-      chatDisclaimerText: 'Chat cannot access current facility data or perform actions.',
+      chatDisclaimerText:
+        'Chat can adjust this view and its filters, but cannot inspect readings or perform operational actions.',
     }),
   ],
 };

@@ -6,7 +6,42 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 vi.mock("./CopilotChatPanel", () => ({
-  default: () => <div data-testid="copilot-chat">CopilotKit chat</div>,
+  default: ({
+    viewContext,
+    onConfigureView,
+  }: {
+    viewContext: unknown;
+    onConfigureView: (command: unknown) => Promise<unknown>;
+  }) => (
+    <div data-testid="copilot-chat">
+      CopilotKit chat
+      <pre data-testid="view-context">{JSON.stringify(viewContext)}</pre>
+      <button
+        data-testid="configure-view"
+        onClick={() =>
+          void onConfigureView({
+            action: "update",
+            view: "reading-log",
+            filters: {
+              from: "2026-08-25T08:00",
+              roomId: "cooling-room",
+              condition: "warning",
+            },
+          })
+        }
+      >
+        Configure view
+      </button>
+      <button
+        data-testid="change-date"
+        onClick={() =>
+          void onConfigureView({ action: "update", filters: { from: "now" } })
+        }
+      >
+        Change date
+      </button>
+    </div>
+  ),
 }));
 
 class EventSourceStub {
@@ -37,6 +72,12 @@ describe("React CopilotKit host", () => {
       if (url === "/api/dashboard") {
         return { ok: true, json: async () => dashboard };
       }
+      if (url.startsWith("/api/readings?")) {
+        return {
+          ok: true,
+          json: async () => ({ entries: [], total: 0, limit: 50, offset: 0 }),
+        };
+      }
       throw new Error(`Unexpected request: ${url}`);
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -54,8 +95,8 @@ describe("React CopilotKit host", () => {
     vi.unstubAllGlobals();
   });
 
-  it("presents the Step 3 CopilotKit milestone without a custom chat transport", () => {
-    expect(container.textContent).toContain("Stage 3 · CopilotKit + AG-UI");
+  it("presents the Step 5 frontend-tool milestone without a custom chat transport", () => {
+    expect(container.textContent).toContain("Stage 5 · Frontend view tool");
     expect(
       container.querySelector('[data-testid="copilot-chat"]'),
     ).toBeTruthy();
@@ -66,5 +107,30 @@ describe("React CopilotKit host", () => {
     expect(fetchMock.mock.calls.some(([url]) => url === "/api/chat")).toBe(
       false,
     );
+  });
+
+  it("patches the date without resetting the rest of the frontend state", async () => {
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="configure-view"]')
+        ?.click();
+    });
+    await act(async () => {
+      container
+        .querySelector<HTMLButtonElement>('[data-testid="change-date"]')
+        ?.click();
+    });
+
+    const context = JSON.parse(
+      container.querySelector('[data-testid="view-context"]')?.textContent ??
+        "{}",
+    ) as {
+      view: string;
+      filters: Record<string, string | null>;
+    };
+    expect(context.view).toBe("reading-log");
+    expect(context.filters.from).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+    expect(context.filters.roomId).toBe("cooling-room");
+    expect(context.filters.condition).toBe("warning");
   });
 });

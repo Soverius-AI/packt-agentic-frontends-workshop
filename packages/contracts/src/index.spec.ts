@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyFacilityViewCommand,
   alarmActionRequestSchema,
+  configureFacilityViewSchema,
+  type FacilityViewState,
   facilityDashboardSchema,
   metricUpdateEventSchema,
   raiseAlarmRequestSchema,
+  resolveFacilityViewDates,
 } from "./index.js";
 
 describe("Stage 1 facility contracts", () => {
@@ -93,5 +97,78 @@ describe("Stage 1 facility contracts", () => {
       metricUpdateEventSchema.parse({ type: "metric.updated", metric }).metric
         .id,
     ).toBe("cooling-air-temperature");
+  });
+
+  it("patches only the requested facility view fields", () => {
+    const current: FacilityViewState = {
+      view: "reading-log",
+      filters: {
+        from: "2026-08-25T08:00",
+        to: null,
+        shiftManager: "Charles Bond",
+        roomId: "cooling-room",
+        metricId: null,
+        condition: "warning",
+      },
+    };
+    const command = configureFacilityViewSchema.parse({
+      action: "update",
+      filters: { from: "now" },
+    });
+
+    expect(applyFacilityViewCommand(current, command)).toEqual({
+      ...current,
+      filters: { ...current.filters, from: "now" },
+    });
+  });
+
+  it("clears selected filters or all filters without changing the view", () => {
+    const current: FacilityViewState = {
+      view: "reading-log",
+      filters: {
+        from: "2026-08-25T08:00",
+        to: "2026-08-25T16:00",
+        shiftManager: "Charles Bond",
+        roomId: "cooling-room",
+        metricId: "cooling-air-temperature",
+        condition: "warning",
+      },
+    };
+
+    expect(
+      applyFacilityViewCommand(current, {
+        action: "clear_filters",
+        filters: ["from"],
+      }),
+    ).toEqual({
+      ...current,
+      filters: { ...current.filters, from: null },
+    });
+    expect(
+      Object.values(
+        applyFacilityViewCommand(current, { action: "clear_filters" }).filters,
+      ),
+    ).toEqual([null, null, null, null, null, null]);
+  });
+
+  it("resolves now at execution time without changing other filters", () => {
+    const state: FacilityViewState = {
+      view: "reading-log",
+      filters: {
+        from: "now",
+        to: "2026-08-25T16:00",
+        shiftManager: "Charles Bond",
+        roomId: "cooling-room",
+        metricId: null,
+        condition: "warning",
+      },
+    };
+
+    expect(
+      resolveFacilityViewDates(state, new Date(2026, 7, 26, 9, 7)),
+    ).toEqual({
+      ...state,
+      filters: { ...state.filters, from: "2026-08-26T09:07" },
+    });
   });
 });

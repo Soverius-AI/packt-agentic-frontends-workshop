@@ -1,13 +1,13 @@
-# Part 4 / Checkpoint 04 — Mastra behind CopilotKit and AG-UI
+# Part 5 / Checkpoint 05 — Bounded frontend view tool
 
-This branch extends the completed CopilotKit and AG-UI checkpoint in the
+This branch extends the completed Mastra checkpoint in the
 three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
-It replaces Checkpoint 03's BuiltInAgent with a tool-free Mastra agent behind
-the same Copilot Runtime and AG-UI endpoint. The Angular and React frontends do
-not change. A minimal system prompt still tells Gemma 4 which application it is
-embedded in, but the model receives no facility state and has no application
-capabilities.
+It gives the existing Mastra agent its first application capability: one
+CopilotKit frontend tool that can switch between snapshot and reading-log
+views and patch the existing filters. Angular and React expose the same tool
+and bounded view context. The agent still cannot inspect readings or query the
+historian.
 
 ## Scenario
 
@@ -15,28 +15,26 @@ Soverius Chocolate has two adjacent production areas: a climate-controlled **Coo
 
 A person on night duty can inspect seven days of stored telemetry, use the continuously updated snapshot, raise an alarm for any metric, and acknowledge or resolve it. In snapshot mode, individual devices report at randomized intervals and every new reading is persisted. The application cannot interpret the combined evidence and recommend checking the connecting door before calling maintenance.
 
-The assistant can understand what a user means by the Cooling room, but it
-cannot answer when that room entered warning because it cannot inspect the
-historian. The standardized Mastra path is now ready for its first application
-capability in Checkpoint 05.
+The assistant can now ask the existing UI to show the Cooling room's warning
+readings or change one date boundary without resetting the other filters. It
+still cannot answer when that room entered warning unless the predetermined UI
+already presents the answer. Generated SQL remains a separate capability for
+Checkpoint 06.
 
 ## What this checkpoint adds
 
-- one tool-free Mastra agent exposed as `default` through Copilot Runtime;
-- a local Mastra service with Studio and persisted observability;
-- the AG-UI Mastra bridge in the facility service, connected to that agent;
-- unchanged CopilotKit inline chat in Angular 22 and React 19;
-- AG-UI run lifecycle, text streaming, cancellation, and terminal errors;
-- `@ai-sdk/openai` pointed at OpenRouter;
-- `google/gemma-4-31b-it` as the configurable default model;
-- a direct Angular component integration with scoped layout and
-  streaming-scroll compatibility, plus a lazy React chat boundary; and
-- Mastra capability-boundary, CopilotKit discovery, backend, and frontend
-  tests.
+- one `configure_facility_view` browser-side tool in Angular 22 and React 19;
+- bounded agent context containing the current view, active filters, and
+  available filter options;
+- shared patch semantics that preserve every omitted value;
+- explicit clearing of one, several, or all filters;
+- browser-local resolution of the literal `now`; and
+- shared-contract and host tests for identical behavior.
 
 The conventional SQLite application remains intact. This checkpoint does
-**not** contain tools, SQL generation, facility-state injection, persistent
-chat memory, human approval, A2UI, A2A, MCP, or an MCP App.
+**not** contain a backend tool, SQL generation, reading or historian context,
+persistent chat memory, operational actions, human approval, A2UI, A2A, MCP,
+or an MCP App.
 
 ## Workspace layout
 
@@ -101,10 +99,10 @@ pnpm check
 
 ## Teaching point
 
-> AG-UI keeps the frontend contract stable while the backend agent framework
-> changes from BuiltInAgent to Mastra.
+> Bounded frontend context lets the agent understand the current UI, while a
+> patch-based frontend tool changes only what the user requested.
 
-Checkpoint 05 adds the first application capability: one constrained,
-read-only generated-SQL historian tool. Until then, the Mastra agent remains
-chat-only and data-blind.
+Checkpoint 06 adds the first data capability: one constrained, read-only
+generated-SQL historian tool. Until then, the agent can control the existing
+view but remains blind to its readings.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

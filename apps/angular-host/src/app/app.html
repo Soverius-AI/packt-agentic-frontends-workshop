@@ -17,7 +17,7 @@
           Persistent factory telemetry, historical readings, operator-managed alarms, and
           standardized streaming agent chat.
         </p>
-        <p class="stage-label">Stage 3 · CopilotKit + AG-UI · No application data access</p>
+        <p class="stage-label">Stage 5 · Frontend view tool · No historian data access</p>
       </div>
     </div>
     <div class="header-actions">
@@ -138,38 +138,52 @@
                     [value]="shiftManagerFilter()"
                     (change)="setFilter('shiftManager', $event)"
                   >
-                    <option value="">All shift managers</option>
+                    <option value="" [selected]="!shiftManagerFilter()">All shift managers</option>
                     @for (manager of shiftManagerOptions(); track manager) {
-                      <option [value]="manager">{{ manager }}</option>
+                      <option [value]="manager" [selected]="shiftManagerFilter() === manager">
+                        {{ manager }}
+                      </option>
                     }
                   </select>
                 </label>
                 <label>
                   <span>Room</span>
                   <select [value]="roomFilter()" (change)="setFilter('room', $event)">
-                    <option value="">All rooms</option>
+                    <option value="" [selected]="!roomFilter()">All rooms</option>
                     @for (room of rooms(); track room.id) {
-                      <option [value]="room.id">{{ room.name }}</option>
+                      <option [value]="room.id" [selected]="roomFilter() === room.id">
+                        {{ room.name }}
+                      </option>
                     }
                   </select>
                 </label>
                 <label>
                   <span>Metric</span>
                   <select [value]="metricFilter()" (change)="setFilter('metric', $event)">
-                    <option value="">All metrics</option>
+                    <option value="" [selected]="!metricFilter()">All metrics</option>
                     @for (metric of metricOptions(); track metric.id) {
-                      <option [value]="metric.id">{{ metric.label }}</option>
+                      <option [value]="metric.id" [selected]="metricFilter() === metric.id">
+                        {{ metric.label }}
+                      </option>
                     }
                   </select>
                 </label>
                 <label>
                   <span>Condition</span>
                   <select [value]="conditionFilter()" (change)="setFilter('condition', $event)">
-                    <option value="">All conditions</option>
-                    <option value="normal">Normal</option>
-                    <option value="warning">Warning</option>
-                    <option value="critical">Critical</option>
-                    <option value="unavailable">Unavailable</option>
+                    <option value="" [selected]="!conditionFilter()">All conditions</option>
+                    <option value="normal" [selected]="conditionFilter() === 'normal'">
+                      Normal
+                    </option>
+                    <option value="warning" [selected]="conditionFilter() === 'warning'">
+                      Warning
+                    </option>
+                    <option value="critical" [selected]="conditionFilter() === 'critical'">
+                      Critical
+                    </option>
+                    <option value="unavailable" [selected]="conditionFilter() === 'unavailable'">
+                      Unavailable
+                    </option>
                   </select>
                 </label>
               </div>

@@ -1,12 +1,21 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { connectAgentContext, registerFrontendTool } from '@copilotkit/angular';
 import type {
+  ConfigureFacilityView,
   FacilityDashboard,
   FacilityReadingEntry,
   FacilityReadingPage,
+  FacilityViewState,
   MetricHistory,
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
+} from '@packt-workshop/contracts';
+import {
+  applyFacilityViewCommand,
+  configureFacilityViewSchema,
+  metricConditionSchema,
+  resolveFacilityViewDates,
 } from '@packt-workshop/contracts';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
@@ -56,6 +65,26 @@ export class App {
       })),
     ),
   );
+  protected readonly facilityViewState = computed<FacilityViewState>(() => ({
+    view: this.displayMode() === 'snapshot' ? ('snapshot' as const) : ('reading-log' as const),
+    filters: {
+      from: this.updatedFrom() || null,
+      to: this.updatedTo() || null,
+      shiftManager: this.shiftManagerFilter() || null,
+      roomId: this.roomFilter() || null,
+      metricId: this.metricFilter() || null,
+      condition: metricConditionSchema.safeParse(this.conditionFilter()).data ?? null,
+    },
+  }));
+  protected readonly facilityViewContext = computed(() => ({
+    ...this.facilityViewState(),
+    availableFilters: {
+      rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
+      metrics: this.metricOptions(),
+      shiftManagers: this.shiftManagerOptions(),
+      conditions: ['normal', 'warning', 'critical', 'unavailable'],
+    },
+  }));
   protected readonly currentRows = computed(() =>
     this.rooms().flatMap((room) => room.metrics.map((metric) => ({ room, metric }))),
   );
@@ -72,9 +101,54 @@ export class App {
   });
 
   constructor() {
+    connectAgentContext(() => ({
+      description:
+        'Current facility view, active filters, and available filter options. This context contains no readings or historian results.',
+      value: JSON.stringify(this.facilityViewContext()),
+    }));
+    registerFrontendTool({
+      name: 'configure_facility_view',
+      description:
+        'Update the visible facility view and reading-log filters. Updates are patches: omit every value that should remain unchanged. Use the literal "now" for the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
+      parameters: configureFacilityViewSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (command) => this.#configureFacilityView(command),
+    });
     this.#destroyRef.onDestroy(() => this.#stopMetricUpdates?.());
     this.#startContinuousUpdates();
     void this.loadDashboard();
+  }
+
+  async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
+    const next = resolveFacilityViewDates(
+      applyFacilityViewCommand(this.facilityViewState(), command),
+    );
+    const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'list';
+    const viewChanged = nextDisplayMode !== this.displayMode();
+
+    this.updatedFrom.set(next.filters.from ?? '');
+    this.updatedTo.set(next.filters.to ?? '');
+    this.shiftManagerFilter.set(next.filters.shiftManager ?? '');
+    this.roomFilter.set(next.filters.roomId ?? '');
+    this.metricFilter.set(next.filters.metricId ?? '');
+    this.conditionFilter.set(next.filters.condition ?? '');
+    this.readingPageIndex.set(0);
+
+    if (viewChanged) {
+      this.displayMode.set(nextDisplayMode);
+      this.closeHistory();
+      if (nextDisplayMode === 'snapshot') this.#startContinuousUpdates();
+      else this.#stopContinuousUpdates();
+    }
+    if (nextDisplayMode === 'list') await this.loadReadingEntries();
+
+    this.status.set('The assistant updated the facility view.');
+    return {
+      ok: true,
+      state: next,
+      message: 'Facility view updated. Unspecified values were preserved.',
+    };
   }
 
   protected setDisplayMode(mode: DisplayMode): void {

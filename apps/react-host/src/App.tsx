@@ -1,15 +1,28 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  applyFacilityViewCommand,
+  type ConfigureFacilityView,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
+  metricConditionSchema,
   metricHistorySchema,
   metricUpdateEventSchema,
   type FacilityDashboard,
   type FacilityReadingEntry,
   type FacilityReadingPage,
+  type FacilityViewState,
   type MetricHistory,
   type MetricSummary,
+  resolveFacilityViewDates,
 } from "@packt-workshop/contracts";
 import "./App.css";
 
@@ -61,6 +74,47 @@ export default function App() {
         room.metrics.map((metric) => ({ room, metric })),
       ) ?? [],
     [dashboard],
+  );
+  const facilityViewState = useMemo<FacilityViewState>(
+    () => ({
+      view:
+        displayMode === "snapshot"
+          ? ("snapshot" as const)
+          : ("reading-log" as const),
+      filters: {
+        from: updatedFrom || null,
+        to: updatedTo || null,
+        shiftManager: shiftManagerFilter || null,
+        roomId: roomFilter || null,
+        metricId: metricFilter || null,
+        condition:
+          metricConditionSchema.safeParse(conditionFilter).data ?? null,
+      },
+    }),
+    [
+      conditionFilter,
+      displayMode,
+      metricFilter,
+      roomFilter,
+      shiftManagerFilter,
+      updatedFrom,
+      updatedTo,
+    ],
+  );
+  const facilityViewContext = useMemo(
+    () => ({
+      ...facilityViewState,
+      availableFilters: {
+        rooms: dashboard?.rooms.map(({ id, name }) => ({ id, name })) ?? [],
+        metrics: allRows.map(({ room, metric }) => ({
+          id: metric.id,
+          label: `${room.name} · ${metric.name}`,
+        })),
+        shiftManagers: dashboard?.shiftManagers ?? [],
+        conditions: ["normal", "warning", "critical", "unavailable"],
+      },
+    }),
+    [allRows, dashboard, facilityViewState],
   );
 
   async function loadReadingEntries(): Promise<void> {
@@ -268,6 +322,31 @@ export default function App() {
     setReadingPageIndex(0);
   }
 
+  const configureFacilityView = useCallback(
+    async (command: ConfigureFacilityView): Promise<unknown> => {
+      const next = resolveFacilityViewDates(
+        applyFacilityViewCommand(facilityViewState, command),
+      );
+
+      setUpdatedFrom(next.filters.from ?? "");
+      setUpdatedTo(next.filters.to ?? "");
+      setShiftManagerFilter(next.filters.shiftManager ?? "");
+      setRoomFilter(next.filters.roomId ?? "");
+      setMetricFilter(next.filters.metricId ?? "");
+      setConditionFilter(next.filters.condition ?? "");
+      setReadingPageIndex(0);
+      changeDisplayMode(next.view === "snapshot" ? "snapshot" : "list");
+      setStatus("The assistant updated the facility view.");
+
+      return {
+        ok: true,
+        state: next,
+        message: "Facility view updated. Unspecified values were preserved.",
+      };
+    },
+    [facilityViewState],
+  );
+
   const readingPageCount = Math.max(
     1,
     Math.ceil((readingPage?.total ?? 0) / readingPageSize),
@@ -303,7 +382,7 @@ export default function App() {
               alarms, and standardized streaming agent chat.
             </p>
             <p className="stage-label">
-              Stage 3 · CopilotKit + AG-UI · No application data access
+              Stage 5 · Frontend view tool · No historian data access
             </p>
           </div>
         </div>
@@ -740,11 +819,12 @@ export default function App() {
               <p className="eyebrow">CopilotKit · AG-UI streaming</p>
               <h2 id="chat-title">Factory assistant</h2>
             </div>
-            <span>Tool-free</span>
+            <span>View tool</span>
           </div>
           <p className="chat-boundary">
-            The assistant understands this application’s domain, but it cannot
-            see its current data, inspect the historian, or perform actions.
+            The assistant can read and adjust this view and its filters. It
+            cannot inspect readings, query the historian directly, or perform
+            operational actions.
           </p>
           <div className="copilot-chat-shell">
             <Suspense
@@ -752,7 +832,10 @@ export default function App() {
                 <p className="chat-loading">Loading the streaming chat…</p>
               }
             >
-              <CopilotChatPanel />
+              <CopilotChatPanel
+                viewContext={facilityViewContext}
+                onConfigureView={configureFacilityView}
+              />
             </Suspense>
           </div>
         </aside>
