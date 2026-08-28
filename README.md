@@ -1,13 +1,14 @@
-# Part 5 / Checkpoint 05 — Bounded frontend view tool
+# Part 5 / Checkpoint 05 — Bounded frontend tools
 
 This branch extends the completed Mastra checkpoint in the
 three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
-It gives the existing Mastra agent its first application capability: one
-CopilotKit frontend tool that can switch between snapshot and reading-log
-views and patch the existing filters. Angular and React expose the same tool
-and bounded view context. The agent still cannot inspect readings or query the
-historian.
+It gives the existing Mastra agent its first application capabilities: four
+read-only CopilotKit frontend tools discover the supported rooms, metrics,
+shift managers, and conditions, while three mutation tools switch between
+snapshot and reading-log views, patch existing filters, and clear filters.
+Angular and React expose the same tools and bounded view context. The agent
+still cannot inspect readings or query the historian.
 
 ## Scenario
 
@@ -23,9 +24,12 @@ Checkpoint 06.
 
 ## What this checkpoint adds
 
-- one `configure_facility_view` browser-side tool in Angular 22 and React 19;
-- bounded agent context containing the current view, active filters, and
-  available filter options;
+- four read-only browser-side tools—`list_rooms`, `list_metrics`,
+  `list_shift_managers`, and `list_conditions`—in Angular 22 and React 19;
+- three mutation tools—`set_view`, `update_filters`, and `clear_filters`—in
+  both frontend hosts;
+- bounded agent context containing only the current view and active filters;
+- explicit option discovery through the read-only tools;
 - shared patch semantics that preserve every omitted value;
 - explicit clearing of one, several, or all filters;
 - browser-local resolution of the literal `now`; and

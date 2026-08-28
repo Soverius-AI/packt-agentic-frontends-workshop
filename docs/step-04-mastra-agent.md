@@ -82,8 +82,9 @@ The new capability is backend-framework substitution, not data access.
 5. Open Mastra Studio's Observability view and inspect that same run.
 6. Ask when the Cooling room entered warning and show that the assistant still
    cannot inspect the historian.
-7. Motivate Checkpoint 05: expose bounded view state and one browser-side tool
-   that can adjust the predetermined UI without granting historian access.
+7. Motivate Checkpoint 05: expose bounded view state and focused
+   browser-side tools that can adjust the predetermined UI without granting
+   historian access.
 
 ## Completion criteria
 

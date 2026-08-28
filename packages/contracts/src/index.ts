@@ -138,13 +138,13 @@ export const facilityViewFiltersSchema = z
       'End boundary; use "now", an ISO date-time, a browser-local date-time, or null.',
     ),
     shiftManager: nullableFilterValueSchema.describe(
-      "Exact shift-manager name from availableFilters.shiftManagers, or null.",
+      "Exact shift-manager name returned by list_shift_managers, or null.",
     ),
     roomId: nullableFilterValueSchema.describe(
-      "Exact room ID from availableFilters.rooms, never a room name or invented ID, or null.",
+      "Exact room ID returned by list_rooms, never an invented ID, or null.",
     ),
     metricId: nullableFilterValueSchema.describe(
-      "Exact metric ID from availableFilters.metrics, never a metric label or invented ID, or null.",
+      "Exact metric ID returned by list_metrics, never an invented ID, or null.",
     ),
     condition: metricConditionSchema
       .nullable()
@@ -165,68 +165,74 @@ const facilityViewFilterPatchSchema = facilityViewFiltersSchema
   .partial()
   .strict();
 
-const configureFacilityViewCommandSchema = z.discriminatedUnion("action", [
+export const setViewToolSchema = z
+  .object({
+    view: facilityViewModeSchema.describe(
+      "The facility view to show: snapshot or reading-log.",
+    ),
+  })
+  .strict();
+export type SetViewToolInput = z.infer<typeof setViewToolSchema>;
+
+export const updateFiltersToolSchema = z
+  .object({
+    filters: facilityViewFilterPatchSchema.describe(
+      "Only the filters to change. Omitted filters keep their current values.",
+    ),
+  })
+  .strict();
+export type UpdateFiltersToolInput = z.infer<typeof updateFiltersToolSchema>;
+
+export const clearFiltersToolSchema = z
+  .object({
+    filters: z
+      .array(facilityViewFilterNameSchema)
+      .min(1)
+      .optional()
+      .describe(
+        "Filter names to clear. Omit this property to clear every filter.",
+      ),
+  })
+  .strict();
+export type ClearFiltersToolInput = z.infer<typeof clearFiltersToolSchema>;
+
+export const listRoomsToolSchema = z.object({}).strict();
+export const listShiftManagersToolSchema = z.object({}).strict();
+export const listConditionsToolSchema = z.object({}).strict();
+export const listMetricsToolSchema = z
+  .object({
+    roomId: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "Optional room ID returned by list_rooms. Omit it to list metrics for every room.",
+      ),
+  })
+  .strict();
+export type ListMetricsToolInput = z.infer<typeof listMetricsToolSchema>;
+
+const facilityViewCommandSchema = z.discriminatedUnion("action", [
   z
     .object({
       action: z.literal("set_view"),
-      view: facilityViewModeSchema,
+      ...setViewToolSchema.shape,
     })
     .strict(),
   z
     .object({
       action: z.literal("update_filters"),
-      filters: facilityViewFilterPatchSchema,
+      ...updateFiltersToolSchema.shape,
     })
     .strict(),
   z
     .object({
       action: z.literal("clear_filters"),
-      filters: z.array(facilityViewFilterNameSchema).min(1).optional(),
+      ...clearFiltersToolSchema.shape,
     })
     .strict(),
 ]);
-
-export const configureFacilityViewSchema = z
-  .object({
-    action: z
-      .enum(["set_view", "update_filters", "clear_filters"])
-      .describe("Perform exactly one facility-view action."),
-    view: facilityViewModeSchema
-      .optional()
-      .describe("Required only for set_view."),
-    filters: z
-      .union([
-        facilityViewFilterPatchSchema,
-        z.array(facilityViewFilterNameSchema).min(1),
-      ])
-      .optional()
-      .describe(
-        "For update_filters, an object containing only values to change. For clear_filters, an optional list of filter names to clear.",
-      ),
-  })
-  .strict()
-  .transform((input, context) => {
-    const candidate =
-      input.action === "set_view"
-        ? { action: input.action, view: input.view }
-        : input.action === "update_filters"
-          ? { action: input.action, filters: input.filters }
-          : {
-              action: input.action,
-              filters: Array.isArray(input.filters) ? input.filters : undefined,
-            };
-    const result = configureFacilityViewCommandSchema.safeParse(candidate);
-    if (!result.success) {
-      context.addIssue({
-        code: "custom",
-        message:
-          "Use exactly one action shape: set_view with view, update_filters with a filter object, or clear_filters with an optional filter-name list.",
-      });
-      return z.NEVER;
-    }
-    return result.data;
-  });
-export type ConfigureFacilityView = z.infer<typeof configureFacilityViewSchema>;
+export type ConfigureFacilityView = z.infer<typeof facilityViewCommandSchema>;
 
 export type FacilityViewAvailableOptions = {
   rooms: readonly { id: string; name: string }[];

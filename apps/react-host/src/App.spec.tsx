@@ -8,14 +8,17 @@ import App from "./App";
 vi.mock("./CopilotChatPanel", () => ({
   default: ({
     viewContext,
+    options,
     onConfigureView,
   }: {
     viewContext: unknown;
+    options: unknown;
     onConfigureView: (command: unknown) => Promise<unknown>;
   }) => (
     <div data-testid="copilot-chat">
       CopilotKit chat
       <pre data-testid="view-context">{JSON.stringify(viewContext)}</pre>
+      <pre data-testid="facility-options">{JSON.stringify(options)}</pre>
       <button
         data-testid="set-view"
         onClick={() =>
@@ -132,7 +135,7 @@ describe("React CopilotKit host", () => {
   });
 
   it("presents the Step 5 frontend-tool milestone without a custom chat transport", () => {
-    expect(container.textContent).toContain("Stage 5 · Frontend view tool");
+    expect(container.textContent).toContain("Stage 5 · Frontend tools");
     expect(
       container.querySelector('[data-testid="copilot-chat"]'),
     ).toBeTruthy();
@@ -148,11 +151,11 @@ describe("React CopilotKit host", () => {
   it("patches the date without resetting the rest of the frontend state", async () => {
     await act(async () => {
       await vi.waitFor(() => {
-        const context = JSON.parse(
-          container.querySelector('[data-testid="view-context"]')
+        const options = JSON.parse(
+          container.querySelector('[data-testid="facility-options"]')
             ?.textContent ?? "{}",
-        ) as { availableFilters?: { rooms?: unknown[] } };
-        expect(context.availableFilters?.rooms).toHaveLength(1);
+        ) as { rooms?: unknown[] };
+        expect(options.rooms).toHaveLength(1);
       });
     });
     await act(async () => {

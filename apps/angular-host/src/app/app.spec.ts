@@ -355,22 +355,23 @@ describe('App', () => {
   it('patches the facility view through the frontend tool without resetting other filters', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const tool = TestBed.inject(CopilotKit).core.getTool({
-      toolName: 'configure_facility_view',
+    const copilotKit = TestBed.inject(CopilotKit);
+    const setView = copilotKit.core.getTool({
+      toolName: 'set_view',
       agentId: 'default',
-    });
-    const runTool = tool?.handler as ((args: unknown) => Promise<unknown>) | undefined;
+    })?.handler as ((args: unknown) => Promise<unknown>) | undefined;
+    const updateFilters = copilotKit.core.getTool({
+      toolName: 'update_filters',
+      agentId: 'default',
+    })?.handler as ((args: unknown) => Promise<unknown>) | undefined;
 
-    expect(runTool).toBeTruthy();
-    await runTool!({
-      action: 'set_view',
-      view: 'reading-log',
-    });
-    await runTool!({
-      action: 'update_filters',
+    expect(setView).toBeTruthy();
+    expect(updateFilters).toBeTruthy();
+    await setView!({ view: 'reading-log' });
+    await updateFilters!({
       filters: { roomId: 'cooling-room', condition: 'warning', from: '2026-08-25T08:00' },
     });
-    await runTool!({ action: 'update_filters', filters: { from: 'now' } });
+    await updateFilters!({ filters: { from: 'now' } });
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -386,24 +387,55 @@ describe('App', () => {
     expect(compiled.querySelector('.reading-entries-table')).toBeTruthy();
   });
 
+  it('lists rooms, metrics, shift managers, and conditions through read-only tools', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const copilotKit = TestBed.inject(CopilotKit);
+    const handler = (toolName: string) =>
+      copilotKit.core.getTool({ toolName, agentId: 'default' })?.handler as
+        ((args: unknown) => Promise<unknown>) | undefined;
+
+    await expect(handler('list_rooms')!({})).resolves.toEqual({
+      rooms: [
+        { id: 'cooling-room', name: 'Cooling room' },
+        { id: 'packaging-hall', name: 'Packaging hall' },
+      ],
+    });
+    await expect(handler('list_metrics')!({ roomId: 'Cooling room' })).resolves.toMatchObject({
+      metrics: [
+        expect.objectContaining({
+          id: 'cooling-air-temperature',
+          name: 'Air temperature',
+          roomId: 'cooling-room',
+        }),
+      ],
+    });
+    await expect(handler('list_shift_managers')!({})).resolves.toEqual({
+      shiftManagers: dashboard.shiftManagers,
+    });
+    await expect(handler('list_conditions')!({})).resolves.toEqual({
+      conditions: ['normal', 'warning', 'critical', 'unavailable'],
+    });
+  });
+
   it('rejects malformed frontend tool payloads instead of reporting a false update', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
-    const tool = TestBed.inject(CopilotKit).core.getTool({
-      toolName: 'configure_facility_view',
+    const runTool = TestBed.inject(CopilotKit).core.getTool({
+      toolName: 'update_filters',
       agentId: 'default',
-    });
-    const runTool = tool?.handler as ((args: unknown) => Promise<unknown>) | undefined;
+    })?.handler as ((args: unknown) => Promise<unknown>) | undefined;
 
     await expect(
       runTool!({
-        update_filters: { condition: 'warning', roomId: 'Cooling room' },
-        set_view: 'reading-log',
+        filters: { condition: 'warning', roomId: 'Cooling room' },
+        view: 'reading-log',
       }),
     ).resolves.toMatchObject({ ok: false });
-    await expect(
-      runTool!({ action: 'update_filters', filters: { roomId: 'room-cooling-01' } }),
-    ).resolves.toMatchObject({ ok: false, error: expect.stringMatching(/Unknown roomId/) });
+    await expect(runTool!({ filters: { roomId: 'room-cooling-01' } })).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/Unknown roomId/),
+    });
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -418,7 +450,7 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.textContent).toContain('Stage 5 · Frontend view tool');
+    expect(compiled.textContent).toContain('Stage 5 · Frontend tools');
     expect(compiled.textContent).toMatch(/CopilotKit chat|Loading the streaming chat/);
     expect(api.getDashboard).toHaveBeenCalledOnce();
   });

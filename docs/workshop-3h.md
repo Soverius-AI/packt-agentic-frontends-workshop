@@ -19,7 +19,7 @@ Participants should be able to assign a precise job to AG-UI, CopilotKit, Mastra
 | 0:15–0:30 | Part 2: basic OpenAI-SDK chat via OpenRouter   | 02                  |
 | 0:30–0:50 | Part 3: CopilotKit chat and AG-UI streaming    | 03                  |
 | 0:50–1:10 | Part 4: Mastra agent and observable trace      | 04                  |
-| 1:10–1:25 | Part 5: bounded frontend view tool             | 05                  |
+| 1:10–1:25 | Part 5: bounded frontend tools                 | 05                  |
 | 1:25–1:45 | Part 6: generated SQL through AG-UI            | 06                  |
 | 1:45–1:55 | Human approval and audit boundary              | 07                  |
 | 1:55–2:05 | Break and buffer                               | —                   |
@@ -36,7 +36,7 @@ Generative UI is compared with A2UI and MCP Apps, but code-generating UI is not 
 2. In Part 2, exchange ordinary user and assistant messages through the TypeScript backend, OpenAI SDK, and OpenRouter. Ask a historian-specific question and show that chat has no access to application data.
 3. In Part 3, replace the custom chat with CopilotKit and a tool-free BuiltInAgent. Show the same conversation streaming through AG-UI and inspect its lifecycle events, but confirm that the assistant still cannot inspect the historian.
 4. In Part 4, replace BuiltInAgent with a separate Mastra service without changing the CopilotKit frontend or capability boundary. Send a message from the application, then open Mastra Studio's **Observability → Traces** view and inspect that same run. The chat still has no tools.
-5. In Part 5, ask: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.** Show the same `configure_facility_view` tool patching the existing Angular or React controls.
+5. In Part 5, first ask which shift managers, rooms, metrics, and conditions are available and show the four read-only catalog tools. Then ask: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.** Show `set_view` switching the view and `update_filters` patching the existing Angular or React controls.
 6. Ask: **Change the start date to now.** Confirm that the view and every other filter remain unchanged. Then clear the date filter and finally clear all filters.
 7. In Part 6, ask: **Show me when the Cooling room went into warning during the last seven days and when each warning ended.** Inspect the SQL generated for the single `query_historian` tool and its generic result table. Previous days end at 14:00; today's warning is **Still active**.
 8. Ask: **Show me the maximum air temperature for shift manager Charles Bond and, below that, for Denise Weber.** Show that the same SQL tool answers a different, previously unanticipated question.

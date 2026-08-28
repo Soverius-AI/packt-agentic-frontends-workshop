@@ -13,10 +13,16 @@ import type {
 } from '@packt-workshop/contracts';
 import {
   applyFacilityViewCommand,
-  configureFacilityViewSchema,
+  clearFiltersToolSchema,
+  listConditionsToolSchema,
+  listMetricsToolSchema,
+  listRoomsToolSchema,
+  listShiftManagersToolSchema,
   metricConditionSchema,
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
+  setViewToolSchema,
+  updateFiltersToolSchema,
 } from '@packt-workshop/contracts';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
@@ -77,15 +83,6 @@ export class App {
       condition: metricConditionSchema.safeParse(this.conditionFilter()).data ?? null,
     },
   }));
-  protected readonly facilityViewContext = computed(() => ({
-    ...this.facilityViewState(),
-    availableFilters: {
-      rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
-      metrics: this.metricOptions(),
-      shiftManagers: this.shiftManagerOptions(),
-      conditions: ['normal', 'warning', 'critical', 'unavailable'],
-    },
-  }));
   protected readonly currentRows = computed(() =>
     this.rooms().flatMap((room) => room.metrics.map((metric) => ({ room, metric }))),
   );
@@ -104,39 +101,149 @@ export class App {
   constructor() {
     connectAgentContext(() => ({
       description:
-        'Current facility view, active filters, and available filter options. This context contains no readings or historian results.',
-      value: JSON.stringify(this.facilityViewContext()),
+        'Current facility view and active filters. This context contains no option catalogs, readings, or historian results.',
+      value: JSON.stringify(this.facilityViewState()),
     }));
     registerFrontendTool({
-      name: 'configure_facility_view',
+      name: 'list_rooms',
       description:
-        'Control the visible facility view and reading-log filters with exactly one action per call. Use set_view only to select snapshot or reading-log. Use update_filters to patch filters, omitting every value that should remain unchanged; use the condition field for normal, warning, critical, or unavailable, roomId and metricId must use exact IDs from availableFilters, and the literal "now" means the browser current time. Use clear_filters without a filters list to clear all filters, or provide filter names to clear only those filters.',
-      parameters: configureFacilityViewSchema,
+        'List the rooms currently supported by the facility application. Use this tool when the user asks which rooms exist or before selecting a room filter.',
+      parameters: listRoomsToolSchema,
       agentId: 'default',
       followUp: true,
-      handler: async (command) => this.#configureFacilityView(command),
+      handler: async (input) => {
+        const validation = listRoomsToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { rooms: this.rooms().map(({ id, name }) => ({ id, name })) };
+      },
+    });
+    registerFrontendTool({
+      name: 'list_metrics',
+      description:
+        'List supported facility metrics. Optionally provide a room ID returned by list_rooms to restrict the result to that room.',
+      parameters: listMetricsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => this.#listMetrics(input),
+    });
+    registerFrontendTool({
+      name: 'list_shift_managers',
+      description: 'List the shift managers currently available for reading-log filtering.',
+      parameters: listShiftManagersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = listShiftManagersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { shiftManagers: this.shiftManagerOptions() };
+      },
+    });
+    registerFrontendTool({
+      name: 'list_conditions',
+      description: 'List the reading conditions supported by the reading-log filter.',
+      parameters: listConditionsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = listConditionsToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { conditions: ['normal', 'warning', 'critical', 'unavailable'] };
+      },
+    });
+    registerFrontendTool({
+      name: 'set_view',
+      description:
+        'Switch the visible facility view between snapshot and reading-log. Existing filters are preserved.',
+      parameters: setViewToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = setViewToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'set_view', ...validation.data });
+      },
+    });
+    registerFrontendTool({
+      name: 'update_filters',
+      description:
+        'Patch only the supplied reading-log filters and preserve all omitted filters. Use IDs returned by the list tools and the condition field returned by list_conditions. The literal "now" means the browser current time.',
+      parameters: updateFiltersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = updateFiltersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'update_filters', ...validation.data });
+      },
+    });
+    registerFrontendTool({
+      name: 'clear_filters',
+      description:
+        'Clear the selected reading-log filters. Omit the filters list to clear every filter. The current view is preserved.',
+      parameters: clearFiltersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = clearFiltersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'clear_filters', ...validation.data });
+      },
     });
     this.#destroyRef.onDestroy(() => this.#stopMetricUpdates?.());
     this.#startContinuousUpdates();
     void this.loadDashboard();
   }
 
-  async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
-    const validation = configureFacilityViewSchema.safeParse(command);
-    if (!validation.success) {
-      return {
-        ok: false,
-        state: this.facilityViewState(),
-        error: validation.error.issues[0]?.message ?? 'Invalid facility view command.',
-      };
+  async #listMetrics(input: unknown): Promise<unknown> {
+    const validation = listMetricsToolSchema.safeParse(input);
+    if (!validation.success) return this.#invalidToolPayload(validation.error.issues[0]?.message);
+
+    let roomId = validation.data.roomId;
+    if (roomId) {
+      try {
+        const resolved = resolveFacilityViewAvailableOptions(
+          { action: 'update_filters', filters: { roomId } },
+          this.#availableFilterOptions(),
+        );
+        roomId =
+          resolved.action === 'update_filters' ? (resolved.filters.roomId ?? undefined) : roomId;
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : 'Invalid room option.',
+        };
+      }
     }
-    let validatedCommand = validation.data;
+
+    return {
+      metrics: this.rooms()
+        .filter((room) => !roomId || room.id === roomId)
+        .flatMap((room) =>
+          room.metrics.map((metric) => ({
+            id: metric.id,
+            name: metric.name,
+            roomId: room.id,
+            roomName: room.name,
+            kind: metric.kind,
+            unit: metric.unit,
+          })),
+        ),
+    };
+  }
+
+  async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
+    let validatedCommand = command;
     try {
-      validatedCommand = resolveFacilityViewAvailableOptions(validatedCommand, {
-        rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
-        metrics: this.metricOptions(),
-        shiftManagers: this.shiftManagerOptions(),
-      });
+      validatedCommand = resolveFacilityViewAvailableOptions(
+        validatedCommand,
+        this.#availableFilterOptions(),
+      );
     } catch (error) {
       return {
         ok: false,
@@ -171,6 +278,22 @@ export class App {
       ok: true,
       state: next,
       message: 'Facility view updated. Unspecified values were preserved.',
+    };
+  }
+
+  #invalidToolPayload(message?: string): unknown {
+    return {
+      ok: false,
+      state: this.facilityViewState(),
+      error: message ?? 'Invalid frontend tool payload.',
+    };
+  }
+
+  #availableFilterOptions() {
+    return {
+      rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
+      metrics: this.metricOptions(),
+      shiftManagers: this.shiftManagerOptions(),
     };
   }
 

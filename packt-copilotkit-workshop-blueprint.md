@@ -226,20 +226,26 @@ new backend boundary and its operational benefit visible. At this checkpoint
 the standardized path is ready for tools, but the assistant can still only
 exchange messages.
 
-## 8. Part 5 --- Bounded frontend view tool
+## 8. Part 5 --- Bounded frontend tools
 
 Add the first application capability without giving the agent backend data
-access. Angular and React each expose the same CopilotKit frontend tool:
+access. Angular and React each expose the same seven focused CopilotKit
+frontend tools:
 
 ```text
-configure_facility_view({ action: "set_view", view })
-configure_facility_view({ action: "update_filters", filters })
-configure_facility_view({ action: "clear_filters", filters? })
+list_rooms({})
+list_metrics({ roomId? })
+list_shift_managers({})
+list_conditions({})
+set_view({ view })
+update_filters({ filters })
+clear_filters({ filters? })
 ```
 
-The frontend also supplies bounded context containing the current view, active
-filters, and the available room, metric, shift-manager, and condition options.
-It does not supply readings, historian results, alarm details, or unrestricted
+The frontend supplies bounded context containing only the current view and
+active filters. The four read-only tools discover the available room, metric,
+shift-manager, and condition options when needed. Neither the context nor the
+tools supply readings, historian results, alarm details, or unrestricted
 application state.
 
 `set_view` switches between snapshot and reading-log without touching filters.
@@ -551,7 +557,7 @@ They are complementary, not competing.
 | Part 2: basic OpenAI-SDK chat through OpenRouter |  15 min |
 | Part 3: CopilotKit chat + AG-UI + BuiltInAgent   |  20 min |
 | Part 4: replace BuiltInAgent with Mastra         |  20 min |
-| Part 5: bounded frontend view tool               |  15 min |
+| Part 5: bounded frontend tools                   |  15 min |
 | Part 6: generated SQL tool                       |  20 min |
 | Human-in-the-loop + guardrails                   |  10 min |
 | Break/buffer                                     |  10 min |

@@ -2,13 +2,19 @@ import { describe, expect, it } from "vitest";
 import {
   applyFacilityViewCommand,
   alarmActionRequestSchema,
-  configureFacilityViewSchema,
+  clearFiltersToolSchema,
   type FacilityViewState,
   facilityDashboardSchema,
   metricUpdateEventSchema,
+  listConditionsToolSchema,
+  listMetricsToolSchema,
+  listRoomsToolSchema,
+  listShiftManagersToolSchema,
   raiseAlarmRequestSchema,
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
+  setViewToolSchema,
+  updateFiltersToolSchema,
 } from "./index.js";
 
 describe("Stage 1 facility contracts", () => {
@@ -112,72 +118,92 @@ describe("Stage 1 facility contracts", () => {
         condition: "warning",
       },
     };
-    const command = configureFacilityViewSchema.parse({
-      action: "update_filters",
+    const input = updateFiltersToolSchema.parse({
       filters: { from: "now" },
     });
 
-    expect(applyFacilityViewCommand(current, command)).toEqual({
+    expect(
+      applyFacilityViewCommand(current, {
+        action: "update_filters",
+        ...input,
+      }),
+    ).toEqual({
       ...current,
       filters: { ...current.filters, from: "now" },
     });
   });
 
-  it("advertises a root object schema and rejects combined action payloads", () => {
-    const jsonSchema = configureFacilityViewSchema[
-      "~standard"
-    ].jsonSchema.input({ target: "draft-07" }) as {
-      type?: string;
-      properties?: Record<string, unknown>;
-      required?: string[];
-    };
+  it("advertises focused root-object schemas for mutations and catalog reads", () => {
+    const properties = (schema: typeof setViewToolSchema) =>
+      schema["~standard"].jsonSchema.input({ target: "draft-07" }) as {
+        type?: string;
+        properties?: Record<string, unknown>;
+      };
 
-    expect(jsonSchema.type).toBe("object");
-    expect(Object.keys(jsonSchema.properties ?? {})).toEqual([
-      "action",
-      "view",
-      "filters",
-    ]);
-    expect(jsonSchema.required).toContain("action");
+    expect(properties(setViewToolSchema)).toMatchObject({
+      type: "object",
+      properties: { view: expect.anything() },
+    });
     expect(
-      configureFacilityViewSchema.safeParse({
-        update_filters: {
-          condition: "warning",
-          roomId: "Cooling room",
-        },
-        set_view: "reading-log",
-      }).success,
-    ).toBe(false);
+      updateFiltersToolSchema["~standard"].jsonSchema.input({
+        target: "draft-07",
+      }),
+    ).toMatchObject({
+      type: "object",
+      properties: { filters: expect.anything() },
+    });
     expect(
-      configureFacilityViewSchema.safeParse({
-        action: "update_filters",
+      clearFiltersToolSchema["~standard"].jsonSchema.input({
+        target: "draft-07",
+      }),
+    ).toMatchObject({
+      type: "object",
+      properties: { filters: expect.anything() },
+    });
+    for (const schema of [
+      listRoomsToolSchema,
+      listShiftManagersToolSchema,
+      listConditionsToolSchema,
+    ]) {
+      expect(
+        schema["~standard"].jsonSchema.input({ target: "draft-07" }),
+      ).toMatchObject({ type: "object", properties: {} });
+    }
+    expect(
+      listMetricsToolSchema["~standard"].jsonSchema.input({
+        target: "draft-07",
+      }),
+    ).toMatchObject({
+      type: "object",
+      properties: { roomId: expect.anything() },
+    });
+    expect(
+      updateFiltersToolSchema.safeParse({
         filters: { roomId: "room-cooling-01", severity: "warning" },
       }).success,
     ).toBe(false);
   });
 
-  it("uses action as the authority and removes irrelevant provider-supplied fields", () => {
+  it("rejects parameters that belong to a different frontend tool", () => {
     expect(
-      configureFacilityViewSchema.parse({
-        action: "set_view",
+      setViewToolSchema.safeParse({
         view: "reading-log",
         filters: { roomId: null, condition: null },
-      }),
-    ).toEqual({ action: "set_view", view: "reading-log" });
+      }).success,
+    ).toBe(false);
     expect(
-      configureFacilityViewSchema.parse({
-        action: "update_filters",
+      updateFiltersToolSchema.safeParse({
         view: "reading-log",
         filters: { condition: "warning" },
-      }),
-    ).toEqual({ action: "update_filters", filters: { condition: "warning" } });
+      }).success,
+    ).toBe(false);
   });
 
   it("resolves bounded option labels and aliases without accepting unknown IDs", () => {
-    const command = configureFacilityViewSchema.parse({
-      action: "update_filters",
+    const input = updateFiltersToolSchema.parse({
       filters: { roomId: "ROOM_COOLING" },
     });
+    const command = { action: "update_filters" as const, ...input };
     const options = {
       rooms: [
         { id: "cooling-room", name: "Cooling room" },

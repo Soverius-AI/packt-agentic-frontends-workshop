@@ -9,7 +9,6 @@ import {
 } from "react";
 import {
   applyFacilityViewCommand,
-  configureFacilityViewSchema,
   type ConfigureFacilityView,
   facilityDashboardSchema,
   facilityReadingPageSchema,
@@ -29,6 +28,12 @@ import {
 import "./App.css";
 
 const CopilotChatPanel = lazy(() => import("./CopilotChatPanel"));
+const FACILITY_CONDITIONS = [
+  "normal",
+  "warning",
+  "critical",
+  "unavailable",
+] as const;
 
 async function jsonRequest(url: string, init?: RequestInit): Promise<unknown> {
   const response = await fetch(url, {
@@ -105,30 +110,32 @@ export default function App() {
   );
   const facilityViewStateRef = useRef(facilityViewState);
   facilityViewStateRef.current = facilityViewState;
-  const facilityViewContext = useMemo(
+  const facilityOptions = useMemo(
     () => ({
-      ...facilityViewState,
-      availableFilters: {
-        rooms: dashboard?.rooms.map(({ id, name }) => ({ id, name })) ?? [],
-        metrics: allRows.map(({ room, metric }) => ({
-          id: metric.id,
-          label: `${room.name} · ${metric.name}`,
-        })),
-        shiftManagers: dashboard?.shiftManagers ?? [],
-        conditions: ["normal", "warning", "critical", "unavailable"],
-      },
+      rooms: dashboard?.rooms.map(({ id, name }) => ({ id, name })) ?? [],
+      metrics: allRows.map(({ room, metric }) => ({
+        id: metric.id,
+        name: metric.name,
+        label: `${room.name} · ${metric.name}`,
+        roomId: room.id,
+        roomName: room.name,
+        kind: metric.kind,
+        unit: metric.unit,
+      })),
+      shiftManagers: dashboard?.shiftManagers ?? [],
+      conditions: FACILITY_CONDITIONS,
     }),
-    [allRows, dashboard, facilityViewState],
+    [allRows, dashboard],
   );
   const facilityViewAvailableOptionsRef = useRef({
-    rooms: facilityViewContext.availableFilters.rooms,
-    metrics: facilityViewContext.availableFilters.metrics,
-    shiftManagers: facilityViewContext.availableFilters.shiftManagers,
+    rooms: facilityOptions.rooms,
+    metrics: facilityOptions.metrics,
+    shiftManagers: facilityOptions.shiftManagers,
   });
   facilityViewAvailableOptionsRef.current = {
-    rooms: facilityViewContext.availableFilters.rooms,
-    metrics: facilityViewContext.availableFilters.metrics,
-    shiftManagers: facilityViewContext.availableFilters.shiftManagers,
+    rooms: facilityOptions.rooms,
+    metrics: facilityOptions.metrics,
+    shiftManagers: facilityOptions.shiftManagers,
   };
 
   async function loadReadingEntries(): Promise<void> {
@@ -338,17 +345,7 @@ export default function App() {
 
   const configureFacilityView = useCallback(
     async (command: ConfigureFacilityView): Promise<unknown> => {
-      const validation = configureFacilityViewSchema.safeParse(command);
-      if (!validation.success) {
-        return {
-          ok: false,
-          state: facilityViewStateRef.current,
-          error:
-            validation.error.issues[0]?.message ??
-            "Invalid facility view command.",
-        };
-      }
-      let validatedCommand = validation.data;
+      let validatedCommand = command;
       try {
         validatedCommand = resolveFacilityViewAvailableOptions(
           validatedCommand,
@@ -429,7 +426,7 @@ export default function App() {
               alarms, and standardized streaming agent chat.
             </p>
             <p className="stage-label">
-              Stage 5 · Frontend view tool · No historian data access
+              Stage 5 · Frontend tools · No historian data access
             </p>
           </div>
         </div>
@@ -866,12 +863,12 @@ export default function App() {
               <p className="eyebrow">CopilotKit · AG-UI streaming</p>
               <h2 id="chat-title">Factory assistant</h2>
             </div>
-            <span>View tool</span>
+            <span>Frontend tools</span>
           </div>
           <p className="chat-boundary">
-            The assistant can read and adjust this view and its filters. It
-            cannot inspect readings, query the historian directly, or perform
-            operational actions.
+            The assistant can discover supported filter options and adjust this
+            view. It cannot inspect readings, query the historian directly, or
+            perform operational actions.
           </p>
           <div className="copilot-chat-shell">
             <Suspense
@@ -880,7 +877,8 @@ export default function App() {
               }
             >
               <CopilotChatPanel
-                viewContext={facilityViewContext}
+                viewContext={facilityViewState}
+                options={facilityOptions}
                 onConfigureView={configureFacilityView}
               />
             </Suspense>
