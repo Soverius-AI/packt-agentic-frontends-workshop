@@ -1,14 +1,13 @@
-# Part 5 / Checkpoint 05 — Bounded frontend tools
+# Part 6 / Checkpoint 06 — Reviewed generated SQL
 
 This branch extends the completed Mastra checkpoint in the
 three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
-It gives the existing Mastra agent its first application capabilities: four
-read-only CopilotKit frontend tools discover the supported rooms, metrics,
-shift managers, and conditions, while three mutation tools switch between
-snapshot and reading-log views, patch existing filters, and clear filters.
-Angular and React expose the same tools and bounded view context. The agent
-still cannot inspect readings or query the historian.
+It keeps all seven bounded frontend tools from Checkpoint 05 and adds one
+backend data capability: `query_historian({ sql, explanation })`. The primary
+Mastra agent generates SQL, a separate tool-free Mastra reviewer checks whether
+that SQL answers the operator's question, and a deterministic facility-service
+policy decides whether the exact statement may execute against SQLite.
 
 ## Scenario
 
@@ -16,29 +15,27 @@ Soverius Chocolate has two adjacent production areas: a climate-controlled **Coo
 
 A person on night duty can inspect seven days of stored telemetry, use the continuously updated snapshot, raise an alarm for any metric, and acknowledge or resolve it. In snapshot mode, individual devices report at randomized intervals and every new reading is persisted. The application cannot interpret the combined evidence and recommend checking the connecting door before calling maintenance.
 
-The assistant can now ask the existing UI to show the Cooling room's warning
-readings or change one date boundary without resetting the other filters. It
-still cannot answer when that room entered warning unless the predetermined UI
-already presents the answer. Generated SQL remains a separate capability for
-Checkpoint 06.
+The assistant can now answer historian questions that were not anticipated as
+screens or fixed endpoints. The generated SQL, reviewer verdict, policy
+version, and generic result table remain visible in both framework hosts.
 
 ## What this checkpoint adds
 
-- four read-only browser-side tools—`list_rooms`, `list_metrics`,
-  `list_shift_managers`, and `list_conditions`—in Angular 22 and React 19;
-- three mutation tools—`set_view`, `update_filters`, and `clear_filters`—in
-  both frontend hosts;
-- bounded agent context containing only the current view and active filters;
-- explicit option discovery through the read-only tools;
-- shared patch semantics that preserve every omitted value;
-- explicit clearing of one, several, or all filters;
-- browser-local resolution of the literal `now`; and
-- shared-contract and host tests for identical behavior.
+- a primary Mastra agent that generates one SQLite `SELECT` or `WITH` query;
+- a separate `sql-reviewer` Mastra agent that checks semantic correctness but
+  has no tools and no execution authority;
+- a deterministic SQL policy using a read-only connection, SQLite runtime
+  authorization, a dedicated `historian_readings` view, function and column
+  allowlists, one-statement enforcement, row/size caps, and a worker deadline;
+- one internal facility endpoint that owns historian execution;
+- structured SQL, reviewer, policy, and table results over the existing AG-UI
+  run; and
+- equivalent accessible generic result renderers in Angular 22 and React 19.
 
-The conventional SQLite application remains intact. This checkpoint does
-**not** contain a backend tool, SQL generation, reading or historian context,
-persistent chat memory, operational actions, human approval, A2UI, A2A, MCP,
-or an MCP App.
+The reviewer is deliberately not a security boundary. Even an approved query
+must pass deterministic validation, and the generated-SQL connection cannot
+write facility data. This checkpoint does **not** add persistent chat memory,
+operational actions, human approval, A2UI, A2A, MCP, or an MCP App.
 
 ## Workspace layout
 
@@ -54,10 +51,15 @@ they run in different environments:
 | `packages/contracts`    | Shared schemas and TypeScript contracts; not a runnable app   |
 
 Angular and React are alternative views of the same product. Both call the
-facility service, which forwards agent runs to the Mastra service:
+facility service, which forwards agent runs to Mastra. A historian tool call
+returns to the facility-owned execution boundary:
 
 ```text
-Angular or React -> facility service (:3001) -> Mastra service (:4111)
+Angular or React -> facility service (:3001) -> primary Mastra agent (:4111)
+                                              -> SQL reviewer agent
+                                              -> query_historian
+                                              -> facility SQL policy (:3001)
+                                              -> read-only facility SQLite
 ```
 
 ## Run it
@@ -103,10 +105,9 @@ pnpm check
 
 ## Teaching point
 
-> Bounded frontend context lets the agent understand the current UI, while a
-> patch-based frontend tool changes only what the user requested.
+> Agent review can improve semantic correctness; only deterministic enforcement
+> decides whether generated SQL may execute.
 
-Checkpoint 06 adds the first data capability: one constrained, read-only
-generated-SQL historian tool. Until then, the agent can control the existing
-view but remains blind to its readings.
+Checkpoint 07 adds the authority boundary for consequential alarm actions:
+the model may propose an operation, but an operator must approve or reject it.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

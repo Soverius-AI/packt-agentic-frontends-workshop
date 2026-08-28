@@ -135,7 +135,7 @@ describe("React CopilotKit host", () => {
   });
 
   it("presents the Step 5 frontend-tool milestone without a custom chat transport", () => {
-    expect(container.textContent).toContain("Stage 5 · Frontend tools");
+    expect(container.textContent).toContain("Stage 6 · Reviewed SQL");
     expect(
       container.querySelector('[data-testid="copilot-chat"]'),
     ).toBeTruthy();

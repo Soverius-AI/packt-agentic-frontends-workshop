@@ -281,10 +281,12 @@ query_historian({ sql, explanation })
 
 The model receives a compact description of the read-only historian schema.
 It translates the user's natural-language question into SQL and supplies that
-SQL as the tool argument. The TypeScript backend validates and executes the
-query, then returns columns and rows that the chat renders in a generic result
-table. Display the generated SQL and the model's short explanation so the
-translation is visible to the audience.
+SQL as the tool argument. A separate tool-free Mastra reviewer checks semantic
+fit but has no execution authority. The TypeScript backend then validates and
+executes the exact query through a deterministic read-only policy and returns
+columns and rows that the chat renders in a generic result table. Display the
+generated SQL, reviewer verdict, policy result, and model explanation so the
+translation and guardrails are visible to the audience.
 
 The primary example is:
 
@@ -586,7 +588,7 @@ from `01-base-app`, then `03-copilotkit-ag-ui` from `02-basic-chat`, and so on).
 | `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | **Completed**                          |
 | `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | **Completed**                          |
 | `05-frontend-tool`    | Bounded view context and one patch-based frontend view/filter tool  | **Completed**                          |
-| `06-sql-tool`         | One generated-SQL historian tool through the standardized stack     | Planned                                |
+| `06-sql-tool`         | Reviewed generated SQL through a deterministic historian boundary   | **Completed**                          |
 | `07-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
 | `08-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |
 | `09-a2a`              | Delegate the incident to the facilities/compliance specialist       | Planned                                |

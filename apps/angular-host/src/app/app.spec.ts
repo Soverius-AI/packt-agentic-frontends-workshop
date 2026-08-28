@@ -450,7 +450,7 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.textContent).toContain('Stage 5 · Frontend tools');
+    expect(compiled.textContent).toContain('Stage 6 · Reviewed SQL');
     expect(compiled.textContent).toMatch(/CopilotKit chat|Loading the streaming chat/);
     expect(api.getDashboard).toHaveBeenCalledOnce();
   });

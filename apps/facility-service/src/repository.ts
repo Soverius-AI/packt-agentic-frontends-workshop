@@ -192,6 +192,30 @@ export class FacilityRepository {
 
       CREATE INDEX IF NOT EXISTS metric_alarms_metric_state
         ON metric_alarms(metric_id, state);
+
+      CREATE VIEW IF NOT EXISTS historian_readings AS
+      SELECT
+        reading.id AS reading_id,
+        reading.recorded_at,
+        room.id AS room_id,
+        room.name AS room_name,
+        metric.id AS metric_id,
+        metric.name AS metric_name,
+        metric.unit,
+        reading.numeric_value,
+        reading.text_value,
+        shift_manager.name AS shift_manager_name,
+        CASE
+          WHEN metric.id = 'cooling-air-temperature' AND reading.numeric_value > 18
+            THEN 'warning'
+          WHEN metric.id = 'cooling-relative-humidity' AND reading.numeric_value > 55
+            THEN 'warning'
+          ELSE 'normal'
+        END AS condition
+      FROM metric_readings reading
+      JOIN metrics metric ON metric.id = reading.metric_id
+      JOIN rooms room ON room.id = metric.room_id
+      JOIN shift_managers shift_manager ON shift_manager.id = reading.shift_manager_id;
     `);
 
     this.#migrateShiftManagers();

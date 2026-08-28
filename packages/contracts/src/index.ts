@@ -212,6 +212,77 @@ export const listMetricsToolSchema = z
   .strict();
 export type ListMetricsToolInput = z.infer<typeof listMetricsToolSchema>;
 
+export const queryHistorianToolSchema = z
+  .object({
+    sql: z
+      .string()
+      .trim()
+      .min(1)
+      .max(12_000)
+      .describe(
+        "One read-only SQLite SELECT or WITH query against historian_readings.",
+      ),
+    explanation: z
+      .string()
+      .trim()
+      .min(1)
+      .max(1_000)
+      .describe("A short explanation of how the SQL answers the question."),
+  })
+  .strict();
+export type QueryHistorianToolInput = z.infer<typeof queryHistorianToolSchema>;
+
+export const sqlReviewSchema = z
+  .object({
+    approved: z.boolean(),
+    summary: z.string().trim().min(1).max(1_000),
+    concerns: z.array(z.string().trim().min(1).max(500)).max(10),
+  })
+  .strict();
+export type SqlReview = z.infer<typeof sqlReviewSchema>;
+
+const historianScalarSchema = z.union([z.string(), z.number(), z.null()]);
+
+const historianToolResultBaseSchema = z.object({
+  sql: z.string(),
+  explanation: z.string(),
+  question: z.string(),
+  review: sqlReviewSchema,
+  policyVersion: z.string(),
+});
+
+export const historianToolResultSchema = z.discriminatedUnion("status", [
+  historianToolResultBaseSchema
+    .extend({
+      status: z.literal("executed"),
+      columns: z.array(z.string()).max(64),
+      rows: z.array(z.array(historianScalarSchema).max(64)).max(200),
+      rowCount: z.number().int().nonnegative().max(200),
+      truncated: z.boolean(),
+      durationMs: z.number().int().nonnegative(),
+    })
+    .strict(),
+  historianToolResultBaseSchema
+    .extend({
+      status: z.literal("rejected"),
+      stage: z.enum(["reviewer", "validator", "execution"]),
+      code: z.string().min(1),
+      message: z.string().min(1),
+    })
+    .strict(),
+]);
+export type HistorianToolResult = z.infer<typeof historianToolResultSchema>;
+
+export const historianExecutionRequestSchema = queryHistorianToolSchema
+  .extend({
+    question: z.string().trim().min(1).max(4_000),
+    review: sqlReviewSchema,
+  })
+  .strict();
+export type HistorianExecutionRequest = z.infer<
+  typeof historianExecutionRequestSchema
+>;
+
 const facilityViewCommandSchema = z.discriminatedUnion("action", [
   z
     .object({

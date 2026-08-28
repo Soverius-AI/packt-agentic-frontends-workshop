@@ -12,10 +12,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideCopilotKit({ runtimeUrl: '/api/copilotkit' }),
     provideCopilotChatLabels({
-      chatInputPlaceholder: 'Ask about incident management…',
-      welcomeMessageText: 'Ask a general question about incident management.',
+      chatInputPlaceholder: 'Ask about this view or its history…',
+      welcomeMessageText: 'Ask me to adjust this view or query the read-only historian.',
       chatDisclaimerText:
-        'Chat can adjust this view and its filters, but cannot inspect readings or perform operational actions.',
+        'Chat can adjust this view and run reviewed, read-only historian queries. It cannot perform operational actions.',
     }),
   ],
 };

@@ -10,6 +10,8 @@ import {
   listMetricsToolSchema,
   listRoomsToolSchema,
   listShiftManagersToolSchema,
+  historianToolResultSchema,
+  queryHistorianToolSchema,
   raiseAlarmRequestSchema,
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
@@ -195,6 +197,39 @@ describe("Stage 1 facility contracts", () => {
       updateFiltersToolSchema.safeParse({
         view: "reading-log",
         filters: { condition: "warning" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("defines the single generated-SQL tool and its bounded result", () => {
+    expect(
+      queryHistorianToolSchema.parse({
+        sql: "SELECT manager, MAX(numeric_value) FROM historian_readings GROUP BY manager",
+        explanation: "Compare each manager's maximum reading.",
+      }),
+    ).toMatchObject({ sql: expect.stringContaining("historian_readings") });
+
+    expect(
+      historianToolResultSchema.parse({
+        status: "executed",
+        question: "Compare the managers.",
+        sql: "SELECT 1",
+        explanation: "Example.",
+        review: { approved: true, summary: "Matches.", concerns: [] },
+        policyVersion: "historian-v1",
+        columns: ["value"],
+        rows: [[1]],
+        rowCount: 1,
+        truncated: false,
+        durationMs: 2,
+      }).status,
+    ).toBe("executed");
+
+    expect(
+      queryHistorianToolSchema.safeParse({
+        sql: "SELECT 1",
+        explanation: "Example.",
+        question: "This belongs to the execution context, not the tool input.",
       }).success,
     ).toBe(false);
   });

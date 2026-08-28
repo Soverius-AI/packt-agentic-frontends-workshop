@@ -5,6 +5,7 @@ import { LiveTelemetry } from "./live-telemetry.js";
 import { createFacilityServer } from "./server.js";
 import { FacilityRepository } from "./repository.js";
 import { createWorkshopCopilotRuntime } from "./copilot-runtime.js";
+import { HistorianQueryService } from "./historian-query.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const environmentPath = resolve(packageRoot, "../../.env");
@@ -21,7 +22,13 @@ const telemetry = new LiveTelemetry(repository);
 const copilotRuntime = createWorkshopCopilotRuntime({
   mastraBaseUrl: process.env["MASTRA_BASE_URL"],
 });
-const server = createFacilityServer(repository, telemetry, copilotRuntime);
+const historian = new HistorianQueryService(databasePath);
+const server = createFacilityServer(
+  repository,
+  telemetry,
+  copilotRuntime,
+  historian,
+);
 
 server.listen(port, "127.0.0.1", () => {
   telemetry.start();

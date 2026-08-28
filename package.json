@@ -2,7 +2,7 @@
   "name": "packt-agentic-frontends-workshop",
   "version": "0.1.0",
   "private": true,
-  "description": "Checkpoint 05: bounded frontend view tools through CopilotKit and AG-UI for the Packt Agentic Frontends workshop.",
+  "description": "Checkpoint 06: reviewed, deterministically validated generated SQL through CopilotKit, AG-UI, and Mastra.",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {

@@ -27,15 +27,16 @@ main                 canonical knowledge and overall project
 This preserves the exact state needed to walk forward through the webinar
 without changing an earlier milestone.
 
-This `05-frontend-tool` branch extends the completed `04-mastra-agent`
+This `06-sql-tool` branch extends the completed `05-frontend-tool`
 checkpoint. It contains the complete conventional
 chocolate-factory application: API, seven-day SQLite history, asynchronous
 device updates, Angular and React hosts, filters, server-side pagination, and
 persistent alarms. CopilotKit and AG-UI still provide the frontend contract,
-and the Mastra agent can now read bounded view/filter context and call one
-browser-side tool to patch that state. It still cannot inspect readings or the
-historian. Its frontend-triggered runs remain persisted and inspectable in the
-local Mastra Studio. Checkpoint 06 and later rows remain planned progression.
+and the Mastra agent can read bounded view/filter context, call the seven
+browser tools, and use one reviewed generated-SQL tool. A separate Mastra
+reviewer checks semantics; a deterministic read-only facility boundary retains
+execution authority. Both agents and the tool run remain inspectable in the
+local Mastra Studio. Checkpoint 07 and later rows remain planned progression.
 
 | Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -44,7 +45,7 @@ local Mastra Studio. Checkpoint 06 and later rows remain planned progression.
 | `03-copilotkit-ag-ui` | replace the custom chat with CopilotKit, BuiltInAgent, and AG-UI streaming | the standardized path still uses an embedded agent            |
 | `04-mastra-agent`     | replace BuiltInAgent with Mastra while keeping CopilotKit chat-only        | the standardized stack is ready for application capabilities  |
 | `05-frontend-tool`    | bounded view context and one patch-based frontend view/filter tool         | fixed controls cannot answer unanticipated data questions     |
-| `06-sql-tool`         | one generated-SQL historian tool and generic result table                  | consequential tools need an authority boundary                |
+| `06-sql-tool`         | reviewed generated SQL, deterministic policy, generic result table         | consequential tools need an authority boundary                |
 | `07-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
 | `08-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
 | `09-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |
@@ -52,8 +53,8 @@ local Mastra Studio. Checkpoint 06 and later rows remain planned progression.
 | `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
 The completed checkpoint contract is in the
-[Step 5 implementation brief](./step-05-frontend-tool.md). Create
-`06-sql-tool` directly from this branch for the next milestone.
+[Step 6 implementation brief](./step-06-sql-tool.md). Create
+`07-human-in-loop` directly from this branch for the next milestone.
 
 ## Readiness check per checkpoint
 

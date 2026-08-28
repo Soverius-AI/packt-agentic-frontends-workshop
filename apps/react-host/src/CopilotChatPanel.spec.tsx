@@ -3,11 +3,12 @@
 import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import CopilotChatPanel from "./CopilotChatPanel";
+import CopilotChatPanel, { parseHistorianResult } from "./CopilotChatPanel";
 
 const hooks = vi.hoisted(() => ({
   useAgentContext: vi.fn(),
   useFrontendTool: vi.fn(),
+  useRenderTool: vi.fn(),
 }));
 
 vi.mock("@copilotkit/react-core/v2", () => ({
@@ -15,6 +16,7 @@ vi.mock("@copilotkit/react-core/v2", () => ({
   CopilotChat: () => <div data-testid="copilot-chat">CopilotKit chat</div>,
   useAgentContext: hooks.useAgentContext,
   useFrontendTool: hooks.useFrontendTool,
+  useRenderTool: hooks.useRenderTool,
 }));
 
 describe("CopilotChatPanel", () => {
@@ -88,6 +90,9 @@ describe("CopilotChatPanel", () => {
       "update_filters",
       "clear_filters",
     ]);
+    expect(hooks.useRenderTool).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "query_historian" }),
+    );
     expect(registrations).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "list_rooms", agentId: "default" }),
@@ -128,5 +133,25 @@ describe("CopilotChatPanel", () => {
       [{ action: "update_filters", filters: { from: "now" } }],
       [{ action: "clear_filters", filters: ["from"] }],
     ]);
+  });
+
+  it("parses the shared generic historian result contract", () => {
+    expect(
+      parseHistorianResult(
+        JSON.stringify({
+          status: "executed",
+          question: "Compare managers.",
+          sql: "SELECT MAX(numeric_value) FROM historian_readings",
+          explanation: "Calculate the maximum.",
+          review: { approved: true, summary: "Matches.", concerns: [] },
+          policyVersion: "historian-v1",
+          columns: ["maximum"],
+          rows: [[19.8]],
+          rowCount: 1,
+          truncated: false,
+          durationMs: 4,
+        }),
+      ),
+    ).toMatchObject({ status: "executed", rows: [[19.8]] });
   });
 });

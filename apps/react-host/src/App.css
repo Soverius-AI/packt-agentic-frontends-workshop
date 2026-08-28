@@ -317,6 +317,130 @@ p {
   white-space: nowrap;
   font-weight: 800;
 }
+
+.historian-card {
+  overflow: hidden;
+  margin: 8px 0;
+  border: 1px solid #d5c8b9;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: #2a211b;
+  font-size: 0.76rem;
+}
+
+.historian-card header,
+.historian-result-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.historian-card header {
+  padding: 10px 12px;
+  background: #efe9df;
+}
+
+.historian-card header p,
+.historian-review,
+.historian-rejection,
+.historian-pending,
+.historian-notice {
+  margin: 0;
+}
+
+.historian-card header p {
+  color: #73513a;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.historian-card header > span,
+.historian-result-meta span {
+  white-space: nowrap;
+}
+
+.historian-card details,
+.historian-review,
+.historian-rejection,
+.historian-pending,
+.historian-notice {
+  margin: 10px 12px;
+}
+
+.historian-card summary {
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.historian-card pre {
+  max-height: 180px;
+  margin: 8px 0 0;
+  padding: 9px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #27221f;
+  color: #fffaf4;
+  white-space: pre-wrap;
+}
+
+.historian-review {
+  padding-left: 8px;
+  border-left: 3px solid #498263;
+}
+
+.historian-review.rejected,
+.historian-rejection {
+  border-color: #9f493f;
+  color: #7f2f27;
+}
+
+.historian-result-meta {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  background: #f7f2eb;
+  color: #655d56;
+}
+
+.historian-table-shell {
+  margin: 0 12px 12px;
+  overflow: auto;
+  border: 1px solid #e3d9cd;
+  border-radius: 7px;
+}
+
+.historian-table-shell table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.historian-table-shell caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.historian-table-shell th,
+.historian-table-shell td {
+  padding: 7px 9px;
+  border-bottom: 1px solid #e8dfd5;
+  text-align: left;
+}
+
+.historian-table-shell th {
+  background: #f4eee6;
+  font-weight: 800;
+}
+
+.historian-table-shell tbody tr:last-child td {
+  border-bottom: 0;
+}
 .pagination {
   display: flex;
   align-items: center;

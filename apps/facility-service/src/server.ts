@@ -5,6 +5,7 @@ import {
 } from "node:http";
 import {
   alarmActionRequestSchema,
+  historianExecutionRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
@@ -15,6 +16,7 @@ import {
   FacilityRepositoryError,
   type ReadingEntryFilters,
 } from "./repository.js";
+import type { HistorianQueryExecutor } from "./historian-query.js";
 
 const sendJson = (
   response: ServerResponse,
@@ -53,6 +55,7 @@ export const createFacilityServer = (
   repository: FacilityRepository,
   telemetry: LiveTelemetry,
   copilotRuntime: NodeCopilotListener,
+  historian?: HistorianQueryExecutor,
 ) =>
   createServer(async (request, response) => {
     try {
@@ -99,6 +102,20 @@ export const createFacilityServer = (
           condition ? metricConditionSchema.parse(condition) : undefined,
         );
         sendJson(response, 200, repository.getReadingEntries(filters));
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/historian/query") {
+        if (!historian) {
+          sendJson(response, 503, {
+            error: "The historian query boundary is unavailable.",
+          });
+          return;
+        }
+        const input = historianExecutionRequestSchema.parse(
+          await readBody(request),
+        );
+        sendJson(response, 200, await historian.execute(input));
         return;
       }
 

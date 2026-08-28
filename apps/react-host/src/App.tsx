@@ -426,7 +426,7 @@ export default function App() {
               alarms, and standardized streaming agent chat.
             </p>
             <p className="stage-label">
-              Stage 5 · Frontend tools · No historian data access
+              Stage 6 · Reviewed SQL · Read-only historian access
             </p>
           </div>
         </div>
@@ -863,12 +863,12 @@ export default function App() {
               <p className="eyebrow">CopilotKit · AG-UI streaming</p>
               <h2 id="chat-title">Factory assistant</h2>
             </div>
-            <span>Frontend tools</span>
+            <span>Frontend + SQL</span>
           </div>
           <p className="chat-boundary">
-            The assistant can discover supported filter options and adjust this
-            view. It cannot inspect readings, query the historian directly, or
-            perform operational actions.
+            The assistant can adjust this view and query the historian through
+            reviewer and deterministic safety gates. It cannot perform
+            operational actions.
           </p>
           <div className="copilot-chat-shell">
             <Suspense
