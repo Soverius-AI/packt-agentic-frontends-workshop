@@ -18,14 +18,15 @@ Participants should be able to assign a precise job to AG-UI, CopilotKit, Mastra
 | 0:00–0:15 | Part 1: completed conventional app walkthrough | 01                  |
 | 0:15–0:30 | Part 2: basic OpenAI-SDK chat via OpenRouter   | 02                  |
 | 0:30–0:50 | Part 3: CopilotKit chat and AG-UI streaming    | 03                  |
-| 0:50–1:10 | Part 4: replace BuiltInAgent with Mastra       | 04                  |
-| 1:10–1:30 | Part 5: generated SQL through AG-UI            | 05                  |
-| 1:30–1:40 | Human approval and audit boundary              | 06                  |
-| 1:40–1:50 | Break and buffer                               | —                   |
-| 1:50–2:10 | Bounded A2UI decision surface                  | 07                  |
-| 2:10–2:35 | A2A facilities/compliance specialist           | 08                  |
-| 2:35–2:55 | MCP resources, tool, and portable MCP App      | 09                  |
-| 2:55–3:00 | Recap and two-day expansion                    | final               |
+| 0:50–1:10 | Part 4: Mastra agent and observable trace      | 04                  |
+| 1:10–1:25 | Part 5: bounded frontend tools                 | 05                  |
+| 1:25–1:45 | Part 6: generated SQL through AG-UI            | 06                  |
+| 1:45–1:55 | Human approval and audit boundary              | 07                  |
+| 1:55–2:05 | Break and buffer                               | —                   |
+| 2:05–2:20 | Bounded A2UI decision surface                  | 08                  |
+| 2:20–2:40 | A2A facilities/compliance specialist           | 09                  |
+| 2:40–2:57 | MCP resources, tool, and portable MCP App      | 10                  |
+| 2:57–3:00 | Recap and two-day expansion                    | final               |
 
 Generative UI is compared with A2UI and MCP Apps, but code-generating UI is not implemented in the three-hour workshop.
 
@@ -34,15 +35,17 @@ Generative UI is compared with A2UI and MCP Apps, but code-generating UI is not 
 1. Open Part 1 and demonstrate snapshot mode, continuous updates, the reading log, filters, pagination, seven-day history, shift managers, and the manual alarm lifecycle.
 2. In Part 2, exchange ordinary user and assistant messages through the TypeScript backend, OpenAI SDK, and OpenRouter. Ask a historian-specific question and show that chat has no access to application data.
 3. In Part 3, replace the custom chat with CopilotKit and a tool-free BuiltInAgent. Show the same conversation streaming through AG-UI and inspect its lifecycle events, but confirm that the assistant still cannot inspect the historian.
-4. In Part 4, replace BuiltInAgent with Mastra without changing the CopilotKit frontend or capability boundary. The chat still has no tools.
-5. In Part 5, ask: **Show me when the Cooling room went into warning during the last seven days and when each warning ended.** Inspect the SQL generated for the single `query_historian` tool and its generic result table. Previous days end at 14:00; today's warning is **Still active**.
-6. Ask: **Show me the maximum air temperature for shift manager Charles Bond and, below that, for Denise Weber.** Show that the same SQL tool answers a different, previously unanticipated question.
-7. Establish the incident evidence: air temperature has remained in warning since 12:00, humidity can cross its warning threshold, and the connecting door has no sensor and must be checked manually.
-8. Choose **Ask facilities specialist**.
-9. Follow the correlation ID through the coordinator and A2A service.
-10. Inspect the conditional recommendation: check the connecting door; if open, close and observe; if closed, call cooling/electrical maintenance and place affected batches on quality hold when required by the fictional plant policy.
-11. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
-12. Approve or reject `review-alarm`, then read the audit trail and distinguish operational tracing from accountability.
+4. In Part 4, replace BuiltInAgent with a separate Mastra service without changing the CopilotKit frontend or capability boundary. Send a message from the application, then open Mastra Studio's **Observability → Traces** view and inspect that same run. The chat still has no tools.
+5. In Part 5, first ask which shift managers, rooms, metrics, and conditions are available and show the four read-only catalog tools. Then ask: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.** Show `set_view` switching the view and `update_filters` patching the existing Angular or React controls.
+6. Ask: **Change the start date to now.** Confirm that the view and every other filter remain unchanged. Then clear the date filter and finally clear all filters.
+7. In Part 6, ask: **Show me when the Cooling room went into warning during the last seven days and when each warning ended.** Inspect the SQL generated for the single `query_historian` tool and its generic result table. Previous days end at 14:00; today's warning is **Still active**.
+8. Ask: **Show me the maximum air temperature for shift manager Charles Bond and, below that, for Denise Weber.** Show that the same SQL tool answers a different, previously unanticipated question.
+9. Establish the incident evidence: air temperature has remained in warning since 12:00, humidity can cross its warning threshold, and the connecting door has no sensor and must be checked manually.
+10. Choose **Ask facilities specialist**.
+11. Follow the correlation ID through the coordinator and A2A service.
+12. Inspect the conditional recommendation: check the connecting door; if open, close and observe; if closed, call cooling/electrical maintenance and place affected batches on quality hold when required by the fictional plant policy.
+13. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
+14. Approve or reject `review-alarm`, then read the audit trail and distinguish operational tracing from accountability.
 
 ## Failure demonstrations
 

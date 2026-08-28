@@ -208,7 +208,43 @@ makes the decoupling argument concrete: changing the agent framework does not
 require another chat rewrite. At this checkpoint the standardized path is
 ready for tools, but the assistant can still only exchange messages.
 
-## 8. Part 5 --- Generated SQL through the standardized stack
+## 8. Part 5 --- Bounded frontend tools
+
+Add the first application capability without giving the agent backend data
+access. Angular and React each expose the same seven focused CopilotKit
+frontend tools:
+
+```text
+list_rooms({})
+list_metrics({ roomId? })
+list_shift_managers({})
+list_conditions({})
+set_view({ view })
+update_filters({ filters })
+clear_filters({ filters? })
+```
+
+The frontend supplies bounded context containing only the current view and
+active filters. The four read-only tools discover the available room, metric,
+shift-manager, and condition options when needed. Neither the context nor the
+tools supply readings, historian results, alarm details, or unrestricted
+application state.
+
+`set_view` switches between snapshot and reading-log without touching filters.
+`update_filters` patches any subset of the existing filters, and
+`clear_filters` clears selected or all filters. Omitted values remain
+unchanged, and the browser resolves the literal `now` at execution time.
+
+```text
+Current view/filter state → AG-UI context → Agent
+Agent → CopilotKit frontend tool → Angular/React state → UI
+```
+
+The teaching point is controlled bidirectional integration. The agent can
+understand and manipulate a predetermined UI, but it still cannot answer
+questions that require inspecting or aggregating the underlying readings.
+
+## 9. Part 6 --- Generated SQL through the standardized stack
 
 Add the first and only data tool to the Mastra agent, carried over AG-UI and
 presented by CopilotKit:
@@ -254,18 +290,7 @@ Fixed, parameterized application tools remain the safer production alternative
 and should be discussed as a trade-off, not implemented as the primary
 three-hour example.
 
-CopilotKit can now also expose structured frontend tools. Possible examples
-include `setMetricFilter`, `selectMetric`, and `triggerAlarm`.
-
-```text
-Agent → CopilotKit → Angular/React Tool → Store → UI
-```
-
-Narrative correction: this is not the first agentic moment. The direct SDK
-version already supported conversation. The improvement is a **standardized,
-structured, reusable integration for tools and UI actions**.
-
-## 9. Part 6 --- Human approval and deterministic UI checkpoint
+## 10. Part 7 --- Human approval and deterministic UI checkpoint
 
 ### Human-in-the-loop
 
@@ -290,7 +315,7 @@ sidebar, controls, and layout.
 
 This motivates A2UI.
 
-## 10. Part 7 --- A2UI
+## 11. Part 8 --- A2UI
 
 Introduce a **power-user** persona. Instead of a fixed grid, give the
 user an assistant and initially empty canvas.
@@ -324,7 +349,7 @@ memory**.
 Persistence guardrails include user/tenant isolation, retention rules,
 privacy, versioning, and validation before restoring generated UI state.
 
-## 11. Generative UI comparison
+## 12. Generative UI comparison
 
 Ask: **What if the approved component catalogue is itself too
 restrictive?**
@@ -369,7 +394,7 @@ Useful distinction:
 > **Auditability:** Who approved or performed a consequential action,
 > and when?
 
-## 12. Parts 8 and 9 --- A2A, MCP Apps, and specialist agents
+## 13. Parts 9 and 10 --- A2A, MCP Apps, and specialist agents
 
 Use the Cooling room anomaly as the primary A2A scenario. Its air temperature
 has remained in warning since 12:00 and is approaching the temperature in the
@@ -436,7 +461,7 @@ Mention agent identity, authentication/authorization, trust boundaries,
 data minimisation, distributed tracing, provenance, sandboxing, and
 timeout/failure handling.
 
-## 13. Cross-cutting guardrail progression
+## 14. Cross-cutting guardrail progression
 
 | Capability            | Primary guardrail                                      |
 | --------------------- | ------------------------------------------------------ |
@@ -454,7 +479,7 @@ Closing message:
 
 > **As autonomy increases, operational responsibility increases too.**
 
-## 14. Final end-to-end scenario
+## 15. Final end-to-end scenario
 
 1.  `cooling-air-temperature` has remained in warning since 12:00 and is
     approaching the adjacent Packaging hall's air temperature.
@@ -476,7 +501,7 @@ Use this to show that AG-UI, CopilotKit, A2UI, A2A, MCP, and MCP Apps
 solve **different problems in one architecture**. Generative UI is the
 comparison point, not a hands-on implementation in the three-hour format.
 
-## 15. Standards story
+## 16. Standards story
 
 - **AG-UI:** How does a user-facing application communicate with an
   agent?
@@ -493,7 +518,7 @@ comparison point, not a hands-on implementation in the three-hour format.
 
 They are complementary, not competing.
 
-## 16. Suggested three-hour timing
+## 17. Suggested three-hour timing
 
 | Section                                          | Approx. |
 | ------------------------------------------------ | ------: |
@@ -501,19 +526,20 @@ They are complementary, not competing.
 | Part 2: basic OpenAI-SDK chat through OpenRouter |  15 min |
 | Part 3: CopilotKit chat + AG-UI + BuiltInAgent   |  20 min |
 | Part 4: replace BuiltInAgent with Mastra         |  20 min |
-| Part 5: generated SQL tool                       |  20 min |
+| Part 5: bounded frontend tools                   |  15 min |
+| Part 6: generated SQL tool                       |  20 min |
 | Human-in-the-loop + guardrails                   |  10 min |
 | Break/buffer                                     |  10 min |
-| A2UI + generative UI comparison                  |  20 min |
-| A2A specialist agent                             |  25 min |
-| MCP resources, tool, and MCP App                 |  20 min |
-| End-to-end wrap-up                               |   5 min |
+| A2UI + generative UI comparison                  |  15 min |
+| A2A specialist agent                             |  20 min |
+| MCP resources, tool, and MCP App                 |  17 min |
+| End-to-end wrap-up                               |   3 min |
 
 Rehearse this carefully. The completed reference system should be used
 for the final A2A-to-MCP-App path; code-generating UI is reserved for the
 two-day expansion.
 
-## 17. Implementation strategy and current status
+## 18. Implementation strategy and current status
 
 Use explicit checkpoints/branches rather than continuously mutating one demo.
 `main` is the canonical home of the overall project knowledge, workshop plan,
@@ -526,13 +552,14 @@ from `01-base-app`, then `03-copilotkit-ag-ui` from `02-basic-chat`, and so on).
 | --------------------- | ------------------------------------------------------------------- | -------------------------------------- |
 | `01-base-app`         | Complete conventional incident-management application               | **Completed; workshop starting point** |
 | `02-basic-chat`       | Basic conversation through the OpenAI SDK and OpenRouter; no tools  | **Completed**                          |
-| `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | Planned                                |
-| `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | Planned                                |
-| `05-sql-tool`         | One generated-SQL historian tool through the standardized stack     | Planned                                |
-| `06-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
-| `07-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |
-| `08-a2a`              | Delegate the incident to the facilities/compliance specialist       | Planned                                |
-| `09-mcp-app`          | Specialist resources, read-only tool, and portable evidence UI      | Planned                                |
+| `03-copilotkit-ag-ui` | CopilotKit chat, Copilot Runtime, BuiltInAgent, and AG-UI; no tools | **Completed**                          |
+| `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | **Completed**                          |
+| `05-frontend-tool`    | Seven bounded frontend discovery and view/filter tools              | **Completed**                          |
+| `06-sql-tool`         | One generated-SQL historian tool through the standardized stack     | Planned                                |
+| `07-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
+| `08-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |
+| `09-a2a`              | Delegate the incident to the facilities/compliance specialist       | Planned                                |
+| `10-mcp-app`          | Specialist resources, read-only tool, and portable evidence UI      | Planned                                |
 | `final`               | Rehearsed Angular/React golden path and resilience checks           | Planned                                |
 
 Each checkpoint should be runnable independently and include a short
