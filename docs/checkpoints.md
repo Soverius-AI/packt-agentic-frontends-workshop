@@ -16,11 +16,12 @@ main                 canonical knowledge and overall project
 └── 02-basic-chat    Part 2 snapshot, based on 01-base-app
     └── 03-copilotkit-ag-ui
         └── 04-mastra-agent
-            └── 05-sql-tool
-                └── 06-human-in-loop
-                    └── 07-a2ui
-                        └── 08-a2a
-                            └── 09-mcp-app
+            └── 05-frontend-tool
+                └── 06-sql-tool
+                    └── 07-human-in-loop
+                        └── 08-a2ui
+                            └── 09-a2a
+                                └── 10-mcp-app
 ```
 
 This preserves the exact state needed to walk forward through the webinar
@@ -38,15 +39,18 @@ branches.
 | `02-basic-chat`       | ordinary conversation through OpenAI SDK and OpenRouter; no tools          | the model cannot inspect application data                     |
 | `03-copilotkit-ag-ui` | replace the custom chat with CopilotKit, BuiltInAgent, and AG-UI streaming | the standardized path still uses an embedded agent            |
 | `04-mastra-agent`     | replace BuiltInAgent with Mastra while keeping CopilotKit chat-only        | the standardized stack is ready for application capabilities  |
-| `05-sql-tool`         | one generated-SQL historian tool and generic result table                  | consequential tools need an authority boundary                |
-| `06-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
-| `07-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
-| `08-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |
-| `09-mcp-app`          | MCP corpus, `get_case_analysis`, portable app                              | production concerns need deeper treatment                     |
+| `05-frontend-tool`    | four option-discovery tools plus three bounded view/filter mutation tools  | fixed controls cannot answer unanticipated data questions     |
+| `06-sql-tool`         | one generated-SQL historian tool and generic result table                  | consequential tools need an authority boundary                |
+| `07-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
+| `08-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
+| `09-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |
+| `10-mcp-app`          | MCP corpus, `get_case_analysis`, portable app                              | production concerns need deeper treatment                     |
 | `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
-The implementation contract for the next checkpoint is in
-[Step 3 implementation brief](./step-03-copilotkit-ag-ui.md).
+The completed contracts through the current checkpoint are documented in the
+[Step 4 implementation brief](./step-04-mastra-agent.md) and
+[Step 5 implementation brief](./step-05-frontend-tool.md). Create
+`06-sql-tool` directly from `05-frontend-tool` for the next milestone.
 
 ## Readiness check per checkpoint
 

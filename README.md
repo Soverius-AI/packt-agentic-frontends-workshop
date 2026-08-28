@@ -70,6 +70,6 @@ Build and test everything with `pnpm check`. The Angular build may need permissi
 
 ## Workshop route
 
-Use [docs/workshop-3h.md](./docs/workshop-3h.md) as the presenter runbook. The implementation checkpoints are described in [docs/checkpoints.md](./docs/checkpoints.md), and the larger expansion backlog is in [docs/two-day-expansion.md](./docs/two-day-expansion.md).
+Use [docs/workshop-3h.md](./docs/workshop-3h.md) as the presenter runbook. The implementation checkpoints are described in [docs/checkpoints.md](./docs/checkpoints.md), with dedicated briefs for [Step 4](./docs/step-04-mastra-agent.md) and [Step 5](./docs/step-05-frontend-tool.md). The larger expansion backlog is in [docs/two-day-expansion.md](./docs/two-day-expansion.md).
 
 The broader narrative and rationale remain in [packt-copilotkit-workshop-blueprint.md](./packt-copilotkit-workshop-blueprint.md).
