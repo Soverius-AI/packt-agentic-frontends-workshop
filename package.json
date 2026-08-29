@@ -13,8 +13,8 @@
     "dev": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
     "dev:backend": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service dev",
     "dev:agent": "pnpm --filter @packt-workshop/agent-service dev",
-    "dev:angular": "pnpm --filter angular-host start",
-    "dev:react": "pnpm --filter react-host dev"
+    "dev:angular": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
+    "dev:react": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter react-host dev"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
