@@ -14,6 +14,7 @@ import type {
 import {
   applyFacilityViewCommand,
   clearFiltersToolSchema,
+  getUserTimeZone,
   listConditionsToolSchema,
   listMetricsToolSchema,
   listRoomsToolSchema,
@@ -101,8 +102,11 @@ export class App {
   constructor() {
     connectAgentContext(() => ({
       description:
-        'Current facility view and active filters. This context contains no option catalogs, readings, or historian results.',
-      value: JSON.stringify(this.facilityViewState()),
+        'Current facility view, active filters, and user timezone. This context contains no option catalogs, readings, alarm records, or historian results.',
+      value: JSON.stringify({
+        ...this.facilityViewState(),
+        userTimeZone: getUserTimeZone(),
+      }),
     }));
     registerFrontendTool({
       name: 'list_rooms',

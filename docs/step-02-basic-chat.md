@@ -110,8 +110,7 @@ with CopilotKit, Copilot Runtime, and AG-UI streaming before adding tools.
 - Missing configuration and provider failures are visible and recoverable.
 - No facility state or database contents are sent to the model.
 - No tool-call implementation exists.
-- Existing Part 1 behaviour and tests remain green.
-- Shared contract, backend, Angular, and React tests cover the new boundary.
+- Existing Part 1 behaviour remains intact.
 - Production builds pass for all workspace packages.
 
 ## Handoff prompt for a new Codex session

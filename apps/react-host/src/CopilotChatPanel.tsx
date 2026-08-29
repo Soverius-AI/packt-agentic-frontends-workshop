@@ -7,6 +7,7 @@ import {
 } from "@copilotkit/react-core/v2";
 import {
   clearFiltersToolSchema,
+  getUserTimeZone,
   listConditionsToolSchema,
   listMetricsToolSchema,
   listRoomsToolSchema,
@@ -57,11 +58,11 @@ export function parseHistorianResult(
 
 function HistorianResult({
   status,
-  sql,
+  question,
   result,
 }: {
   status: "inProgress" | "executing" | "complete";
-  sql?: string | undefined;
+  question?: string | undefined;
   result?: unknown;
 }) {
   const historianResult = parseHistorianResult(result);
@@ -70,15 +71,22 @@ function HistorianResult({
       <header>
         <div>
           <p>Reviewed historian query</p>
-          <strong>SQL → reviewer → deterministic policy</strong>
+          <strong>
+            Question → SQL generator → reviewer → deterministic policy
+          </strong>
         </div>
         <span>{status === "complete" ? "Complete" : "Checking…"}</span>
       </header>
-      {sql && (
+      {question && (
+        <p>
+          <strong>Question:</strong> {question}
+        </p>
+      )}
+      {historianResult?.sql && (
         <details>
           <summary>Generated SQL</summary>
           <pre>
-            <code>{sql}</code>
+            <code>{historianResult.sql}</code>
           </pre>
         </details>
       )}
@@ -152,7 +160,8 @@ function HistorianResult({
         </p>
       ) : (
         <p className="historian-pending">
-          Reviewing meaning before applying the deterministic SQL policy…
+          Generating SQL, reviewing meaning, and applying the deterministic
+          policy…
         </p>
       )}
     </article>
@@ -166,14 +175,18 @@ function FacilityChat({
 }: CopilotChatPanelProps) {
   useAgentContext({
     description:
-      "Current facility view and active filters. This context contains no option catalogs, readings, or historian results.",
-    value: viewContext,
+      "Current facility view, active filters, and user timezone. This context contains no option catalogs, readings, alarm records, or historian results.",
+    value: { ...viewContext, userTimeZone: getUserTimeZone() },
   });
   useRenderTool({
     name: "query_historian",
     parameters: queryHistorianToolSchema,
     render: ({ status, parameters, result }) => (
-      <HistorianResult status={status} sql={parameters.sql} result={result} />
+      <HistorianResult
+        status={status}
+        question={parameters.question}
+        result={result}
+      />
     ),
   });
   useFrontendTool(

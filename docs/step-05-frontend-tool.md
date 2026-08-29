@@ -129,5 +129,4 @@ the agent asks whether they mean the start or end date.
 - The tool result reports the resulting state to the agent.
 - No Mastra backend tool, SQL access, readings, alarm action, or approval flow
   is added.
-- Shared-contract tests, frontend tests, Angular and React production builds,
-  and the complete workspace check pass.
+- Angular and React production builds and the complete workspace check pass.

@@ -1,11 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
-import type {
-  QueryHistorianToolInput,
-  SqlReview,
-} from "@packt-workshop/contracts";
+import type { SqlReview } from "@packt-workshop/contracts";
 import { z } from "zod";
-import { DEFAULT_OPENROUTER_MODEL } from "./workshop-agent.js";
+import { DEFAULT_OPENROUTER_MODEL } from "./workshop-agent";
 
 export const SQL_REVIEWER_INSTRUCTIONS = `You are the SQL reviewer for the Soverius Chocolate Factory historian.
 
@@ -35,7 +32,11 @@ const sqlReviewOutputSchema = z
   })
   .strict();
 
-export type SqlReviewRequest = QueryHistorianToolInput & { question: string };
+export type SqlReviewRequest = {
+  question: string;
+  sql: string;
+  explanation: string;
+};
 export type SqlReviewFunction = (
   request: SqlReviewRequest,
 ) => Promise<SqlReview>;
@@ -61,12 +62,6 @@ export const createSqlReviewerAgent = (options: SqlReviewerOptions = {}) => {
   });
 };
 
-export function parseSqlReviewText(text: string): SqlReview {
-  const trimmed = text.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return sqlReviewOutputSchema.parse(JSON.parse(fenced?.[1] ?? trimmed));
-}
-
 export function createSqlReviewFunction(
   reviewer: ReturnType<typeof createSqlReviewerAgent>,
 ): SqlReviewFunction {
@@ -77,8 +72,12 @@ export function createSqlReviewFunction(
         abortSignal: AbortSignal.timeout(30_000),
         maxSteps: 1,
         modelSettings: { temperature: 0, maxOutputTokens: 256 },
+        structuredOutput: {
+          schema: sqlReviewOutputSchema,
+          jsonPromptInjection: "auto",
+        },
       },
     );
-    return parseSqlReviewText(result.text);
+    return sqlReviewOutputSchema.parse(result.object);
   };
 }

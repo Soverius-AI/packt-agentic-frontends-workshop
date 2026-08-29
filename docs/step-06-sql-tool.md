@@ -2,10 +2,11 @@
 
 ## Objective
 
-Add one flexible, read-only historian capability without treating model review
-as authorization. The primary Mastra agent generates SQL, a separate Mastra
-reviewer checks whether it answers the operator's question, and a deterministic
-facility-service policy decides whether it may execute.
+Add one flexible, read-only historian capability as an explicit Mastra workflow
+without treating model review as authorization. The conversational agent passes
+the operator's question to one backend tool. A dedicated generator agent creates
+SQL, a separate reviewer checks whether it answers the question, and a
+deterministic facility-service policy decides whether it may execute.
 
 Create `06-sql-tool` directly from the completed `05-frontend-tool`
 checkpoint. Preserve all earlier milestones and create `07-human-in-loop`
@@ -17,15 +18,17 @@ directly from this checkpoint.
 - Add exactly one backend data tool:
 
   ```text
-  query_historian({ sql, explanation })
+  query_historian({ question })
   ```
 
-- Derive the latest operator question from the Mastra tool execution context;
-  do not add it to the model-facing tool schema.
+- Pass the operator's exact question through the model-facing tool schema. The
+  conversational agent must not generate SQL.
+- Register a tool-free `sql-generator` Mastra agent and a visible
+  `historian-query` workflow with three typed steps: `generate-sql`,
+  `review-sql`, and `deterministic-validate-and-execute`.
 - Register a tool-free `sql-reviewer` Mastra agent. It checks semantic fit,
   schema use, time interpretation, grouping, ordering, and unsupported claims.
-- A reviewer rejection stops execution. The primary agent may correct and
-  retry once.
+- A reviewer rejection stops before the facility boundary.
 - Never use reviewer approval as the security decision.
 - Keep SQLite ownership in `apps/facility-service`; the Mastra service calls
   its localhost historian endpoint rather than opening the facility file.
@@ -37,10 +40,11 @@ directly from this checkpoint.
 ```text
 Angular :4200 or React :5173
   -> /api/copilotkit on facility service :3001
-  -> default Mastra agent :4111 generates SQL
-  -> sql-reviewer Mastra agent checks semantic correctness
-  -> query_historian calls POST /api/historian/query on :3001
-  -> deterministic policy validates and authorizes the exact statement
+  -> default Mastra agent :4111 calls query_historian({ question })
+  -> historian-query workflow runs generate-sql with the sql-generator agent
+  -> review-sql passes that exact proposal to the sql-reviewer agent
+  -> deterministic-validate-and-execute calls POST /api/historian/query on :3001
+  -> facility-owned deterministic policy validates and authorizes the exact statement
   -> worker opens facility SQLite read-only and executes with a deadline
   -> columns, rows, SQL, explanation, review, and policy metadata stream back
   -> CopilotKit renders the generic result in the active framework host
@@ -75,7 +79,8 @@ validator, or execution layer. The primary agent cannot override any rejection.
 
 1. Ask: **Show me when the Cooling room went into warning during the last seven
    days and when each warning ended.**
-2. Expand the generated SQL and inspect the reviewer verdict.
+2. Open the `historian-query` workflow in Mastra Studio and inspect the three
+   typed steps, then expand the generated SQL and reviewer verdict in chat.
 3. Confirm that earlier warning periods end at 14:00 factory time and the
    current warning is reported as **Still active**.
 4. Ask: **Show me the maximum air temperature for shift manager Charles Bond
@@ -89,8 +94,11 @@ validator, or execution layer. The primary agent cannot override any rejection.
 ## Completion criteria
 
 - `06-sql-tool` is based directly on `05-frontend-tool`.
-- Mastra registers `default` and the tool-free `sql-reviewer` agent.
+- Mastra registers `default`, tool-free `sql-generator`, and tool-free
+  `sql-reviewer` agents plus the `historian-query` workflow.
 - The primary agent exposes one backend tool, `query_historian`.
+- The backend tool accepts only the operator question; the dedicated generator
+  workflow step produces SQL and an explanation.
 - Reviewer rejection prevents the facility historian endpoint from being called.
 - Deterministic validation remains authoritative after reviewer approval.
 - Direct table access, writes, multiple statements, unauthorized functions,
@@ -98,6 +106,6 @@ validator, or execution layer. The primary agent cannot override any rejection.
 - The two golden historian questions are supported through the same tool.
 - Generated SQL, reviewer verdict, policy metadata, and generic rows render in
   Angular and React.
-- Shared-contract tests, service tests, agent tests, Angular and React tests,
-  production builds, and the complete workspace check pass.
+- Service, agent, Angular, and React production builds and the complete
+  workspace check pass.
 - The rendered Angular and React chat flows are visually verified.

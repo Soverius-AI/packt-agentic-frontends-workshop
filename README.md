@@ -97,7 +97,7 @@ Open Mastra Studio and select **Observability** to inspect the corresponding
 agent run, model generation, timing, input, and output. Studio reads the same
 locally persisted execution records created by chats from either frontend.
 
-Build and test the checkpoint with:
+Build and check formatting with:
 
 ```bash
 pnpm check

@@ -6,8 +6,7 @@
   "scripts": {
     "build": "MASTRA_TELEMETRY_DISABLED=1 mastra build --studio",
     "dev": "MASTRA_TELEMETRY_DISABLED=1 mastra dev --env ../../.env",
-    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env",
-    "test": "vitest --run src"
+    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.101",
@@ -19,7 +18,6 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "mastra": "1.26.1",
-    "typescript": "~6.0.2",
-    "vitest": "^4.0.8"
+    "typescript": "~6.0.2"
   }
 }

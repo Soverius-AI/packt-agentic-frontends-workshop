@@ -161,6 +161,14 @@ export const facilityViewStateSchema = z.object({
 });
 export type FacilityViewState = z.infer<typeof facilityViewStateSchema>;
 
+export function getUserTimeZone(): string | null {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch {
+    return null;
+  }
+}
+
 const facilityViewFilterPatchSchema = facilityViewFiltersSchema
   .partial()
   .strict();
@@ -214,20 +222,14 @@ export type ListMetricsToolInput = z.infer<typeof listMetricsToolSchema>;
 
 export const queryHistorianToolSchema = z
   .object({
-    sql: z
+    question: z
       .string()
       .trim()
       .min(1)
-      .max(12_000)
+      .max(4_000)
       .describe(
-        "One read-only SQLite SELECT or WITH query against historian_readings.",
+        "The operator's exact historian question. A dedicated workflow step generates SQL from it.",
       ),
-    explanation: z
-      .string()
-      .trim()
-      .min(1)
-      .max(1_000)
-      .describe("A short explanation of how the SQL answers the question."),
   })
   .strict();
 export type QueryHistorianToolInput = z.infer<typeof queryHistorianToolSchema>;
@@ -273,9 +275,11 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
 ]);
 export type HistorianToolResult = z.infer<typeof historianToolResultSchema>;
 
-export const historianExecutionRequestSchema = queryHistorianToolSchema
-  .extend({
+export const historianExecutionRequestSchema = z
+  .object({
     question: z.string().trim().min(1).max(4_000),
+    sql: z.string().trim().min(1).max(12_000),
+    explanation: z.string().trim().min(1).max(1_000),
     review: sqlReviewSchema,
   })
   .strict();

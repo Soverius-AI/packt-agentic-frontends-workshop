@@ -106,7 +106,7 @@ The new capability is backend-framework substitution, not data access.
 
 The `04-mastra-agent` branch implements this contract with Mastra Core 1.62,
 the Mastra AG-UI bridge 1.1, CopilotKit Runtime 1.69, Angular 22, and React 19.
-The backend tests assert the tool-free instructions boundary, remote runtime
-discovery, and removal of the obsolete custom chat route. A live verification
-request through CopilotKit confirms AG-UI streaming and a matching successful
-trace in Mastra observability.
+The implementation preserves the tool-free instructions boundary, remote
+runtime discovery, and removal of the obsolete custom chat route. A live
+verification request through CopilotKit confirms AG-UI streaming and a matching
+successful trace in Mastra observability.
