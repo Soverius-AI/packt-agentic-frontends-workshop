@@ -32,6 +32,9 @@ importers:
       '@mastra/observability':
         specifier: 1.17.2
         version: 1.17.2(@mastra/core@1.62.0(@bufbuild/protobuf@2.14.0)(@grpc/grpc-js@1.14.4)(ai@6.0.266(zod@4.4.3))(express@5.2.1(supports-color@7.2.0))(rxjs@7.8.1)(supports-color@7.2.0)(zod@4.4.3))(zod@4.4.3)
+      '@packt-workshop/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       zod:
         specifier: ^4.4.3
         version: 4.4.3

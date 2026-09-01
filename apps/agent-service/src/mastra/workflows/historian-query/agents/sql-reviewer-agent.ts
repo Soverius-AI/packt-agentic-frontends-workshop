@@ -1,8 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
-import type { SqlReview } from "@packt-workshop/contracts";
-import { z } from "zod";
-import { DEFAULT_OPENROUTER_MODEL } from "./workshop-agent";
+import { sqlReviewSchema, type SqlReview } from "@packt-workshop/contracts";
+
+// Workflow-private, tool-free agent for the review-sql step.
 
 export const SQL_REVIEWER_INSTRUCTIONS = `You are the SQL reviewer for the Soverius Chocolate Factory historian.
 
@@ -17,20 +17,18 @@ The only query surface is historian_readings with these columns:
 - shift_manager_name
 - condition (normal, warning, critical, unavailable)
 
+The exact catalog values are:
+- room_name: Cooling room, Packaging hall
+- metric_name: Air temperature, Relative humidity, Product surface temperature, Supply-air temperature, Cooling-unit power, Line state, Line speed, Seal temperature, Package reject rate
+
+Reject an equality predicate that shortens or invents one of these catalog values. In an unqualified facility request, "temperature" means the Air temperature metric. For example, metric_name = 'Temperature' is wrong; metric_name = 'Air temperature' is correct.
+
 Useful SQLite features include CTEs, aggregates, window functions such as LAG, and date/time functions. For warning intervals, a warning begins when condition changes into warning and ends at the first later non-warning reading. If there is no later non-warning reading, report it as still active.
 
 Approve only when the SQL and explanation answer the supplied question. Return concise concerns when rejecting. Never claim that approval makes SQL safe; a deterministic policy runs after you.
 
 Respond with only compact JSON in this shape:
 {"approved":true|false,"summary":"short verdict","concerns":["concern"]}`;
-
-const sqlReviewOutputSchema = z
-  .object({
-    approved: z.boolean(),
-    summary: z.string().trim().min(1).max(1_000),
-    concerns: z.array(z.string().trim().min(1).max(500)).max(10),
-  })
-  .strict();
 
 export type SqlReviewRequest = {
   question: string;
@@ -41,14 +39,9 @@ export type SqlReviewFunction = (
   request: SqlReviewRequest,
 ) => Promise<SqlReview>;
 
-export type SqlReviewerOptions = {
-  apiKey?: string | undefined;
-  model?: string | undefined;
-};
-
-export const createSqlReviewerAgent = (options: SqlReviewerOptions = {}) => {
+export const createSqlReviewerAgent = (apiKey: string, model: string) => {
   const openrouter = createOpenAI({
-    apiKey: options.apiKey ?? "openrouter-not-configured",
+    apiKey,
     baseURL: "https://openrouter.ai/api/v1",
   });
 
@@ -58,7 +51,7 @@ export const createSqlReviewerAgent = (options: SqlReviewerOptions = {}) => {
     description:
       "Reviews generated historian SQL for semantic correctness before deterministic validation.",
     instructions: SQL_REVIEWER_INSTRUCTIONS,
-    model: openrouter(options.model || DEFAULT_OPENROUTER_MODEL),
+    model: openrouter(model),
   });
 };
 
@@ -73,11 +66,11 @@ export function createSqlReviewFunction(
         maxSteps: 1,
         modelSettings: { temperature: 0, maxOutputTokens: 256 },
         structuredOutput: {
-          schema: sqlReviewOutputSchema,
+          schema: sqlReviewSchema,
           jsonPromptInjection: "auto",
         },
       },
     );
-    return sqlReviewOutputSchema.parse(result.object);
+    return sqlReviewSchema.parse(result.object);
   };
 }

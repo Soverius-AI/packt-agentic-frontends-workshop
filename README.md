@@ -3,11 +3,13 @@
 This branch extends the completed Mastra checkpoint in the
 three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
-It keeps all seven bounded frontend tools from Checkpoint 05 and adds one
-backend data capability: `query_historian({ sql, explanation })`. The primary
-Mastra agent generates SQL, a separate tool-free Mastra reviewer checks whether
-that SQL answers the operator's question, and a deterministic facility-service
-policy decides whether the exact statement may execute against SQLite.
+It keeps all seven bounded frontend tools from Checkpoint 05 and gives the
+primary agent one narrow backend tool: `query_historian({ question })`. That
+tool starts the separately registered `historian-query` Mastra workflow. A
+dedicated tool-free generator agent creates SQL, a separate tool-free reviewer
+checks whether that SQL answers the operator's question, and a deterministic
+facility-service policy decides whether the exact statement may execute against
+SQLite.
 
 ## Scenario
 
@@ -21,9 +23,13 @@ version, and generic result table remain visible in both framework hosts.
 
 ## What this checkpoint adds
 
-- a primary Mastra agent that generates one SQLite `SELECT` or `WITH` query;
-- a separate `sql-reviewer` Mastra agent that checks semantic correctness but
-  has no tools and no execution authority;
+- a primary Mastra agent that can call one narrow historian tool;
+- a thin tool adapter that starts the visible `historian-query` workflow without
+  generating, reviewing, validating, or executing SQL itself;
+- a dedicated, workflow-private `sql-generator` Mastra agent that generates one
+  SQLite `SELECT` or `WITH` query;
+- a separate, workflow-private `sql-reviewer` Mastra agent that checks semantic
+  correctness but has no tools and no execution authority;
 - a deterministic SQL policy using a read-only connection, SQLite runtime
   authorization, a dedicated `historian_readings` view, function and column
   allowlists, one-statement enforcement, row/size caps, and a worker deadline;
@@ -51,13 +57,16 @@ they run in different environments:
 | `packages/contracts`    | Shared schemas and TypeScript contracts; not a runnable app   |
 
 Angular and React are alternative views of the same product. Both call the
-facility service, which forwards agent runs to Mastra. A historian tool call
-returns to the facility-owned execution boundary:
+facility service, which forwards agent runs to Mastra. The model sees only the
+narrow tool input. The tool starts the registered workflow and returns its
+result through the facility-owned boundary:
 
 ```text
 Angular or React -> facility service (:3001) -> primary Mastra agent (:4111)
+                                              -> query_historian({ question })
+                                              -> historian-query workflow
+                                              -> SQL generator agent
                                               -> SQL reviewer agent
-                                              -> query_historian
                                               -> facility SQL policy (:3001)
                                               -> read-only facility SQLite
 ```

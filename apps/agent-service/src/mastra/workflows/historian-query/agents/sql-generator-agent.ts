@@ -1,7 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import { z } from "zod";
-import { DEFAULT_OPENROUTER_MODEL } from "./workshop-agent";
+
+// Workflow-private, tool-free agent for the generate-sql step.
 
 export const SQL_GENERATOR_INSTRUCTIONS = `You generate one read-only SQLite query for the Soverius Chocolate Factory historian.
 
@@ -13,6 +14,12 @@ The only query surface is historian_readings with these columns:
 - numeric_value, text_value
 - shift_manager_name
 - condition (normal, warning, critical, unavailable)
+
+Use these exact catalog values when filtering:
+- room_name: Cooling room, Packaging hall
+- metric_name: Air temperature, Relative humidity, Product surface temperature, Supply-air temperature, Cooling-unit power, Line state, Line speed, Seal temperature, Package reject rate
+
+Never shorten or invent a catalog value in an equality predicate. In an unqualified facility request, "temperature" means the Air temperature metric. Other temperature metrics must be named by the operator or clearly required by the question.
 
 Use exactly one SELECT or read-only WITH statement. SQLite CTEs, aggregates, allowlisted window functions such as LAG, and date/time functions are available. For warning intervals, a warning begins when condition changes into warning and ends at the first later non-warning reading. If there is no later non-warning reading, report it as still active. Do not invent tables, columns, or evidence.
 
@@ -31,14 +38,9 @@ export type SqlGenerationFunction = (
   question: string,
 ) => Promise<SqlGeneration>;
 
-export type SqlGeneratorOptions = {
-  apiKey?: string | undefined;
-  model?: string | undefined;
-};
-
-export const createSqlGeneratorAgent = (options: SqlGeneratorOptions = {}) => {
+export const createSqlGeneratorAgent = (apiKey: string, model: string) => {
   const openrouter = createOpenAI({
-    apiKey: options.apiKey ?? "openrouter-not-configured",
+    apiKey,
     baseURL: "https://openrouter.ai/api/v1",
   });
 
@@ -48,7 +50,7 @@ export const createSqlGeneratorAgent = (options: SqlGeneratorOptions = {}) => {
     description:
       "Turns one facility historian question into a structured read-only SQLite query proposal.",
     instructions: SQL_GENERATOR_INSTRUCTIONS,
-    model: openrouter(options.model || DEFAULT_OPENROUTER_MODEL),
+    model: openrouter(model),
   });
 };
 

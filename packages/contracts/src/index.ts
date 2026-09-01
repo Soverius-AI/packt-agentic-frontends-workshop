@@ -234,6 +234,10 @@ export const queryHistorianToolSchema = z
   .strict();
 export type QueryHistorianToolInput = z.infer<typeof queryHistorianToolSchema>;
 
+// The ordinary tool and the workflow deliberately share the same narrow input.
+export const historianQueryInputSchema = queryHistorianToolSchema;
+export type HistorianQueryInput = QueryHistorianToolInput;
+
 export const sqlReviewSchema = z
   .object({
     approved: z.boolean(),

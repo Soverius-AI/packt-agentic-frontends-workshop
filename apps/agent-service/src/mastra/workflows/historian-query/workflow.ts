@@ -1,77 +1,24 @@
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import type { HistorianToolResult, SqlReview } from "@packt-workshop/contracts";
-import { z } from "zod";
-import type { SqlGenerationFunction } from "./sql-generator";
-import type { SqlReviewFunction } from "./sql-reviewer";
+import {
+  generatedSqlSchema,
+  queryHistorianInputSchema,
+  queryHistorianOutputSchema,
+  reviewedSqlSchema,
+  type ReviewedSql,
+} from "./schemas";
+import {
+  createSqlGenerationFunction,
+  createSqlGeneratorAgent,
+} from "./agents/sql-generator-agent";
+import {
+  createSqlReviewerAgent,
+  createSqlReviewFunction,
+} from "./agents/sql-reviewer-agent";
 
 const POLICY_VERSION = "historian-v1";
 
-export const queryHistorianInputSchema = z
-  .object({
-    question: z.string().trim().min(1).max(4_000),
-  })
-  .strict();
-
-const sqlReviewOutputSchema = z
-  .object({
-    approved: z.boolean(),
-    summary: z.string().trim().min(1).max(1_000),
-    concerns: z.array(z.string().trim().min(1).max(500)).max(10),
-  })
-  .strict();
-
-const generatedSqlSchema = queryHistorianInputSchema
-  .extend({
-    sql: z.string().trim().min(1).max(12_000),
-    explanation: z.string().trim().min(1).max(1_000),
-  })
-  .strict();
-
-const reviewedSqlSchema = generatedSqlSchema
-  .extend({ review: sqlReviewOutputSchema })
-  .strict();
-
-const historianScalarSchema = z.union([z.string(), z.number(), z.null()]);
-const queryHistorianOutputBaseSchema = generatedSqlSchema.extend({
-  review: sqlReviewOutputSchema,
-  policyVersion: z.string(),
-});
-
-export const queryHistorianOutputSchema = z.discriminatedUnion("status", [
-  queryHistorianOutputBaseSchema
-    .extend({
-      status: z.literal("executed"),
-      columns: z.array(z.string()).max(64),
-      rows: z.array(z.array(historianScalarSchema).max(64)).max(200),
-      rowCount: z.number().int().nonnegative().max(200),
-      truncated: z.boolean(),
-      durationMs: z.number().int().nonnegative(),
-    })
-    .strict(),
-  queryHistorianOutputBaseSchema
-    .extend({
-      status: z.literal("rejected"),
-      stage: z.enum(["reviewer", "validator", "execution"]),
-      code: z.string().min(1),
-      message: z.string().min(1),
-    })
-    .strict(),
-]);
-
-export type QueryHistorianWorkflowInput = z.infer<
-  typeof queryHistorianInputSchema
->;
-
-type HistorianWorkflowOptions = {
-  generateSql: SqlGenerationFunction;
-  reviewSql: SqlReviewFunction;
-  facilityBaseUrl?: string | undefined;
-  fetch?: typeof globalThis.fetch | undefined;
-};
-
-const reviewerRejection = (
-  input: z.infer<typeof reviewedSqlSchema>,
-): HistorianToolResult => ({
+const reviewerRejection = (input: ReviewedSql): HistorianToolResult => ({
   status: "rejected",
   stage: "reviewer",
   code: "REVIEW_REJECTED",
@@ -82,10 +29,17 @@ const reviewerRejection = (
 });
 
 export function createHistorianQueryWorkflow(
-  options: HistorianWorkflowOptions,
+  apiKey: string,
+  model: string,
+  facilityBaseUrl: string,
 ) {
-  const request = options.fetch ?? globalThis.fetch;
-  const facilityBaseUrl = options.facilityBaseUrl ?? "http://127.0.0.1:3001";
+  const request = globalThis.fetch;
+  const generateSqlProposal = createSqlGenerationFunction(
+    createSqlGeneratorAgent(apiKey, model),
+  );
+  const reviewSqlProposal = createSqlReviewFunction(
+    createSqlReviewerAgent(apiKey, model),
+  );
 
   const generateSql = createStep({
     id: "generate-sql",
@@ -95,7 +49,7 @@ export function createHistorianQueryWorkflow(
     outputSchema: generatedSqlSchema,
     execute: async ({ inputData }) => ({
       question: inputData.question,
-      ...(await options.generateSql(inputData.question)),
+      ...(await generateSqlProposal(inputData.question)),
     }),
   });
 
@@ -108,7 +62,7 @@ export function createHistorianQueryWorkflow(
     execute: async ({ inputData }) => {
       let review: SqlReview;
       try {
-        review = await options.reviewSql(inputData);
+        review = await reviewSqlProposal(inputData);
       } catch (error) {
         review = {
           approved: false,
@@ -149,7 +103,7 @@ export function createHistorianQueryWorkflow(
   return createWorkflow({
     id: "historian-query",
     description:
-      "Generate, semantically review, deterministically validate, and execute one read-only historian query.",
+      "Call once with the operator's complete historian question. Generate one SQL proposal, review its meaning, then deterministically validate and execute it against the read-only facility historian.",
     inputSchema: queryHistorianInputSchema,
     outputSchema: queryHistorianOutputSchema,
   })

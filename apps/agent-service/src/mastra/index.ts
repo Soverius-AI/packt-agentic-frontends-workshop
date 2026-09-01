@@ -1,19 +1,10 @@
-import { existsSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
 import { Mastra } from "@mastra/core/mastra";
 import { LibSQLStore } from "@mastra/libsql";
 import { MastraStorageExporter, Observability } from "@mastra/observability";
-import { createHistorianQueryWorkflow } from "./historian-workflow";
-import { createWorkshopAgent } from "./workshop-agent";
-import {
-  createSqlReviewerAgent,
-  createSqlReviewFunction,
-} from "./sql-reviewer";
-import {
-  createSqlGenerationFunction,
-  createSqlGeneratorAgent,
-} from "./sql-generator";
-import { createQueryHistorianTool } from "./query-historian-tool";
+import { existsSync, mkdirSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { createMainAgent } from "./agents/main/agent";
+import { createHistorianQueryWorkflow } from "./workflows/historian-query/workflow";
 
 const packageRoot = process.cwd();
 const environmentPath = resolve(packageRoot, "../../.env");
@@ -25,30 +16,23 @@ const storagePath = resolve(
 );
 mkdirSync(dirname(storagePath), { recursive: true });
 
-export const sqlGenerator = createSqlGeneratorAgent({
-  apiKey: process.env["OPENROUTER_API_KEY"],
-  model: process.env["OPENROUTER_MODEL"],
-});
-export const sqlReviewer = createSqlReviewerAgent({
-  apiKey: process.env["OPENROUTER_API_KEY"],
-  model: process.env["OPENROUTER_MODEL"],
-});
-export const historianQueryWorkflow = createHistorianQueryWorkflow({
-  generateSql: createSqlGenerationFunction(sqlGenerator),
-  reviewSql: createSqlReviewFunction(sqlReviewer),
-  facilityBaseUrl: process.env["FACILITY_BASE_URL"],
-});
-export const queryHistorianTool = createQueryHistorianTool({
-  workflow: historianQueryWorkflow,
-});
-export const workshopAgent = createWorkshopAgent({
-  apiKey: process.env["OPENROUTER_API_KEY"],
-  model: process.env["OPENROUTER_MODEL"],
-  queryHistorianTool,
-});
+const apiKey = process.env["OPENROUTER_API_KEY"];
+if (!apiKey) throw new Error("OPENROUTER_API_KEY is required.");
+
+const model = process.env["OPENROUTER_MODEL"] || "google/gemma-4-31b-it";
+const facilityBaseUrl =
+  process.env["FACILITY_BASE_URL"] || "http://127.0.0.1:3001";
+
+export const historianQueryWorkflow = createHistorianQueryWorkflow(
+  apiKey,
+  model,
+  facilityBaseUrl,
+);
+
+export const mainAgent = createMainAgent(apiKey, model, historianQueryWorkflow);
 
 export const mastra = new Mastra({
-  agents: { default: workshopAgent, sqlGenerator, sqlReviewer },
+  agents: { default: mainAgent },
   workflows: { historianQueryWorkflow },
   storage: new LibSQLStore({
     id: "packt-workshop-storage",

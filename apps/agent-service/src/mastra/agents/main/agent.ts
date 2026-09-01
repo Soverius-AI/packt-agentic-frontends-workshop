@@ -1,8 +1,9 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
-import type { Tool } from "@mastra/core/tools";
+import { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";
+import { createQueryHistorianTool } from "./tools/query-historian-tool";
 
-export const DEFAULT_OPENROUTER_MODEL = "google/gemma-4-31b-it";
+// Main conversational agent exposed through CopilotKit.
 
 export const CHAT_SYSTEM_PROMPT = `You are the assistant embedded in the Soverius Chocolate Factory incident-management application.
 
@@ -14,7 +15,7 @@ Use list_rooms, list_metrics, list_shift_managers, and list_conditions to discov
 
 If the operator refers ambiguously to "the date," ask whether they mean the start or end boundary when both or neither boundary is active.
 
-For questions about persisted readings, history, latest values, or aggregations, call query_historian exactly once with the operator's complete request. Do not generate SQL, rewrite the request, or divide it into separate queries.
+For questions about persisted readings, history, latest values, or aggregations, call query_historian exactly once with the operator's complete request in question. Do not generate SQL, rewrite the request, or divide it into separate queries. The tool starts the reviewed historian workflow for you.
 
 Use only returned rows as evidence. Clearly report empty or truncated results. Treat rejection or failure as final and do not retry unless the operator changes the request. When presenting clock times, convert returned UTC timestamps to userTimeZone from the frontend context. If userTimeZone is unavailable, preserve UTC and say so explicitly.
 
@@ -22,27 +23,25 @@ You cannot access alarm records, unrestricted database state, or operational con
 
 You may answer general food-industry questions from general knowledge, but clearly distinguish general information from actual facility data.`;
 
-export type WorkshopAgentOptions = {
-  apiKey?: string | undefined;
-  model?: string | undefined;
-  queryHistorianTool?: Tool | undefined;
-};
-
-export const createWorkshopAgent = (options: WorkshopAgentOptions = {}) => {
+export const createMainAgent = (
+  apiKey: string,
+  model: string,
+  historianQueryWorkflow: ReturnType<typeof createHistorianQueryWorkflow>,
+) => {
   const openrouter = createOpenAI({
-    apiKey: options.apiKey ?? "openrouter-not-configured",
+    apiKey,
     baseURL: "https://openrouter.ai/api/v1",
   });
+
+  const query_historian = createQueryHistorianTool(historianQueryWorkflow);
 
   return new Agent({
     id: "default",
     name: "Soverius Chocolate Factory Assistant",
     description:
-      "A facility assistant with bounded frontend controls and one reviewed, read-only historian tool.",
+      "A facility assistant with bounded frontend controls and one reviewed, read-only historian workflow.",
     instructions: CHAT_SYSTEM_PROMPT,
-    model: openrouter(options.model || DEFAULT_OPENROUTER_MODEL),
-    tools: options.queryHistorianTool
-      ? { query_historian: options.queryHistorianTool }
-      : {},
+    model: openrouter(model),
+    tools: { query_historian },
   });
 };
