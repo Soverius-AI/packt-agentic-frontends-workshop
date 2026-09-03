@@ -27,11 +27,11 @@ main                 canonical knowledge and overall project
 This preserves the exact state needed to walk forward through the webinar
 without changing an earlier milestone.
 
-The `01-base-app` branch implements the completed first part and is the
-starting point of the workshop. `02-basic-chat` adds application-aware but
-data-blind multi-turn conversation through Gemma 4 on OpenRouter. The later
-rows describe the planned progression; they do not yet have checkpoint
-branches.
+The implemented progression currently runs from `01-base-app` through
+`06-sql-tool`. Step 6 extends the completed frontend-tool checkpoint with a
+visible Mastra workflow, semantic SQL review, deterministic read-only execution,
+and a frontend tool that populates the fixed Historian result view. Checkpoint
+07 and the later rows remain planned progression.
 
 | Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -40,7 +40,7 @@ branches.
 | `03-copilotkit-ag-ui` | replace the custom chat with CopilotKit, BuiltInAgent, and AG-UI streaming | the standardized path still uses an embedded agent            |
 | `04-mastra-agent`     | replace BuiltInAgent with Mastra while keeping CopilotKit chat-only        | the standardized stack is ready for application capabilities  |
 | `05-frontend-tool`    | four option-discovery tools plus three bounded view/filter mutation tools  | fixed controls cannot answer unanticipated data questions     |
-| `06-sql-tool`         | one generated-SQL historian tool and generic result table                  | consequential tools need an authority boundary                |
+| `06-sql-tool`         | reviewed SQL feeds a frontend tool and fixed Historian result view         | computed result shapes need bounded A2UI                      |
 | `07-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
 | `08-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
 | `09-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |
@@ -48,9 +48,10 @@ branches.
 | `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
 The completed contracts through the current checkpoint are documented in the
-[Step 4 implementation brief](./step-04-mastra-agent.md) and
-[Step 5 implementation brief](./step-05-frontend-tool.md). Create
-`06-sql-tool` directly from `05-frontend-tool` for the next milestone.
+[Step 4 implementation brief](./step-04-mastra-agent.md),
+[Step 5 implementation brief](./step-05-frontend-tool.md), and
+[Step 6 implementation brief](./step-06-sql-tool.md). Create
+`07-human-in-loop` directly from `06-sql-tool` for the next milestone.
 
 ## Readiness check per checkpoint
 
