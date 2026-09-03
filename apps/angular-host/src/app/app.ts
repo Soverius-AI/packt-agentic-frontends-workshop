@@ -1,6 +1,11 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { connectAgentContext, registerFrontendTool } from '@copilotkit/angular';
+import {
+  connectAgentContext,
+  registerFrontendTool,
+  registerHumanInTheLoop,
+} from '@copilotkit/angular';
 import type {
+  AlarmApprovalAuditEntry,
   ConfigureFacilityView,
   FacilityDashboard,
   FacilityReadingEntry,
@@ -13,6 +18,7 @@ import type {
   ShowHistorianReadingsToolInput,
 } from '@packt-workshop/contracts';
 import {
+  alarmApprovalToolSchema,
   applyFacilityViewCommand,
   clearFiltersToolSchema,
   getUserTimeZone,
@@ -27,6 +33,8 @@ import {
   showHistorianReadingsToolSchema,
   updateFiltersToolSchema,
 } from '@packt-workshop/contracts';
+import { AlarmApprovalCard } from './alarm-approval-card';
+import { AlarmApprovalEvents } from './alarm-approval-events';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
 
@@ -41,6 +49,7 @@ const READING_PAGE_SIZE = 50;
 })
 export class App {
   readonly #api = inject(FacilityApi);
+  readonly #approvalEvents = inject(AlarmApprovalEvents);
   readonly #destroyRef = inject(DestroyRef);
   #stopMetricUpdates: (() => void) | undefined;
 
@@ -67,6 +76,7 @@ export class App {
   protected readonly historianResult = signal<ShowHistorianReadingsToolInput | undefined>(
     undefined,
   );
+  protected readonly alarmApprovals = signal<readonly AlarmApprovalAuditEntry[]>([]);
   protected readonly rooms = computed(() => this.dashboard()?.rooms ?? []);
   protected readonly activeAlarmCount = computed(() => this.dashboard()?.activeAlarmCount ?? 0);
   protected readonly shiftManagerOptions = computed(() => this.dashboard()?.shiftManagers ?? []);
@@ -235,9 +245,29 @@ export class App {
         return this.#configureFacilityView({ action: 'clear_filters', ...validation.data });
       },
     });
-    this.#destroyRef.onDestroy(() => this.#stopMetricUpdates?.());
+    registerHumanInTheLoop({
+      name: 'review_alarm',
+      description:
+        'Ask the operator to approve or reject raising an alarm for one exact metric. Use an ID and name returned by list_metrics and explain why the alarm is proposed.',
+      parameters: alarmApprovalToolSchema,
+      component: AlarmApprovalCard,
+      agentId: 'default',
+    });
+    const approvalSubscription = this.#approvalEvents.recorded$.subscribe((record) => {
+      this.alarmApprovals.update((entries) => [
+        record,
+        ...entries.filter((entry) => entry.correlationId !== record.correlationId),
+      ]);
+      this.status.set(this.#alarmApprovalStatus(record));
+      void this.loadDashboard(false);
+    });
+    this.#destroyRef.onDestroy(() => {
+      approvalSubscription.unsubscribe();
+      this.#stopMetricUpdates?.();
+    });
     this.#startContinuousUpdates();
     void this.loadDashboard();
+    void this.loadAlarmApprovalAudit();
   }
 
   async #listMetrics(input: unknown): Promise<unknown> {
@@ -370,6 +400,14 @@ export class App {
       this.status.set('The conventional facility backend is unavailable.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  protected async loadAlarmApprovalAudit(): Promise<void> {
+    try {
+      this.alarmApprovals.set((await this.#api.getAlarmApprovalAudit()).entries);
+    } catch (error) {
+      this.status.set(this.#errorMessage(error));
     }
   }
 
@@ -576,6 +614,22 @@ export class App {
       day: '2-digit',
       month: 'short',
     }).format(new Date(timestamp));
+  }
+
+  protected alarmApprovalOutcome(entry: AlarmApprovalAuditEntry): string {
+    if (entry.outcome === 'executed') return 'Alarm raised';
+    if (entry.outcome === 'failed') return `Execution failed: ${entry.error}`;
+    return 'No alarm raised';
+  }
+
+  #alarmApprovalStatus(entry: AlarmApprovalAuditEntry): string {
+    if (entry.outcome === 'executed') {
+      return `Operator approved the proposal. Alarm raised for ${entry.metricName}.`;
+    }
+    if (entry.outcome === 'failed') {
+      return `Operator approved the proposal, but execution failed: ${entry.error}`;
+    }
+    return `Operator rejected the proposal for ${entry.metricName}. No alarm was raised.`;
   }
 
   #applyMetricUpdate(event: MetricUpdateEvent): void {

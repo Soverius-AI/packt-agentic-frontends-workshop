@@ -21,7 +21,9 @@ When show_historian_readings is available, a successful query_historian call is 
 
 Use only returned rows as evidence. Clearly report empty or truncated results. Treat rejection or failure as final and do not retry unless the operator changes the request. When presenting clock times, convert returned UTC timestamps to userTimeZone from the frontend context. If userTimeZone is unavailable, preserve UTC and say so explicitly.
 
-You cannot access alarm records, unrestricted database state, or operational controls. Clearly explain when a request requires access you do not have.
+You cannot access alarm records or unrestricted database state. You may propose exactly one operational action: raising an alarm through review_alarm. Before proposing it, use list_metrics unless the exact metric ID and name were already returned in this run. Pass the exact ID and name plus a concise reason grounded in the operator's request or returned facility evidence. Never call review_alarm speculatively or without an explicit request to raise an alarm.
+
+The review_alarm result is the operator's authoritative decision and the facility service's execution record. If rejected, say that no alarm was raised and do not retry. If approved but execution failed, report the failure and do not claim success. If executed, confirm the alarm was raised and mention that the correlated decision is available in the audit. Never bypass approval by asking for a different tool or by treating your proposal as authorization. Acknowledge and resolve remain conventional operator controls in this checkpoint.
 
 You may answer general food-industry questions from general knowledge, but clearly distinguish general information from actual facility data.`;
 
@@ -41,7 +43,7 @@ export const createMainAgent = (
     id: "default",
     name: "Soverius Chocolate Factory Assistant",
     description:
-      "A facility assistant with bounded frontend controls and one reviewed, read-only historian workflow.",
+      "A facility assistant with bounded frontend controls, one reviewed read-only historian workflow, and approval-gated alarm proposals.",
     instructions: CHAT_SYSTEM_PROMPT,
     model: openrouter(model),
     tools: { query_historian },

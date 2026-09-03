@@ -3,6 +3,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
+  alarmApprovalAuditEntrySchema,
   alarmStateSchema,
   facilityDashboardSchema,
   facilityReadingPageSchema,
@@ -10,6 +11,9 @@ import {
   metricHistorySchema,
   metricUpdateEventSchema,
   type AlarmState,
+  type AlarmApprovalAudit,
+  type AlarmApprovalAuditEntry,
+  type AlarmApprovalRequest,
   type FacilityDashboard,
   type FacilityReadingPage,
   type MetricAlarm,
@@ -98,6 +102,20 @@ interface AlarmRow {
   raised_at: string;
   updated_at: string;
   operator_id: string;
+}
+
+interface AlarmApprovalRow {
+  correlation_id: string;
+  action: "raise-alarm";
+  metric_id: string;
+  metric_name: string;
+  reason: string;
+  decision: "approved" | "rejected";
+  operator_id: string;
+  decided_at: string;
+  outcome: "executed" | "not-executed" | "failed";
+  alarm_id: string | null;
+  error: string | null;
 }
 
 const SHIFT_MANAGERS = [
@@ -192,6 +210,23 @@ export class FacilityRepository {
 
       CREATE INDEX IF NOT EXISTS metric_alarms_metric_state
         ON metric_alarms(metric_id, state);
+
+      CREATE TABLE IF NOT EXISTS alarm_approval_audit (
+        correlation_id TEXT PRIMARY KEY,
+        action TEXT NOT NULL CHECK (action = 'raise-alarm'),
+        metric_id TEXT NOT NULL REFERENCES metrics(id),
+        metric_name TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        decision TEXT NOT NULL CHECK (decision IN ('approved', 'rejected')),
+        operator_id TEXT NOT NULL,
+        decided_at TEXT NOT NULL,
+        outcome TEXT NOT NULL CHECK (outcome IN ('executed', 'not-executed', 'failed')),
+        alarm_id TEXT REFERENCES metric_alarms(id),
+        error TEXT
+      );
+
+      CREATE INDEX IF NOT EXISTS alarm_approval_audit_decided_at
+        ON alarm_approval_audit(decided_at DESC);
 
       CREATE VIEW IF NOT EXISTS historian_readings AS
       SELECT
@@ -520,6 +555,108 @@ export class FacilityRepository {
       )
       .run(id, metricId, now, now, operatorId);
     return this.#getAlarm(id);
+  }
+
+  decideAlarmApproval(request: AlarmApprovalRequest): AlarmApprovalAuditEntry {
+    const previous = this.#findAlarmApproval(request.correlationId);
+    if (previous) {
+      if (
+        previous.metricId !== request.proposal.metricId ||
+        previous.metricName !== request.proposal.metricName ||
+        previous.reason !== request.proposal.reason ||
+        previous.decision !== request.decision ||
+        previous.operatorId !== request.operatorId
+      ) {
+        throw new FacilityRepositoryError(
+          "This correlation ID already belongs to a different alarm decision.",
+          409,
+        );
+      }
+      return previous;
+    }
+
+    const metric = this.#findMetric(request.proposal.metricId);
+    if (!metric) {
+      throw new FacilityRepositoryError(
+        `Unknown metric: ${request.proposal.metricId}`,
+        404,
+      );
+    }
+    if (metric.name !== request.proposal.metricName) {
+      throw new FacilityRepositoryError(
+        "The proposed metric name does not match the facility record.",
+        409,
+      );
+    }
+
+    const decidedAt = new Date().toISOString();
+    let outcome: AlarmApprovalAuditEntry["outcome"] = "not-executed";
+    let alarmId: string | null = null;
+    let error: string | null = null;
+
+    this.#database.exec("BEGIN IMMEDIATE");
+    try {
+      if (request.decision === "approved") {
+        const activeAlarm = this.#getActiveAlarm(metric.id);
+        if (activeAlarm) {
+          outcome = "failed";
+          error = "This metric already has an active alarm.";
+        } else {
+          outcome = "executed";
+          alarmId = `ALARM-${randomUUID()}`;
+          this.#database
+            .prepare(
+              `INSERT INTO metric_alarms
+                (id, metric_id, state, raised_at, updated_at, operator_id)
+               VALUES (?, ?, 'raised', ?, ?, ?)`,
+            )
+            .run(alarmId, metric.id, decidedAt, decidedAt, request.operatorId);
+        }
+      }
+
+      this.#database
+        .prepare(
+          `INSERT INTO alarm_approval_audit
+            (correlation_id, action, metric_id, metric_name, reason, decision,
+             operator_id, decided_at, outcome, alarm_id, error)
+           VALUES (?, 'raise-alarm', ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          request.correlationId,
+          metric.id,
+          metric.name,
+          request.proposal.reason,
+          request.decision,
+          request.operatorId,
+          decidedAt,
+          outcome,
+          alarmId,
+          error,
+        );
+      this.#database.exec("COMMIT");
+    } catch (cause) {
+      this.#database.exec("ROLLBACK");
+      throw cause;
+    }
+
+    const recorded = this.#findAlarmApproval(request.correlationId);
+    if (!recorded) throw new Error("The alarm decision was not persisted.");
+    return recorded;
+  }
+
+  getAlarmApprovalAudit(limit = 50): AlarmApprovalAudit {
+    const requestedLimit = Number.isFinite(limit) ? limit : 50;
+    const safeLimit = Math.max(1, Math.min(100, Math.trunc(requestedLimit)));
+    const rows = this.#database
+      .prepare(
+        `SELECT correlation_id, action, metric_id, metric_name, reason, decision,
+                operator_id, decided_at, outcome, alarm_id, error
+         FROM alarm_approval_audit
+         ORDER BY decided_at DESC
+         LIMIT ?`,
+      )
+      .all(safeLimit) as unknown as AlarmApprovalRow[];
+    return { entries: rows.map((row) => this.#parseAlarmApproval(row)) };
   }
 
   transitionAlarm(
@@ -863,6 +1000,36 @@ export class FacilityRepository {
       throw new FacilityRepositoryError(`Unknown alarm: ${alarmId}`, 404);
     }
     return this.#parseAlarm(row);
+  }
+
+  #findAlarmApproval(
+    correlationId: string,
+  ): AlarmApprovalAuditEntry | undefined {
+    const row = this.#database
+      .prepare(
+        `SELECT correlation_id, action, metric_id, metric_name, reason, decision,
+                operator_id, decided_at, outcome, alarm_id, error
+         FROM alarm_approval_audit
+         WHERE correlation_id = ?`,
+      )
+      .get(correlationId) as unknown as AlarmApprovalRow | undefined;
+    return row ? this.#parseAlarmApproval(row) : undefined;
+  }
+
+  #parseAlarmApproval(row: AlarmApprovalRow): AlarmApprovalAuditEntry {
+    return alarmApprovalAuditEntrySchema.parse({
+      correlationId: row.correlation_id,
+      action: row.action,
+      metricId: row.metric_id,
+      metricName: row.metric_name,
+      reason: row.reason,
+      decision: row.decision,
+      operatorId: row.operator_id,
+      decidedAt: row.decided_at,
+      outcome: row.outcome,
+      alarmId: row.alarm_id,
+      error: row.error,
+    });
   }
 
   #parseAlarm(row: AlarmRow): MetricAlarm {

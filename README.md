@@ -1,6 +1,6 @@
-# Part 6 / Checkpoint 06 — Reviewed generated SQL
+# Part 7 / Checkpoint 07 — Human approval and correlated audit
 
-This branch extends the completed Mastra checkpoint in the
+This branch extends the completed reviewed-SQL checkpoint in the
 three-hour **Hands-On Agentic Frontends with AG-UI and CopilotKit** workshop.
 
 It keeps all seven bounded frontend tools from Checkpoint 05 and gives the
@@ -10,6 +10,13 @@ dedicated tool-free generator agent creates SQL, a separate tool-free reviewer
 checks whether that SQL answers the operator's question, and a deterministic
 facility-service policy decides whether the exact statement may execute against
 SQLite.
+
+It now adds one consequential action without transferring authority to the
+model. The assistant can propose raising an alarm for one exact metric through
+`review_alarm({ metricId, metricName, reason })`. CopilotKit pauses the AG-UI
+run while a named operator approves or rejects the proposal. The facility
+service records the decision and actual execution outcome in SQLite before the
+agent continues.
 
 ## Scenario
 
@@ -38,14 +45,23 @@ averages and counts remain out of scope until the later A2UI checkpoint.
   allowlists, one-statement enforcement, row/size caps, and a worker deadline;
 - one internal facility endpoint that owns historian execution;
 - a fixed result contract containing complete stored reading records over the
-  existing AG-UI run; and
+  existing AG-UI run;
 - an Angular frontend tool that explicitly populates a third Historian result
-  view while reusing the existing reading table.
+  view while reusing the existing reading table;
+- one shared `review_alarm` human-in-the-loop contract rendered by both hosts;
+- an accessible approval card that always resolves both approve and reject
+  decisions;
+- a facility-owned transactional boundary that validates the metric, records
+  the decision, and conditionally raises the alarm; and
+- a durable correlated audit showing the proposal, operator, decision, actual
+  outcome, alarm ID, and failure reason.
 
-The reviewer is deliberately not a security boundary. Even an approved query
+The SQL reviewer is deliberately not a security boundary. Even an approved query
 must pass deterministic validation, and the generated-SQL connection cannot
-write facility data. This checkpoint does **not** add persistent chat memory,
-operational actions, human approval, A2UI, A2A, MCP, or an MCP App.
+write facility data. Likewise, the model's alarm proposal is not authorization:
+only the operator's explicit decision can enter the facility transaction. This
+checkpoint does **not** add persistent chat memory, agent-driven acknowledge or
+resolve actions, A2UI, A2A, MCP, or an MCP App.
 
 ## Workspace layout
 
@@ -73,6 +89,10 @@ Angular or React -> facility service (:3001) -> primary Mastra agent (:4111)
                                               -> SQL reviewer agent
                                               -> facility SQL policy (:3001)
                                               -> read-only facility SQLite
+
+Angular or React -> review_alarm proposal -> operator approves/rejects
+                 -> facility action + audit boundary (:3001)
+                 -> facility SQLite -> structured result resumes AG-UI run
 ```
 
 ## Run it
@@ -118,9 +138,9 @@ pnpm check
 
 ## Teaching point
 
-> Agent review can improve semantic correctness; only deterministic enforcement
-> decides whether generated SQL may execute.
+> The model may propose a consequential action; only a named human decision can
+> authorize it, and the audit records what actually happened.
 
-Checkpoint 07 adds the authority boundary for consequential alarm actions:
-the model may propose an operation, but an operator must approve or reject it.
+Checkpoint 08 uses A2UI to move beyond entirely predetermined result
+presentation while retaining a trusted component catalogue.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).

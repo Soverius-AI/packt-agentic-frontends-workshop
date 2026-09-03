@@ -4,6 +4,7 @@ import {
   type ServerResponse,
 } from "node:http";
 import {
+  alarmApprovalRequestSchema,
   alarmActionRequestSchema,
   historianExecutionRequestSchema,
   metricConditionSchema,
@@ -74,6 +75,18 @@ export const createFacilityServer = (
 
       if (method === "GET" && url.pathname === "/api/dashboard") {
         sendJson(response, 200, repository.getDashboard());
+        return;
+      }
+
+      if (method === "GET" && url.pathname === "/api/alarm-approvals") {
+        const limit = Number(url.searchParams.get("limit") ?? "50");
+        sendJson(response, 200, repository.getAlarmApprovalAudit(limit));
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/alarm-approvals") {
+        const input = alarmApprovalRequestSchema.parse(await readBody(request));
+        sendJson(response, 200, repository.decideAlarmApproval(input));
         return;
       }
 

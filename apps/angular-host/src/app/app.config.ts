@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
       chatInputPlaceholder: 'Ask about this view or its history…',
       welcomeMessageText: 'Ask me to adjust this view or query the read-only historian.',
       chatDisclaimerText:
-        'Chat can adjust this view and run reviewed, read-only historian queries. It cannot perform operational actions.',
+        'Chat can propose an alarm, but only the operator can approve the audited action.',
     }),
   ],
 };

@@ -8,8 +8,10 @@ import {
   useState,
 } from "react";
 import {
+  alarmApprovalAuditSchema,
   applyFacilityViewCommand,
   type ConfigureFacilityView,
+  type AlarmApprovalAuditEntry,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
@@ -77,6 +79,9 @@ export default function App() {
   const [metricFilter, setMetricFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
   const [historianRun, setHistorianRun] = useState<HistorianRun>();
+  const [alarmApprovals, setAlarmApprovals] = useState<
+    readonly AlarmApprovalAuditEntry[]
+  >([]);
   const [dismissedHistorianToolCallId, setDismissedHistorianToolCallId] =
     useState<string>();
   const updateSource = useRef<EventSource | undefined>(undefined);
@@ -196,8 +201,25 @@ export default function App() {
     }
   }
 
+  async function loadAlarmApprovals(): Promise<void> {
+    try {
+      setAlarmApprovals(
+        alarmApprovalAuditSchema.parse(
+          await jsonRequest("/api/alarm-approvals?limit=20"),
+        ).entries,
+      );
+    } catch (error) {
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "The alarm decision audit could not be loaded.",
+      );
+    }
+  }
+
   useEffect(() => {
     void loadDashboard();
+    void loadAlarmApprovals();
     startContinuousUpdates();
     return () => updateSource.current?.close();
   }, []);
@@ -415,6 +437,26 @@ export default function App() {
     );
   }, []);
 
+  const receiveAlarmDecision = useCallback(
+    (record: AlarmApprovalAuditEntry): void => {
+      setAlarmApprovals((entries) => [
+        record,
+        ...entries.filter(
+          (entry) => entry.correlationId !== record.correlationId,
+        ),
+      ]);
+      setStatus(
+        record.outcome === "executed"
+          ? `Operator approved the proposal. Alarm raised for ${record.metricName}.`
+          : record.outcome === "failed"
+            ? `Operator approved the proposal, but execution failed: ${record.error}`
+            : `Operator rejected the proposal for ${record.metricName}. No alarm was raised.`,
+      );
+      void loadDashboard();
+    },
+    [],
+  );
+
   const closeHistorianResult = useCallback((): void => {
     if (historianRun) setDismissedHistorianToolCallId(historianRun.toolCallId);
     setDisplayMode("list");
@@ -468,7 +510,7 @@ export default function App() {
               alarms, and standardized streaming agent chat.
             </p>
             <p className="stage-label">
-              Stage 6 · Reviewed SQL · Read-only historian access
+              Stage 7 · Human approval · Audited alarm actions
             </p>
           </div>
         </div>
@@ -894,6 +936,72 @@ export default function App() {
             {status}
           </p>
 
+          <section className="audit-panel" aria-labelledby="alarm-audit-title">
+            <div className="room-heading">
+              <div>
+                <p className="eyebrow">Accountability record</p>
+                <h2 id="alarm-audit-title">Alarm decision audit</h2>
+              </div>
+              <button
+                className="secondary"
+                type="button"
+                onClick={() => void loadAlarmApprovals()}
+              >
+                Refresh audit
+              </button>
+            </div>
+            {alarmApprovals.length ? (
+              <div
+                className="table-shell"
+                tabIndex={0}
+                aria-label="Alarm approval audit table"
+              >
+                <table className="audit-table">
+                  <caption>
+                    Human decisions on alarm proposals and their actual
+                    execution outcomes
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Decision time</th>
+                      <th scope="col">Metric</th>
+                      <th scope="col">Operator</th>
+                      <th scope="col">Decision</th>
+                      <th scope="col">Outcome</th>
+                      <th scope="col">Correlation ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {alarmApprovals.map((entry) => (
+                      <tr key={entry.correlationId}>
+                        <td>
+                          <time dateTime={entry.decidedAt}>
+                            {new Date(entry.decidedAt).toLocaleString("en-GB")}
+                          </time>
+                        </td>
+                        <th scope="row">{entry.metricName}</th>
+                        <td>{entry.operatorId}</td>
+                        <td className="audit-decision">{entry.decision}</td>
+                        <td>
+                          {entry.outcome === "executed"
+                            ? "Alarm raised"
+                            : entry.outcome === "failed"
+                              ? `Execution failed: ${entry.error}`
+                              : "No alarm raised"}
+                        </td>
+                        <td>
+                          <code>{entry.correlationId}</code>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p>No agent-proposed alarm decision has been recorded yet.</p>
+            )}
+          </section>
+
           {history && (
             <section className="history" aria-labelledby="history-title">
               <div className="room-heading">
@@ -938,12 +1046,12 @@ export default function App() {
               <p className="eyebrow">CopilotKit · AG-UI streaming</p>
               <h2 id="chat-title">Factory assistant</h2>
             </div>
-            <span>Frontend + SQL</span>
+            <span>Frontend + SQL + approval</span>
           </div>
           <p className="chat-boundary">
-            The assistant can adjust this view and query the historian through
-            reviewer and deterministic safety gates. It cannot perform
-            operational actions.
+            The assistant can adjust this view, query the historian, and propose
+            raising an alarm. Only the operator can approve the audited alarm
+            action.
           </p>
           <div className="copilot-chat-shell">
             <Suspense
@@ -956,6 +1064,7 @@ export default function App() {
                 options={facilityOptions}
                 onConfigureView={configureFacilityView}
                 onHistorianRun={receiveHistorianRun}
+                onAlarmDecision={receiveAlarmDecision}
               />
             </Suspense>
           </div>

@@ -17,7 +17,7 @@
           Persistent factory telemetry, historical readings, operator-managed alarms, and
           standardized streaming agent chat.
         </p>
-        <p class="stage-label">Stage 6 · Reviewed SQL · Read-only historian access</p>
+        <p class="stage-label">Stage 7 · Human approval · Audited alarm actions</p>
       </div>
     </div>
     <div class="header-actions">
@@ -406,6 +406,57 @@
   }
 
   <p class="status" role="status">{{ status() }}</p>
+
+  <section class="audit-panel" aria-labelledby="alarm-audit-title">
+    <div class="history-heading">
+      <div>
+        <p class="eyebrow">Accountability record</p>
+        <h2 id="alarm-audit-title">Alarm decision audit</h2>
+      </div>
+      <button class="secondary-button" type="button" (click)="loadAlarmApprovalAudit()">
+        Refresh audit
+      </button>
+    </div>
+    @if (alarmApprovals().length) {
+      <div class="table-shell" tabindex="0" aria-label="Alarm approval audit table">
+        <table class="audit-table">
+          <caption>
+            Human decisions on alarm proposals and their actual execution outcomes
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Decision time</th>
+              <th scope="col">Metric</th>
+              <th scope="col">Operator</th>
+              <th scope="col">Decision</th>
+              <th scope="col">Outcome</th>
+              <th scope="col">Correlation ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of alarmApprovals(); track entry.correlationId) {
+              <tr>
+                <td>
+                  <time [attr.datetime]="entry.decidedAt">{{ timeLabel(entry.decidedAt) }}</time>
+                </td>
+                <th scope="row">{{ entry.metricName }}</th>
+                <td>{{ entry.operatorId }}</td>
+                <td>
+                  <span class="audit-decision">{{ entry.decision }}</span>
+                </td>
+                <td>{{ alarmApprovalOutcome(entry) }}</td>
+                <td>
+                  <code>{{ entry.correlationId }}</code>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p>No agent-proposed alarm decision has been recorded yet.</p>
+    }
+  </section>
 
   @if (selectedMetricId()) {
     <section class="history-panel" aria-labelledby="history-title">

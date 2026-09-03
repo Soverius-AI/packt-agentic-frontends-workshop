@@ -5,9 +5,12 @@ import {
   useAgent,
   useAgentContext,
   useFrontendTool,
+  useHumanInTheLoop,
 } from "@copilotkit/react-core/v2";
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
+  alarmApprovalAuditEntrySchema,
+  alarmApprovalToolSchema,
   clearFiltersToolSchema,
   getUserTimeZone,
   listConditionsToolSchema,
@@ -18,6 +21,9 @@ import {
   resolveFacilityViewAvailableOptions,
   setViewToolSchema,
   type ConfigureFacilityView,
+  type AlarmApprovalAuditEntry,
+  type AlarmApprovalDecision,
+  type AlarmApprovalToolInput,
   type HistorianToolResult,
   updateFiltersToolSchema,
 } from "@packt-workshop/contracts";
@@ -44,6 +50,7 @@ type CopilotChatPanelProps = {
   };
   onConfigureView: (command: ConfigureFacilityView) => Promise<unknown>;
   onHistorianRun: (run: HistorianRun) => void;
+  onAlarmDecision: (record: AlarmApprovalAuditEntry) => void;
 };
 
 export type HistorianRun = {
@@ -110,6 +117,7 @@ function FacilityChat({
   options,
   onConfigureView,
   onHistorianRun,
+  onAlarmDecision,
 }: CopilotChatPanelProps) {
   const { agent } = useAgent({
     agentId: "default",
@@ -149,6 +157,22 @@ function FacilityChat({
     },
     [options.rooms, viewContext],
   );
+
+  useHumanInTheLoop({
+    name: "review_alarm",
+    description:
+      "Ask the operator to approve or reject raising an alarm for one exact metric. Use an ID and name returned by list_metrics and explain why the alarm is proposed.",
+    parameters: alarmApprovalToolSchema,
+    agentId: "default",
+    render: ({ args, status, respond }) => (
+      <AlarmApprovalCard
+        args={args}
+        status={status}
+        respond={respond}
+        onRecorded={onAlarmDecision}
+      />
+    ),
+  });
   useFrontendTool(
     {
       name: "list_metrics",
@@ -310,9 +334,142 @@ function FacilityChat({
         welcomeMessageText:
           "Ask me to adjust this view or query the read-only historian.",
         chatDisclaimerText:
-          "Chat can adjust this view and run reviewed, read-only historian queries. It cannot perform operational actions.",
+          "Chat can propose an alarm, but only the operator can approve the audited action.",
       }}
     />
+  );
+}
+
+function AlarmApprovalCard({
+  args,
+  status,
+  respond,
+  onRecorded,
+}: {
+  args: Partial<AlarmApprovalToolInput>;
+  status: "inProgress" | "executing" | "complete";
+  respond?: (result: unknown) => void;
+  onRecorded: (record: AlarmApprovalAuditEntry) => void;
+}) {
+  const correlationId = useRef(crypto.randomUUID());
+  const headingId = useId();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  const [record, setRecord] = useState<AlarmApprovalAuditEntry>();
+  const proposal = alarmApprovalToolSchema.safeParse(args).data;
+
+  async function decide(decision: AlarmApprovalDecision): Promise<void> {
+    if (!proposal || status !== "executing" || !respond || busy) return;
+    setBusy(true);
+    setError(undefined);
+    try {
+      const response = await fetch("/api/alarm-approvals", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          correlationId: correlationId.current,
+          proposal,
+          decision,
+          operatorId: "night-reception",
+        }),
+      });
+      const body = (await response.json()) as unknown;
+      if (!response.ok) {
+        throw new Error(
+          typeof body === "object" &&
+            body &&
+            "error" in body &&
+            typeof body.error === "string"
+            ? body.error
+            : "The decision could not be recorded.",
+        );
+      }
+      const recorded = alarmApprovalAuditEntrySchema.parse(body);
+      setRecord(recorded);
+      onRecorded(recorded);
+      respond(recorded);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The decision could not be recorded.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="approval-card" aria-labelledby={headingId}>
+      <p className="eyebrow">Human approval required</p>
+      <h3 id={headingId}>Raise an alarm?</h3>
+      {proposal ? (
+        <>
+          <dl>
+            <div>
+              <dt>Metric</dt>
+              <dd>{proposal.metricName}</dd>
+            </div>
+            <div>
+              <dt>Reason</dt>
+              <dd>{proposal.reason}</dd>
+            </div>
+            <div>
+              <dt>Operator</dt>
+              <dd>night-reception</dd>
+            </div>
+          </dl>
+          {record ? (
+            <>
+              <p
+                className={`approval-decision${record.outcome === "executed" ? " executed" : ""}`}
+                role="status"
+              >
+                {record.outcome === "executed"
+                  ? "Approved · alarm raised"
+                  : record.outcome === "failed"
+                    ? `Approved · execution failed: ${record.error}`
+                    : "Rejected · no alarm was raised"}
+              </p>
+              <small>Correlation ID: {record.correlationId}</small>
+            </>
+          ) : status === "executing" ? (
+            <>
+              <p>
+                This operation changes facility data and will be written to the
+                decision audit.
+              </p>
+              <div className="approval-actions">
+                <button
+                  className="secondary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void decide("rejected")}
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void decide("approved")}
+                >
+                  {busy ? "Recording…" : "Approve and raise alarm"}
+                </button>
+              </div>
+              {error && (
+                <p className="approval-error" role="alert">
+                  {error}
+                </p>
+              )}
+            </>
+          ) : (
+            <p role="status">Preparing the approval request…</p>
+          )}
+        </>
+      ) : (
+        <p role="alert">The alarm proposal is incomplete.</p>
+      )}
+    </section>
   );
 }
 

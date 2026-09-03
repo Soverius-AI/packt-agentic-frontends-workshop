@@ -276,32 +276,28 @@ Add the first and only data tool to the Mastra agent, carried over AG-UI and
 presented by CopilotKit:
 
 ```text
-query_historian({ sql, explanation })
+query_historian({ question })
 ```
 
-The model receives a compact description of the read-only historian schema.
-It translates the user's natural-language question into SQL and supplies that
-SQL as the tool argument. A separate tool-free Mastra reviewer checks semantic
-fit but has no execution authority. The TypeScript backend then validates and
-executes the exact query through a deterministic read-only policy and returns
-columns and rows that the chat renders in a generic result table. Display the
-generated SQL, reviewer verdict, policy result, and model explanation so the
-translation and guardrails are visible to the audience.
+The primary agent passes the operator's complete question into a separately
+registered Mastra workflow. A workflow-private generator receives a compact
+description of the read-only historian schema and translates the question into
+SQL. A separate tool-free reviewer checks semantic fit but has no execution
+authority. The facility service then validates and executes the exact query
+through a deterministic read-only policy. Successful queries return complete
+stored reading records, and `show_historian_readings` opens those records in the
+existing fixed Reading log grid. Inspect the generated SQL, reviewer verdict,
+and policy result in Mastra Studio so the translation and guardrails remain
+visible without expanding the agent's public tool contract.
 
 The primary example is:
 
-> Show me when the Cooling room went into warning during the last seven days
-> and when each warning ended.
+> Show me the maximum air temperature for each shift manager.
 
-The generated query can use SQLite CTEs and `LAG()` to detect warning
-transitions. Previous days should show 12:00--14:00; the current day must be
-labelled **Still active** rather than given an invented end time.
-
-The same tool can answer the second question without adding another
-application capability:
-
-> Show me the maximum air temperature for shift manager Charles Bond and,
-> below that, for Denise Weber.
+The generated query can use grouping internally while selecting one complete
+underlying reading record per shift manager. Ask for an average or count next:
+the fixed record contract rejects that computed shape and motivates the bounded
+A2UI result surface in Checkpoint 08.
 
 This is the eye-opening moment: one tool can answer useful historian questions
 that were not anticipated as filters or dedicated endpoints. It also creates
@@ -329,7 +325,9 @@ structured, reusable integration for tools and UI actions**.
 For consequential actions such as triggering alarms:
 
 ```text
-Agent proposes → UI asks → Operator approves/rejects → Tool executes
+Agent calls review_alarm → UI asks → Operator approves/rejects
+→ Facility transaction records the decision and conditionally raises the alarm
+→ Recorded result resumes the agent run
 ```
 
 The model can recommend or prepare an action without automatically
@@ -589,7 +587,7 @@ from `01-base-app`, then `03-copilotkit-ag-ui` from `02-basic-chat`, and so on).
 | `04-mastra-agent`     | Replace BuiltInAgent with Mastra while keeping CopilotKit chat-only | **Completed**                          |
 | `05-frontend-tool`    | Bounded view context and one patch-based frontend view/filter tool  | **Completed**                          |
 | `06-sql-tool`         | Reviewed generated SQL through a deterministic historian boundary   | **Completed**                          |
-| `07-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | Planned                                |
+| `07-human-in-loop`    | Approval-gated alarm actions and correlated audit                   | **Completed**                          |
 | `08-a2ui`             | Trusted, agent-composed decision surface                            | Planned                                |
 | `09-a2a`              | Delegate the incident to the facilities/compliance specialist       | Planned                                |
 | `10-mcp-app`          | Specialist resources, read-only tool, and portable evidence UI      | Planned                                |

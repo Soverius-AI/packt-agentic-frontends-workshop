@@ -505,6 +505,74 @@ button:focus-visible,
 .status {
   min-height: 1.6em;
 }
+.audit-panel {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid #ded4ca;
+  border-radius: 16px;
+  background: #fff;
+}
+.audit-table code,
+.approval-card small {
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+.audit-table code {
+  white-space: nowrap;
+}
+.audit-decision {
+  font-weight: 800;
+  text-transform: capitalize;
+}
+.approval-card {
+  margin: 10px 0;
+  padding: 16px;
+  border: 1px solid #cfbca8;
+  border-left: 5px solid #b46b00;
+  border-radius: 12px;
+  background: #fffaf2;
+  color: #3f352e;
+}
+.approval-card h3 {
+  margin: 0 0 12px;
+}
+.approval-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.approval-card dl div {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+}
+.approval-card dt {
+  color: #655d56;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.approval-card dd {
+  margin: 0;
+}
+.approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.approval-decision {
+  padding: 10px;
+  border-radius: 8px;
+  background: #eee9e2;
+  font-weight: 800;
+}
+.approval-decision.executed {
+  background: #dcebdc;
+  color: #26532d;
+}
+.approval-error {
+  color: #8f2f24;
+}
 .history-values {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));

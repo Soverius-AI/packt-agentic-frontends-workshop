@@ -27,7 +27,7 @@ main                 canonical knowledge and overall project
 This preserves the exact state needed to walk forward through the webinar
 without changing an earlier milestone.
 
-This `06-sql-tool` branch extends the completed `05-frontend-tool`
+This `07-human-in-loop` branch extends the completed `06-sql-tool`
 checkpoint. It contains the complete conventional
 chocolate-factory application: API, seven-day SQLite history, asynchronous
 device updates, Angular and React hosts, filters, server-side pagination, and
@@ -35,8 +35,11 @@ persistent alarms. CopilotKit and AG-UI still provide the frontend contract,
 and the Mastra agent can read bounded view/filter context, call the seven
 browser tools, and use one reviewed generated-SQL tool. A separate Mastra
 reviewer checks semantics; a deterministic read-only facility boundary retains
-execution authority. Both agents and the tool run remain inspectable in the
-local Mastra Studio. Checkpoint 07 and later rows remain planned progression.
+SQL execution authority. The agent can now propose raising one alarm through a
+CopilotKit human-in-the-loop tool, but only an operator decision can reach the
+facility-owned transactional action and audit boundary. Agent runs remain
+inspectable in the local Mastra Studio, while accountability records stay in
+facility SQLite. Checkpoint 08 and later rows remain planned progression.
 
 | Checkpoint            | Reveal or enable                                                           | Limitation that motivates the next step                       |
 | --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -53,8 +56,8 @@ local Mastra Studio. Checkpoint 07 and later rows remain planned progression.
 | `final`               | both hosts, resilience, audit, and full golden path                        | opens the two-day expansion backlog                           |
 
 The completed checkpoint contract is in the
-[Step 6 implementation brief](./step-06-sql-tool.md). Create
-`07-human-in-loop` directly from this branch for the next milestone.
+[Step 7 implementation brief](./step-07-human-in-loop.md). Create `08-a2ui`
+directly from this branch for the next milestone.
 
 ## Readiness check per checkpoint
 

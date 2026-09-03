@@ -24,6 +24,63 @@ export const metricAlarmSchema = z.object({
 });
 export type MetricAlarm = z.infer<typeof metricAlarmSchema>;
 
+export const alarmApprovalToolSchema = z
+  .object({
+    metricId: z
+      .string()
+      .min(1)
+      .describe("Exact metric ID returned by list_metrics."),
+    metricName: z
+      .string()
+      .min(1)
+      .describe("Exact metric name returned by list_metrics."),
+    reason: z
+      .string()
+      .trim()
+      .min(1)
+      .max(500)
+      .describe("Concise reason shown to the operator for review."),
+  })
+  .strict();
+export type AlarmApprovalToolInput = z.infer<typeof alarmApprovalToolSchema>;
+
+export const alarmApprovalDecisionSchema = z.enum(["approved", "rejected"]);
+export type AlarmApprovalDecision = z.infer<typeof alarmApprovalDecisionSchema>;
+
+export const alarmApprovalRequestSchema = z
+  .object({
+    correlationId: z.uuid(),
+    proposal: alarmApprovalToolSchema,
+    decision: alarmApprovalDecisionSchema,
+    operatorId: z.string().trim().min(1).max(100),
+  })
+  .strict();
+export type AlarmApprovalRequest = z.infer<typeof alarmApprovalRequestSchema>;
+
+export const alarmApprovalAuditEntrySchema = z
+  .object({
+    correlationId: z.uuid(),
+    action: z.literal("raise-alarm"),
+    metricId: z.string().min(1),
+    metricName: z.string().min(1),
+    reason: z.string().min(1),
+    decision: alarmApprovalDecisionSchema,
+    operatorId: z.string().min(1),
+    decidedAt: z.iso.datetime(),
+    outcome: z.enum(["executed", "not-executed", "failed"]),
+    alarmId: z.string().min(1).nullable(),
+    error: z.string().min(1).nullable(),
+  })
+  .strict();
+export type AlarmApprovalAuditEntry = z.infer<
+  typeof alarmApprovalAuditEntrySchema
+>;
+
+export const alarmApprovalAuditSchema = z.object({
+  entries: z.array(alarmApprovalAuditEntrySchema).max(100),
+});
+export type AlarmApprovalAudit = z.infer<typeof alarmApprovalAuditSchema>;
+
 export const metricSummarySchema = z.object({
   id: z.string().min(1),
   roomId: z.string().min(1),

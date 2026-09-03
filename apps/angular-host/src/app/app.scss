@@ -622,8 +622,28 @@ button:disabled {
   border-left: 5px solid #b53b2d;
 }
 
-.history-panel {
+.history-panel,
+.audit-panel {
   scroll-margin-top: 20px;
+}
+
+.audit-panel {
+  margin-bottom: 20px;
+  padding: 22px;
+  border: 1px solid #ded4ca;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.audit-table code {
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+  white-space: nowrap;
+}
+
+.audit-decision {
+  font-weight: 800;
+  text-transform: capitalize;
 }
 
 .history-heading {

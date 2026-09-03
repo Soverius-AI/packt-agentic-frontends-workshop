@@ -40,12 +40,14 @@ Generative UI is compared with A2UI and MCP Apps, but code-generating UI is not 
 6. Ask: **Change the start date to now.** Confirm that the view and every other filter remain unchanged. Then clear the date filter and finally clear all filters.
 7. In Part 6, open the `historian-query` graph in Mastra Studio, then ask: **Show me the maximum air temperature for each shift manager.** Inspect the narrow `query_historian` call, the workflow's `generate-sql` → `review-sql` → `deterministic-validate-and-execute` steps, and the subsequent `show_historian_readings` frontend call that opens the Angular Historian result view with one complete stored reading per manager.
 8. Ask for the average temperature or a count of readings. Show that the fixed-grid result contract rejects those computed shapes and motivates the later A2UI checkpoint.
-9. Establish the incident evidence: air temperature has remained in warning since 12:00, humidity can cross its warning threshold, and the connecting door has no sensor and must be checked manually.
-10. Choose **Ask facilities specialist**.
-11. Follow the correlation ID through the coordinator and A2A service.
-12. Inspect the conditional recommendation: check the connecting door; if open, close and observe; if closed, call cooling/electrical maintenance and place affected batches on quality hold when required by the fictional plant policy.
-13. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
-14. Approve or reject `review-alarm`, then read the audit trail and distinguish operational tracing from accountability.
+9. In Part 7, ask: **Raise an alarm for the Packaging hall package reject rate because the operator wants it investigated.** Reject the proposal and confirm that no alarm was raised while the correlated decision appears in the audit.
+10. Repeat the request, approve it, and confirm that the existing alarm UI and audit show the actual execution outcome. Use the conventional controls to acknowledge and resolve the demonstration alarm.
+11. Establish the incident evidence: air temperature has remained in warning since 12:00, humidity can cross its warning threshold, and the connecting door has no sensor and must be checked manually.
+12. Choose **Ask facilities specialist**.
+13. Follow the correlation ID through the coordinator and A2A service.
+14. Inspect the conditional recommendation: check the connecting door; if open, close and observe; if closed, call cooling/electrical maintenance and place affected batches on quality hold when required by the fictional plant policy.
+15. Choose **Open specialist guidance** and show the same sourced MCP App in Angular and React.
+16. Approve or reject `review_alarm`, then read the audit trail and distinguish operational tracing from accountability.
 
 ## Failure demonstrations
 
