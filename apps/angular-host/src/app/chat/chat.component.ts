@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { CopilotChat, registerRenderToolCall } from '@copilotkit/angular';
-import { queryHistorianToolSchema } from '@packt-workshop/contracts';
+import { CopilotChat } from '@copilotkit/angular';
 import { StreamingAutoScrollDirective } from './streaming-auto-scroll.directive';
-import { HistorianQueryRenderer } from './historian-query-renderer';
 
 @Component({
   selector: 'app-chat',
@@ -10,13 +8,4 @@ import { HistorianQueryRenderer } from './historian-query-renderer';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
 })
-export class ChatComponent {
-  constructor() {
-    registerRenderToolCall({
-      name: 'query_historian',
-      args: queryHistorianToolSchema,
-      component: HistorianQueryRenderer,
-      agentId: 'default',
-    });
-  }
-}
+export class ChatComponent {}

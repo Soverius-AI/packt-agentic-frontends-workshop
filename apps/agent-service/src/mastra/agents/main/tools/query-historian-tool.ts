@@ -13,7 +13,30 @@ import {
  *   question: string;
  * };
  *
- * type QueryHistorianOutput = HistorianToolResult;
+ * type QueryHistorianOutput =
+ *   | {
+ *       status: "executed";
+ *       question: string;
+ *       sql: string;
+ *       explanation: string;
+ *       review: SqlReview;
+ *       policyVersion: string;
+ *       entries: FacilityReadingEntry[];
+ *       rowCount: number;
+ *       truncated: boolean;
+ *       durationMs: number;
+ *     }
+ *   | {
+ *       status: "rejected";
+ *       question: string;
+ *       sql: string;
+ *       explanation: string;
+ *       review: SqlReview;
+ *       policyVersion: string;
+ *       stage: "reviewer" | "validator" | "execution";
+ *       code: string;
+ *       message: string;
+ *     };
  *
  * type HistorianQueryWorkflow =
  *   ReturnType<typeof createHistorianQueryWorkflow>;
@@ -24,7 +47,7 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
   return createTool({
     id: "query_historian",
     description:
-      "Call once for the complete historian request. Copy the operator's entire message verbatim into question; never paraphrase or split it. This starts the historian-query workflow, which generates SQL, reviews it, and applies deterministic facility policy before execution.",
+      "Call once for the complete historian request. Copy the operator's entire message verbatim into question; never paraphrase or split it. This starts the historian-query workflow, which generates SQL, reviews it, and applies deterministic facility policy before returning complete reading records for the existing grid.",
     inputSchema: queryHistorianInputSchema,
     outputSchema: queryHistorianOutputSchema,
     execute: async (input, context): Promise<HistorianToolResult> => {

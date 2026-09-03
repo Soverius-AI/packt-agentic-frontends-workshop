@@ -20,11 +20,13 @@ import {
   type FacilityReadingEntry,
   type FacilityReadingPage,
   type FacilityViewState,
+  type HistorianToolResult,
   type MetricHistory,
   type MetricSummary,
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
 } from "@packt-workshop/contracts";
+import type { HistorianRun } from "./CopilotChatPanel";
 import "./App.css";
 
 const CopilotChatPanel = lazy(() => import("./CopilotChatPanel"));
@@ -60,7 +62,7 @@ export default function App() {
   const [history, setHistory] = useState<MetricHistory>();
   const [status, setStatus] = useState("Connecting to the facility database…");
   const [busyMetricId, setBusyMetricId] = useState<string>();
-  const [continuousUpdates, setContinuousUpdates] = useState(false);
+  const [, setContinuousUpdates] = useState(false);
   const [displayMode, setDisplayMode] = useState<"snapshot" | "list">(
     "snapshot",
   );
@@ -74,6 +76,9 @@ export default function App() {
   const [roomFilter, setRoomFilter] = useState("");
   const [metricFilter, setMetricFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
+  const [historianRun, setHistorianRun] = useState<HistorianRun>();
+  const [dismissedHistorianToolCallId, setDismissedHistorianToolCallId] =
+    useState<string>();
   const updateSource = useRef<EventSource | undefined>(undefined);
   const allRows = useMemo(
     () =>
@@ -82,10 +87,18 @@ export default function App() {
       ) ?? [],
     [dashboard],
   );
+  const historianResult:
+    Extract<HistorianToolResult, { status: "executed" }> | undefined =
+    historianRun &&
+    historianRun.toolCallId !== dismissedHistorianToolCallId &&
+    historianRun.result.status === "executed"
+      ? historianRun.result
+      : undefined;
+  const effectiveDisplayMode = historianResult ? "list" : displayMode;
   const facilityViewState = useMemo<FacilityViewState>(
     () => ({
       view:
-        displayMode === "snapshot"
+        effectiveDisplayMode === "snapshot"
           ? ("snapshot" as const)
           : ("reading-log" as const),
       filters: {
@@ -100,7 +113,7 @@ export default function App() {
     }),
     [
       conditionFilter,
-      displayMode,
+      effectiveDisplayMode,
       metricFilter,
       roomFilter,
       shiftManagerFilter,
@@ -245,7 +258,9 @@ export default function App() {
   }
 
   function changeDisplayMode(mode: "snapshot" | "list"): void {
-    if (mode === displayMode) return;
+    const hadHistorianResult = Boolean(historianResult);
+    if (historianRun) setDismissedHistorianToolCallId(historianRun.toolCallId);
+    if (mode === displayMode && !hadHistorianResult) return;
     setDisplayMode(mode);
     setHistory(undefined);
     if (mode === "snapshot") startContinuousUpdates();
@@ -334,6 +349,7 @@ export default function App() {
   }
 
   function clearFilters(): void {
+    if (historianRun) setDismissedHistorianToolCallId(historianRun.toolCallId);
     setUpdatedFrom("");
     setUpdatedTo("");
     setShiftManagerFilter("");
@@ -345,6 +361,8 @@ export default function App() {
 
   const configureFacilityView = useCallback(
     async (command: ConfigureFacilityView): Promise<unknown> => {
+      if (historianRun)
+        setDismissedHistorianToolCallId(historianRun.toolCallId);
       let validatedCommand = command;
       try {
         validatedCommand = resolveFacilityViewAvailableOptions(
@@ -388,17 +406,41 @@ export default function App() {
         message: "Facility view updated. Unspecified values were preserved.",
       };
     },
-    [],
+    [historianRun],
   );
+
+  const receiveHistorianRun = useCallback((run: HistorianRun): void => {
+    setHistorianRun((current) =>
+      current?.toolCallId === run.toolCallId ? current : run,
+    );
+  }, []);
+
+  const closeHistorianResult = useCallback((): void => {
+    if (historianRun) setDismissedHistorianToolCallId(historianRun.toolCallId);
+    setDisplayMode("list");
+    setHistory(undefined);
+    stopContinuousUpdates();
+  }, [historianRun]);
+
+  const displayedReadingPage: FacilityReadingPage | undefined = historianResult
+    ? {
+        entries: historianResult.entries,
+        total: historianResult.rowCount,
+        limit: Math.max(1, historianResult.rowCount),
+        offset: 0,
+      }
+    : readingPage;
 
   const readingPageCount = Math.max(
     1,
-    Math.ceil((readingPage?.total ?? 0) / readingPageSize),
+    Math.ceil((displayedReadingPage?.total ?? 0) / readingPageSize),
   );
   const readingPageStart =
-    readingPage && readingPage.total > 0 ? readingPage.offset + 1 : 0;
-  const readingPageEnd = readingPage
-    ? readingPage.offset + readingPage.entries.length
+    displayedReadingPage && displayedReadingPage.total > 0
+      ? displayedReadingPage.offset + 1
+      : 0;
+  const readingPageEnd = displayedReadingPage
+    ? displayedReadingPage.offset + displayedReadingPage.entries.length
     : 0;
 
   return (
@@ -433,10 +475,12 @@ export default function App() {
         <div className="summary">
           <span className="database">SQLite connected</span>
           <span
-            className={`mode-state${continuousUpdates ? " mode-state-live" : ""}`}
+            className={`mode-state${effectiveDisplayMode === "snapshot" ? " mode-state-live" : ""}`}
           >
             <span aria-hidden="true" />
-            {continuousUpdates ? "Snapshot live" : "Reading log"}
+            {effectiveDisplayMode === "snapshot"
+              ? "Snapshot live"
+              : "Reading log"}
           </span>
           <span
             className={dashboard?.activeAlarmCount ? "alarms active" : "alarms"}
@@ -465,8 +509,10 @@ export default function App() {
                 <button
                   type="button"
                   role="tab"
-                  aria-selected={displayMode === "snapshot"}
-                  className={displayMode === "snapshot" ? "active" : ""}
+                  aria-selected={effectiveDisplayMode === "snapshot"}
+                  className={
+                    effectiveDisplayMode === "snapshot" ? "active" : ""
+                  }
                   onClick={() => changeDisplayMode("snapshot")}
                 >
                   Snapshot
@@ -475,156 +521,182 @@ export default function App() {
                 <button
                   type="button"
                   role="tab"
-                  aria-selected={displayMode === "list"}
-                  className={displayMode === "list" ? "active" : ""}
+                  aria-selected={effectiveDisplayMode === "list"}
+                  className={effectiveDisplayMode === "list" ? "active" : ""}
                   onClick={() => changeDisplayMode("list")}
                 >
                   Reading log
                   <small>Historical readings · filterable</small>
                 </button>
               </div>
-              {displayMode === "list" ? (
+              {effectiveDisplayMode === "list" ? (
                 <>
-                  <section
-                    className="filter-panel"
-                    aria-label="Filter persisted readings"
-                  >
-                    <div className="filter-heading">
-                      <div>
-                        <p className="eyebrow">Historical reading filters</p>
-                        <strong>
-                          Showing {readingPageStart}–{readingPageEnd} of{" "}
-                          {readingPage?.total ?? 0} readings
-                        </strong>
+                  {historianResult ? (
+                    <section
+                      className="filter-panel"
+                      aria-label="Historian query result"
+                    >
+                      <div className="filter-heading">
+                        <div>
+                          <p className="eyebrow">Historian query result</p>
+                          <strong>{historianResult.question}</strong>
+                        </div>
+                        <button
+                          className="secondary"
+                          type="button"
+                          onClick={closeHistorianResult}
+                        >
+                          Return to reading log
+                        </button>
                       </div>
-                      <button
-                        className="secondary"
-                        type="button"
-                        onClick={clearFilters}
-                      >
-                        Clear filters
-                      </button>
-                    </div>
-                    <div className="filter-grid">
-                      <label>
-                        <span>Updated from</span>
-                        <span className="date-filter-control">
-                          <input
-                            type="datetime-local"
-                            value={updatedFrom}
+                      <small>
+                        {historianResult.rowCount} complete reading{" "}
+                        {historianResult.rowCount === 1 ? "record" : "records"}{" "}
+                        selected by the reviewed SQL.
+                      </small>
+                    </section>
+                  ) : (
+                    <section
+                      className="filter-panel"
+                      aria-label="Filter persisted readings"
+                    >
+                      <div className="filter-heading">
+                        <div>
+                          <p className="eyebrow">Historical reading filters</p>
+                          <strong>
+                            Showing {readingPageStart}–{readingPageEnd} of{" "}
+                            {displayedReadingPage?.total ?? 0} readings
+                          </strong>
+                        </div>
+                        <button
+                          className="secondary"
+                          type="button"
+                          onClick={clearFilters}
+                        >
+                          Clear filters
+                        </button>
+                      </div>
+                      <div className="filter-grid">
+                        <label>
+                          <span>Updated from</span>
+                          <span className="date-filter-control">
+                            <input
+                              type="datetime-local"
+                              value={updatedFrom}
+                              onChange={(event) => {
+                                setUpdatedFrom(event.target.value);
+                                setReadingPageIndex(0);
+                              }}
+                            />
+                            <button
+                              className="date-clear-button"
+                              type="button"
+                              disabled={!updatedFrom}
+                              aria-label="Clear updated from"
+                              onClick={() => {
+                                setUpdatedFrom("");
+                                setReadingPageIndex(0);
+                              }}
+                            >
+                              Clear
+                            </button>
+                          </span>
+                        </label>
+                        <label>
+                          <span>Updated to</span>
+                          <span className="date-filter-control">
+                            <input
+                              type="datetime-local"
+                              value={updatedTo}
+                              onChange={(event) => {
+                                setUpdatedTo(event.target.value);
+                                setReadingPageIndex(0);
+                              }}
+                            />
+                            <button
+                              className="date-clear-button"
+                              type="button"
+                              disabled={!updatedTo}
+                              aria-label="Clear updated to"
+                              onClick={() => {
+                                setUpdatedTo("");
+                                setReadingPageIndex(0);
+                              }}
+                            >
+                              Clear
+                            </button>
+                          </span>
+                        </label>
+                        <label>
+                          <span>Shift manager</span>
+                          <select
+                            value={shiftManagerFilter}
                             onChange={(event) => {
-                              setUpdatedFrom(event.target.value);
-                              setReadingPageIndex(0);
-                            }}
-                          />
-                          <button
-                            className="date-clear-button"
-                            type="button"
-                            disabled={!updatedFrom}
-                            aria-label="Clear updated from"
-                            onClick={() => {
-                              setUpdatedFrom("");
+                              setShiftManagerFilter(event.target.value);
                               setReadingPageIndex(0);
                             }}
                           >
-                            Clear
-                          </button>
-                        </span>
-                      </label>
-                      <label>
-                        <span>Updated to</span>
-                        <span className="date-filter-control">
-                          <input
-                            type="datetime-local"
-                            value={updatedTo}
+                            <option value="">All shift managers</option>
+                            {dashboard.shiftManagers.map((manager) => (
+                              <option key={manager} value={manager}>
+                                {manager}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label>
+                          <span>Room</span>
+                          <select
+                            value={roomFilter}
                             onChange={(event) => {
-                              setUpdatedTo(event.target.value);
-                              setReadingPageIndex(0);
-                            }}
-                          />
-                          <button
-                            className="date-clear-button"
-                            type="button"
-                            disabled={!updatedTo}
-                            aria-label="Clear updated to"
-                            onClick={() => {
-                              setUpdatedTo("");
+                              setRoomFilter(event.target.value);
                               setReadingPageIndex(0);
                             }}
                           >
-                            Clear
-                          </button>
-                        </span>
-                      </label>
-                      <label>
-                        <span>Shift manager</span>
-                        <select
-                          value={shiftManagerFilter}
-                          onChange={(event) => {
-                            setShiftManagerFilter(event.target.value);
-                            setReadingPageIndex(0);
-                          }}
-                        >
-                          <option value="">All shift managers</option>
-                          {dashboard.shiftManagers.map((manager) => (
-                            <option key={manager} value={manager}>
-                              {manager}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span>Room</span>
-                        <select
-                          value={roomFilter}
-                          onChange={(event) => {
-                            setRoomFilter(event.target.value);
-                            setReadingPageIndex(0);
-                          }}
-                        >
-                          <option value="">All rooms</option>
-                          {dashboard.rooms.map((room) => (
-                            <option key={room.id} value={room.id}>
-                              {room.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span>Metric</span>
-                        <select
-                          value={metricFilter}
-                          onChange={(event) => {
-                            setMetricFilter(event.target.value);
-                            setReadingPageIndex(0);
-                          }}
-                        >
-                          <option value="">All metrics</option>
-                          {allRows.map(({ room, metric }) => (
-                            <option key={metric.id} value={metric.id}>
-                              {room.name} · {metric.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        <span>Condition</span>
-                        <select
-                          value={conditionFilter}
-                          onChange={(event) => {
-                            setConditionFilter(event.target.value);
-                            setReadingPageIndex(0);
-                          }}
-                        >
-                          <option value="">All conditions</option>
-                          <option value="normal">Normal</option>
-                          <option value="warning">Warning</option>
-                          <option value="critical">Critical</option>
-                          <option value="unavailable">Unavailable</option>
-                        </select>
-                      </label>
-                    </div>
-                  </section>
+                            <option value="">All rooms</option>
+                            {dashboard.rooms.map((room) => (
+                              <option key={room.id} value={room.id}>
+                                {room.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label>
+                          <span>Metric</span>
+                          <select
+                            value={metricFilter}
+                            onChange={(event) => {
+                              setMetricFilter(event.target.value);
+                              setReadingPageIndex(0);
+                            }}
+                          >
+                            <option value="">All metrics</option>
+                            {allRows.map(({ room, metric }) => (
+                              <option key={metric.id} value={metric.id}>
+                                {room.name} · {metric.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <label>
+                          <span>Condition</span>
+                          <select
+                            value={conditionFilter}
+                            onChange={(event) => {
+                              setConditionFilter(event.target.value);
+                              setReadingPageIndex(0);
+                            }}
+                          >
+                            <option value="">All conditions</option>
+                            <option value="normal">Normal</option>
+                            <option value="warning">Warning</option>
+                            <option value="critical">Critical</option>
+                            <option value="unavailable">Unavailable</option>
+                          </select>
+                        </label>
+                      </div>
+                    </section>
+                  )}
                   <div
                     className="table-shell"
                     tabIndex={0}
@@ -632,8 +704,9 @@ export default function App() {
                   >
                     <table className="reading-entries-table">
                       <caption>
-                        Persisted metric readings matching the historical
-                        filters
+                        {historianResult
+                          ? "Stored readings selected by the reviewed historian query"
+                          : "Persisted metric readings matching the historical filters"}
                       </caption>
                       <thead>
                         <tr>
@@ -646,14 +719,14 @@ export default function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {readingsLoading ? (
+                        {readingsLoading && !historianResult ? (
                           <tr>
                             <td className="empty-table" colSpan={6}>
                               Loading persisted readings…
                             </td>
                           </tr>
-                        ) : readingPage?.entries.length ? (
-                          readingPage.entries.map((entry) => (
+                        ) : displayedReadingPage?.entries.length ? (
+                          displayedReadingPage.entries.map((entry) => (
                             <tr
                               key={entry.id}
                               className={`condition-${entry.condition}`}
@@ -694,34 +767,36 @@ export default function App() {
                       </tbody>
                     </table>
                   </div>
-                  <nav
-                    className="pagination"
-                    aria-label="Reading log pagination"
-                  >
-                    <button
-                      className="secondary"
-                      type="button"
-                      disabled={readingPageIndex === 0 || readingsLoading}
-                      onClick={() => setReadingPageIndex((page) => page - 1)}
+                  {!historianResult && (
+                    <nav
+                      className="pagination"
+                      aria-label="Reading log pagination"
                     >
-                      Previous
-                    </button>
-                    <span>
-                      Page <strong>{readingPageIndex + 1}</strong> of{" "}
-                      <strong>{readingPageCount}</strong>
-                    </span>
-                    <button
-                      className="secondary"
-                      type="button"
-                      disabled={
-                        readingPageIndex + 1 >= readingPageCount ||
-                        readingsLoading
-                      }
-                      onClick={() => setReadingPageIndex((page) => page + 1)}
-                    >
-                      Next
-                    </button>
-                  </nav>
+                      <button
+                        className="secondary"
+                        type="button"
+                        disabled={readingPageIndex === 0 || readingsLoading}
+                        onClick={() => setReadingPageIndex((page) => page - 1)}
+                      >
+                        Previous
+                      </button>
+                      <span>
+                        Page <strong>{readingPageIndex + 1}</strong> of{" "}
+                        <strong>{readingPageCount}</strong>
+                      </span>
+                      <button
+                        className="secondary"
+                        type="button"
+                        disabled={
+                          readingPageIndex + 1 >= readingPageCount ||
+                          readingsLoading
+                        }
+                        onClick={() => setReadingPageIndex((page) => page + 1)}
+                      >
+                        Next
+                      </button>
+                    </nav>
+                  )}
                 </>
               ) : (
                 <>
@@ -880,6 +955,7 @@ export default function App() {
                 viewContext={facilityViewState}
                 options={facilityOptions}
                 onConfigureView={configureFacilityView}
+                onHistorianRun={receiveHistorianRun}
               />
             </Suspense>
           </div>

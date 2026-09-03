@@ -247,8 +247,6 @@ export const sqlReviewSchema = z
   .strict();
 export type SqlReview = z.infer<typeof sqlReviewSchema>;
 
-const historianScalarSchema = z.union([z.string(), z.number(), z.null()]);
-
 const historianToolResultBaseSchema = z.object({
   sql: z.string(),
   explanation: z.string(),
@@ -261,8 +259,7 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
   historianToolResultBaseSchema
     .extend({
       status: z.literal("executed"),
-      columns: z.array(z.string()).max(64),
-      rows: z.array(z.array(historianScalarSchema).max(64)).max(200),
+      entries: z.array(facilityReadingEntrySchema).max(200),
       rowCount: z.number().int().nonnegative().max(200),
       truncated: z.boolean(),
       durationMs: z.number().int().nonnegative(),
@@ -278,6 +275,17 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
     .strict(),
 ]);
 export type HistorianToolResult = z.infer<typeof historianToolResultSchema>;
+
+export const showHistorianReadingsToolSchema = z
+  .object({
+    question: z.string().trim().min(1).max(4_000),
+    entries: z.array(facilityReadingEntrySchema).max(200),
+    truncated: z.boolean(),
+  })
+  .strict();
+export type ShowHistorianReadingsToolInput = z.infer<
+  typeof showHistorianReadingsToolSchema
+>;
 
 export const historianExecutionRequestSchema = z
   .object({

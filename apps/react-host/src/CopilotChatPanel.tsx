@@ -1,10 +1,12 @@
 import {
   CopilotChat,
   CopilotKitProvider,
+  UseAgentUpdate,
+  useAgent,
   useAgentContext,
   useFrontendTool,
-  useRenderTool,
 } from "@copilotkit/react-core/v2";
+import { useEffect, useMemo } from "react";
 import {
   clearFiltersToolSchema,
   getUserTimeZone,
@@ -13,7 +15,6 @@ import {
   listRoomsToolSchema,
   listShiftManagersToolSchema,
   historianToolResultSchema,
-  queryHistorianToolSchema,
   resolveFacilityViewAvailableOptions,
   setViewToolSchema,
   type ConfigureFacilityView,
@@ -42,6 +43,12 @@ type CopilotChatPanelProps = {
     conditions: readonly string[];
   };
   onConfigureView: (command: ConfigureFacilityView) => Promise<unknown>;
+  onHistorianRun: (run: HistorianRun) => void;
+};
+
+export type HistorianRun = {
+  toolCallId: string;
+  result: HistorianToolResult;
 };
 
 export function parseHistorianResult(
@@ -56,138 +63,70 @@ export function parseHistorianResult(
   }
 }
 
-function HistorianResult({
-  status,
-  question,
-  result,
-}: {
-  status: "inProgress" | "executing" | "complete";
-  question?: string | undefined;
-  result?: unknown;
-}) {
-  const historianResult = parseHistorianResult(result);
-  return (
-    <article className="historian-card" aria-live="polite">
-      <header>
-        <div>
-          <p>Reviewed historian query</p>
-          <strong>
-            Question → SQL generator → reviewer → deterministic policy
-          </strong>
-        </div>
-        <span>{status === "complete" ? "Complete" : "Checking…"}</span>
-      </header>
-      {question && (
-        <p>
-          <strong>Question:</strong> {question}
-        </p>
-      )}
-      {historianResult?.sql && (
-        <details>
-          <summary>Generated SQL</summary>
-          <pre>
-            <code>{historianResult.sql}</code>
-          </pre>
-        </details>
-      )}
-      {historianResult ? (
-        <>
-          <p
-            className={`historian-review${historianResult.review.approved ? "" : " rejected"}`}
-          >
-            <strong>Reviewer:</strong> {historianResult.review.summary}
-          </p>
-          {historianResult.status === "executed" ? (
-            <>
-              <div className="historian-result-meta">
-                <span>Policy {historianResult.policyVersion}</span>
-                <span>{historianResult.rowCount} rows</span>
-                <span>{historianResult.durationMs} ms</span>
-              </div>
-              <div
-                className="historian-table-shell"
-                tabIndex={0}
-                aria-label="Historian query result table"
-              >
-                <table>
-                  <caption>
-                    Result of the reviewed, read-only historian query
-                  </caption>
-                  <thead>
-                    <tr>
-                      {historianResult.columns.map((column, index) => (
-                        <th scope="col" key={`${column}-${index}`}>
-                          {column}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {historianResult.rows.length ? (
-                      historianResult.rows.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {row.map((value, columnIndex) => (
-                            <td key={columnIndex}>{value ?? "—"}</td>
-                          ))}
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={historianResult.columns.length || 1}>
-                          No matching readings.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              {historianResult.truncated && (
-                <p className="historian-notice">
-                  Result truncated at the deterministic row limit.
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="historian-rejection">
-              <strong>{historianResult.stage} rejected the query:</strong>{" "}
-              {historianResult.message}
-            </p>
-          )}
-        </>
-      ) : status === "complete" ? (
-        <p className="historian-rejection">
-          The historian returned an unreadable result.
-        </p>
-      ) : (
-        <p className="historian-pending">
-          Generating SQL, reviewing meaning, and applying the deterministic
-          policy…
-        </p>
-      )}
-    </article>
-  );
+function latestHistorianRun(
+  messages: readonly unknown[],
+): HistorianRun | undefined {
+  const queryToolCallIds = new Set<string>();
+  for (const candidate of messages) {
+    if (!candidate || typeof candidate !== "object") continue;
+    const message = candidate as Record<string, unknown>;
+    if (message.role !== "assistant" || !Array.isArray(message.toolCalls))
+      continue;
+    for (const candidateToolCall of message.toolCalls) {
+      if (!candidateToolCall || typeof candidateToolCall !== "object") continue;
+      const toolCall = candidateToolCall as {
+        id?: unknown;
+        function?: { name?: unknown };
+      };
+      if (
+        typeof toolCall.id === "string" &&
+        toolCall.function?.name === "query_historian"
+      ) {
+        queryToolCallIds.add(toolCall.id);
+      }
+    }
+  }
+
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const candidate = messages[index];
+    if (!candidate || typeof candidate !== "object") continue;
+    const message = candidate as Record<string, unknown>;
+    if (
+      message.role !== "tool" ||
+      typeof message.toolCallId !== "string" ||
+      typeof message.content !== "string" ||
+      !queryToolCallIds.has(message.toolCallId)
+    ) {
+      continue;
+    }
+    const result = parseHistorianResult(message.content);
+    if (result) return { toolCallId: message.toolCallId, result };
+  }
+  return undefined;
 }
 
 function FacilityChat({
   viewContext,
   options,
   onConfigureView,
+  onHistorianRun,
 }: CopilotChatPanelProps) {
+  const { agent } = useAgent({
+    agentId: "default",
+    updates: [UseAgentUpdate.OnMessagesChanged],
+  });
+  const historianRun = useMemo(
+    () => latestHistorianRun(agent.messages),
+    [agent.messages],
+  );
+  useEffect(() => {
+    if (historianRun) onHistorianRun(historianRun);
+  }, [historianRun, onHistorianRun]);
+
   useAgentContext({
     description:
       "Current facility view, active filters, and user timezone. This context contains no option catalogs, readings, alarm records, or historian results.",
     value: { ...viewContext, userTimeZone: getUserTimeZone() },
-  });
-  useRenderTool({
-    name: "query_historian",
-    parameters: queryHistorianToolSchema,
-    render: ({ status, parameters, result }) => (
-      <HistorianResult
-        status={status}
-        question={parameters.question}
-        result={result}
-      />
-    ),
   });
   useFrontendTool(
     {

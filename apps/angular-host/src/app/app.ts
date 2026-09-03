@@ -10,6 +10,7 @@ import type {
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
+  ShowHistorianReadingsToolInput,
 } from '@packt-workshop/contracts';
 import {
   applyFacilityViewCommand,
@@ -23,12 +24,13 @@ import {
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
   setViewToolSchema,
+  showHistorianReadingsToolSchema,
   updateFiltersToolSchema,
 } from '@packt-workshop/contracts';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
 
-type DisplayMode = 'snapshot' | 'list';
+type DisplayMode = 'snapshot' | 'reading-log' | 'historian-result';
 const READING_PAGE_SIZE = 50;
 
 @Component({
@@ -62,6 +64,9 @@ export class App {
   protected readonly roomFilter = signal('');
   protected readonly metricFilter = signal('');
   protected readonly conditionFilter = signal('');
+  protected readonly historianResult = signal<ShowHistorianReadingsToolInput | undefined>(
+    undefined,
+  );
   protected readonly rooms = computed(() => this.dashboard()?.rooms ?? []);
   protected readonly activeAlarmCount = computed(() => this.dashboard()?.activeAlarmCount ?? 0);
   protected readonly shiftManagerOptions = computed(() => this.dashboard()?.shiftManagers ?? []);
@@ -87,15 +92,25 @@ export class App {
   protected readonly currentRows = computed(() =>
     this.rooms().flatMap((room) => room.metrics.map((metric) => ({ room, metric }))),
   );
+  protected readonly displayedReadingPage = computed<FacilityReadingPage | undefined>(() => {
+    const result = this.historianResult();
+    if (this.displayMode() !== 'historian-result' || !result) return this.readingPage();
+    return {
+      entries: result.entries,
+      total: result.entries.length,
+      limit: Math.max(1, result.entries.length),
+      offset: 0,
+    };
+  });
   protected readonly readingPageCount = computed(() =>
-    Math.max(1, Math.ceil((this.readingPage()?.total ?? 0) / READING_PAGE_SIZE)),
+    Math.max(1, Math.ceil((this.displayedReadingPage()?.total ?? 0) / READING_PAGE_SIZE)),
   );
   protected readonly readingPageStart = computed(() => {
-    const page = this.readingPage();
+    const page = this.displayedReadingPage();
     return page && page.total > 0 ? page.offset + 1 : 0;
   });
   protected readonly readingPageEnd = computed(() => {
-    const page = this.readingPage();
+    const page = this.displayedReadingPage();
     return page ? page.offset + page.entries.length : 0;
   });
 
@@ -155,6 +170,27 @@ export class App {
         if (!validation.success)
           return this.#invalidToolPayload(validation.error.issues[0]?.message);
         return { conditions: ['normal', 'warning', 'critical', 'unavailable'] };
+      },
+    });
+    registerFrontendTool({
+      name: 'show_historian_readings',
+      description:
+        'Display complete reading records returned by query_historian in the dedicated Historian result view. Copy question, entries, and truncated exactly from the successful backend tool result.',
+      parameters: showHistorianReadingsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = showHistorianReadingsToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        this.historianResult.set(validation.data);
+        this.displayMode.set('historian-result');
+        this.closeHistory();
+        this.#stopContinuousUpdates();
+        this.status.set(
+          `Showing ${validation.data.entries.length} readings selected by the reviewed historian query.`,
+        );
+        return { ok: true, displayedRows: validation.data.entries.length };
       },
     });
     registerFrontendTool({
@@ -258,7 +294,7 @@ export class App {
     const next = resolveFacilityViewDates(
       applyFacilityViewCommand(this.facilityViewState(), validatedCommand),
     );
-    const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'list';
+    const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'reading-log';
     const viewChanged = nextDisplayMode !== this.displayMode();
 
     this.updatedFrom.set(next.filters.from ?? '');
@@ -275,7 +311,7 @@ export class App {
       if (nextDisplayMode === 'snapshot') this.#startContinuousUpdates();
       else this.#stopContinuousUpdates();
     }
-    if (nextDisplayMode === 'list') await this.loadReadingEntries();
+    if (nextDisplayMode === 'reading-log') await this.loadReadingEntries();
 
     this.status.set('The assistant updated the facility view.');
     return {
@@ -302,6 +338,7 @@ export class App {
   }
 
   protected setDisplayMode(mode: DisplayMode): void {
+    if (mode === 'historian-result' && !this.historianResult()) return;
     if (this.displayMode() === mode) return;
     this.displayMode.set(mode);
     this.closeHistory();
@@ -310,6 +347,12 @@ export class App {
       return;
     }
     this.#stopContinuousUpdates();
+    if (mode === 'historian-result') {
+      this.status.set(
+        `Showing ${this.historianResult()?.entries.length ?? 0} readings selected by the reviewed historian query.`,
+      );
+      return;
+    }
     void this.loadReadingEntries();
   }
 
@@ -320,7 +363,7 @@ export class App {
     this.error.set(undefined);
     try {
       this.dashboard.set(await this.#api.getDashboard());
-      if (this.displayMode() === 'list') await this.loadReadingEntries();
+      if (this.displayMode() === 'reading-log') await this.loadReadingEntries();
       this.status.set('Live values and alarm states loaded from the facility database.');
     } catch (error) {
       this.error.set(this.#errorMessage(error));
@@ -595,5 +638,9 @@ export class App {
     if (!value) return undefined;
     const timestamp = Date.parse(value);
     return Number.isNaN(timestamp) ? undefined : new Date(timestamp).toISOString();
+  }
+
+  protected closeHistorianResult(): void {
+    this.setDisplayMode('reading-log');
   }
 }

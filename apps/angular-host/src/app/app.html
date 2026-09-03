@@ -22,9 +22,19 @@
     </div>
     <div class="header-actions">
       <span class="database-state">SQLite connected</span>
-      <span class="mode-state" [class.mode-state-live]="continuousUpdates()">
+      <span class="mode-state" [class.mode-state-live]="displayMode() === 'snapshot'">
         <span aria-hidden="true"></span>
-        {{ continuousUpdates() ? 'Snapshot live' : 'Reading log' }}
+        @switch (displayMode()) {
+          @case ('snapshot') {
+            Snapshot live
+          }
+          @case ('reading-log') {
+            Reading log
+          }
+          @case ('historian-result') {
+            Historian result
+          }
+        }
       </span>
       <span class="alarm-summary" [class.has-alarms]="activeAlarmCount() > 0">
         {{ activeAlarmCount() }} active {{ activeAlarmCount() === 1 ? 'alarm' : 'alarms' }}
@@ -55,7 +65,12 @@
           <p>Every reading and alarm is served by the conventional facility backend.</p>
         </div>
 
-        <div class="mode-switch" role="tablist" aria-label="Reading display mode">
+        <div
+          class="mode-switch"
+          [class.has-historian-result]="historianResult()"
+          role="tablist"
+          aria-label="Reading display mode"
+        >
           <button
             type="button"
             role="tab"
@@ -69,129 +84,166 @@
           <button
             type="button"
             role="tab"
-            [attr.aria-selected]="displayMode() === 'list'"
-            [class.active]="displayMode() === 'list'"
-            (click)="setDisplayMode('list')"
+            [attr.aria-selected]="displayMode() === 'reading-log'"
+            [class.active]="displayMode() === 'reading-log'"
+            (click)="setDisplayMode('reading-log')"
           >
             Reading log
             <small>Historical readings · filterable</small>
           </button>
+          @if (historianResult()) {
+            <button
+              type="button"
+              role="tab"
+              [attr.aria-selected]="displayMode() === 'historian-result'"
+              [class.active]="displayMode() === 'historian-result'"
+              (click)="setDisplayMode('historian-result')"
+            >
+              Historian result
+              <small>Reviewed SQL selection</small>
+            </button>
+          }
         </div>
 
         <section class="room" aria-labelledby="rooms-title">
-          @if (displayMode() === 'list') {
-            <section class="filter-panel" aria-label="Filter persisted readings">
-              <div class="filter-heading">
-                <div>
-                  <p class="eyebrow">Historical reading filters</p>
-                  <strong>
-                    Showing {{ readingPageStart() }}–{{ readingPageEnd() }} of
-                    {{ readingPage()?.total ?? 0 }} readings
-                  </strong>
+          @if (displayMode() !== 'snapshot') {
+            @if (displayMode() === 'historian-result' && historianResult(); as result) {
+              <section class="filter-panel" aria-label="Historian query result">
+                <div class="filter-heading">
+                  <div>
+                    <p class="eyebrow">Historian query result</p>
+                    <strong>{{ result.question }}</strong>
+                  </div>
+                  <button class="secondary-button" type="button" (click)="closeHistorianResult()">
+                    Return to reading log
+                  </button>
                 </div>
-                <button class="secondary-button" type="button" (click)="clearFilters()">
-                  Clear filters
-                </button>
-              </div>
-              <div class="filter-grid">
-                <label>
-                  <span>Updated from</span>
-                  <span class="date-filter-control">
-                    <input
-                      type="datetime-local"
-                      [value]="updatedFrom()"
-                      (input)="setFilter('from', $event)"
-                    />
-                    <button
-                      class="date-clear-button"
-                      type="button"
-                      [disabled]="!updatedFrom()"
-                      aria-label="Clear updated from"
-                      (click)="clearDateFilter('from')"
+                <small>
+                  {{ result.entries.length }} complete reading
+                  {{ result.entries.length === 1 ? 'record' : 'records' }} selected by the reviewed
+                  SQL{{ result.truncated ? ' (result truncated)' : '' }}.
+                </small>
+              </section>
+            } @else {
+              <section class="filter-panel" aria-label="Filter persisted readings">
+                <div class="filter-heading">
+                  <div>
+                    <p class="eyebrow">Historical reading filters</p>
+                    <strong>
+                      Showing {{ readingPageStart() }}–{{ readingPageEnd() }} of
+                      {{ displayedReadingPage()?.total ?? 0 }} readings
+                    </strong>
+                  </div>
+                  <button class="secondary-button" type="button" (click)="clearFilters()">
+                    Clear filters
+                  </button>
+                </div>
+                <div class="filter-grid">
+                  <label>
+                    <span>Updated from</span>
+                    <span class="date-filter-control">
+                      <input
+                        type="datetime-local"
+                        [value]="updatedFrom()"
+                        (input)="setFilter('from', $event)"
+                      />
+                      <button
+                        class="date-clear-button"
+                        type="button"
+                        [disabled]="!updatedFrom()"
+                        aria-label="Clear updated from"
+                        (click)="clearDateFilter('from')"
+                      >
+                        Clear
+                      </button>
+                    </span>
+                  </label>
+                  <label>
+                    <span>Updated to</span>
+                    <span class="date-filter-control">
+                      <input
+                        type="datetime-local"
+                        [value]="updatedTo()"
+                        (input)="setFilter('to', $event)"
+                      />
+                      <button
+                        class="date-clear-button"
+                        type="button"
+                        [disabled]="!updatedTo()"
+                        aria-label="Clear updated to"
+                        (click)="clearDateFilter('to')"
+                      >
+                        Clear
+                      </button>
+                    </span>
+                  </label>
+                  <label>
+                    <span>Shift manager</span>
+                    <select
+                      [value]="shiftManagerFilter()"
+                      (change)="setFilter('shiftManager', $event)"
                     >
-                      Clear
-                    </button>
-                  </span>
-                </label>
-                <label>
-                  <span>Updated to</span>
-                  <span class="date-filter-control">
-                    <input
-                      type="datetime-local"
-                      [value]="updatedTo()"
-                      (input)="setFilter('to', $event)"
-                    />
-                    <button
-                      class="date-clear-button"
-                      type="button"
-                      [disabled]="!updatedTo()"
-                      aria-label="Clear updated to"
-                      (click)="clearDateFilter('to')"
-                    >
-                      Clear
-                    </button>
-                  </span>
-                </label>
-                <label>
-                  <span>Shift manager</span>
-                  <select
-                    [value]="shiftManagerFilter()"
-                    (change)="setFilter('shiftManager', $event)"
-                  >
-                    <option value="" [selected]="!shiftManagerFilter()">All shift managers</option>
-                    @for (manager of shiftManagerOptions(); track manager) {
-                      <option [value]="manager" [selected]="shiftManagerFilter() === manager">
-                        {{ manager }}
+                      <option value="" [selected]="!shiftManagerFilter()">
+                        All shift managers
                       </option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  <span>Room</span>
-                  <select [value]="roomFilter()" (change)="setFilter('room', $event)">
-                    <option value="" [selected]="!roomFilter()">All rooms</option>
-                    @for (room of rooms(); track room.id) {
-                      <option [value]="room.id" [selected]="roomFilter() === room.id">
-                        {{ room.name }}
+                      @for (manager of shiftManagerOptions(); track manager) {
+                        <option [value]="manager" [selected]="shiftManagerFilter() === manager">
+                          {{ manager }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+                  <label>
+                    <span>Room</span>
+                    <select [value]="roomFilter()" (change)="setFilter('room', $event)">
+                      <option value="" [selected]="!roomFilter()">All rooms</option>
+                      @for (room of rooms(); track room.id) {
+                        <option [value]="room.id" [selected]="roomFilter() === room.id">
+                          {{ room.name }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+                  <label>
+                    <span>Metric</span>
+                    <select [value]="metricFilter()" (change)="setFilter('metric', $event)">
+                      <option value="" [selected]="!metricFilter()">All metrics</option>
+                      @for (metric of metricOptions(); track metric.id) {
+                        <option [value]="metric.id" [selected]="metricFilter() === metric.id">
+                          {{ metric.label }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+                  <label>
+                    <span>Condition</span>
+                    <select [value]="conditionFilter()" (change)="setFilter('condition', $event)">
+                      <option value="" [selected]="!conditionFilter()">All conditions</option>
+                      <option value="normal" [selected]="conditionFilter() === 'normal'">
+                        Normal
                       </option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  <span>Metric</span>
-                  <select [value]="metricFilter()" (change)="setFilter('metric', $event)">
-                    <option value="" [selected]="!metricFilter()">All metrics</option>
-                    @for (metric of metricOptions(); track metric.id) {
-                      <option [value]="metric.id" [selected]="metricFilter() === metric.id">
-                        {{ metric.label }}
+                      <option value="warning" [selected]="conditionFilter() === 'warning'">
+                        Warning
                       </option>
-                    }
-                  </select>
-                </label>
-                <label>
-                  <span>Condition</span>
-                  <select [value]="conditionFilter()" (change)="setFilter('condition', $event)">
-                    <option value="" [selected]="!conditionFilter()">All conditions</option>
-                    <option value="normal" [selected]="conditionFilter() === 'normal'">
-                      Normal
-                    </option>
-                    <option value="warning" [selected]="conditionFilter() === 'warning'">
-                      Warning
-                    </option>
-                    <option value="critical" [selected]="conditionFilter() === 'critical'">
-                      Critical
-                    </option>
-                    <option value="unavailable" [selected]="conditionFilter() === 'unavailable'">
-                      Unavailable
-                    </option>
-                  </select>
-                </label>
-              </div>
-            </section>
+                      <option value="critical" [selected]="conditionFilter() === 'critical'">
+                        Critical
+                      </option>
+                      <option value="unavailable" [selected]="conditionFilter() === 'unavailable'">
+                        Unavailable
+                      </option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+            }
             <div class="table-shell" tabindex="0" aria-label="Historical readings table">
               <table class="reading-entries-table">
                 <caption>
-                  Persisted metric readings matching the historical filters
+                  {{
+                    displayMode() === 'historian-result'
+                      ? 'Stored readings selected by the reviewed historian query'
+                      : 'Persisted metric readings matching the historical filters'
+                  }}
                 </caption>
                 <thead>
                   <tr>
@@ -204,12 +256,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @if (readingsLoading()) {
+                  @if (readingsLoading() && displayMode() !== 'historian-result') {
                     <tr>
                       <td class="empty-table" colspan="6">Loading persisted readings…</td>
                     </tr>
                   } @else {
-                    @for (entry of readingPage()?.entries ?? []; track entry.id) {
+                    @for (entry of displayedReadingPage()?.entries ?? []; track entry.id) {
                       <tr class="condition-{{ entry.condition }}">
                         <td>
                           <time [attr.datetime]="entry.recordedAt">{{
@@ -239,28 +291,30 @@
                 </tbody>
               </table>
             </div>
-            <nav class="pagination" aria-label="Reading log pagination">
-              <button
-                class="secondary-button"
-                type="button"
-                [disabled]="readingPageIndex() === 0 || readingsLoading()"
-                (click)="goToReadingPage(readingPageIndex() - 1)"
-              >
-                Previous
-              </button>
-              <span>
-                Page <strong>{{ readingPageIndex() + 1 }}</strong> of
-                <strong>{{ readingPageCount() }}</strong>
-              </span>
-              <button
-                class="secondary-button"
-                type="button"
-                [disabled]="readingPageIndex() + 1 >= readingPageCount() || readingsLoading()"
-                (click)="goToReadingPage(readingPageIndex() + 1)"
-              >
-                Next
-              </button>
-            </nav>
+            @if (displayMode() === 'reading-log') {
+              <nav class="pagination" aria-label="Reading log pagination">
+                <button
+                  class="secondary-button"
+                  type="button"
+                  [disabled]="readingPageIndex() === 0 || readingsLoading()"
+                  (click)="goToReadingPage(readingPageIndex() - 1)"
+                >
+                  Previous
+                </button>
+                <span>
+                  Page <strong>{{ readingPageIndex() + 1 }}</strong> of
+                  <strong>{{ readingPageCount() }}</strong>
+                </span>
+                <button
+                  class="secondary-button"
+                  type="button"
+                  [disabled]="readingPageIndex() + 1 >= readingPageCount() || readingsLoading()"
+                  (click)="goToReadingPage(readingPageIndex() + 1)"
+                >
+                  Next
+                </button>
+              </nav>
+            }
           } @else {
             <div class="current-table-heading">
               <div>

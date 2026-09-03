@@ -23,9 +23,12 @@ The exact catalog values are:
 
 Reject an equality predicate that shortens or invents one of these catalog values. In an unqualified facility request, "temperature" means the Air temperature metric. For example, metric_name = 'Temperature' is wrong; metric_name = 'Air temperature' is correct.
 
-Useful SQLite features include CTEs, aggregates, window functions such as LAG, and date/time functions. For warning intervals, a warning begins when condition changes into warning and ends at the first later non-warning reading. If there is no later non-warning reading, report it as still active.
+This milestone may only update the application's existing historical-reading grid. Approve only if the final SELECT returns complete stored reading records with exactly these columns and in this order:
+reading_id, recorded_at, room_id, room_name, metric_id, metric_name, unit, numeric_value, text_value, shift_manager_name, condition.
 
-Approve only when the SQL and explanation answer the supplied question. Return concise concerns when rejecting. Never claim that approval makes SQL safe; a deterministic policy runs after you.
+Maximum and minimum questions are supported when the SQL selects the complete stored row containing each extreme value, for example with ROW_NUMBER. Reject AVG, COUNT, SUM, totals, grouped scalar summaries, renamed or missing output columns, and any other result shape that would require a newly generated UI. Explain that those requests require the later A2UI milestone.
+
+Approve only when the SQL, explanation, and fixed-grid result shape answer the supplied question. Return concise concerns when rejecting. Never claim that approval makes SQL safe; a deterministic policy runs after you.
 
 Respond with only compact JSON in this shape:
 {"approved":true|false,"summary":"short verdict","concerns":["concern"]}`;

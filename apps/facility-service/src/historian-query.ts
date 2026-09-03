@@ -1,9 +1,11 @@
 import { Worker } from "node:worker_threads";
 import { constants, DatabaseSync } from "node:sqlite";
 import type {
+  FacilityReadingEntry,
   HistorianExecutionRequest,
   HistorianToolResult,
 } from "@packt-workshop/contracts";
+import { facilityReadingEntrySchema } from "@packt-workshop/contracts";
 
 export const HISTORIAN_POLICY_VERSION = "historian-v1";
 export const HISTORIAN_ROW_LIMIT = 200;
@@ -23,6 +25,19 @@ const HISTORIAN_COLUMNS = new Set([
   "shift_manager_name",
   "condition",
 ]);
+const HISTORIAN_RESULT_COLUMNS = [
+  "reading_id",
+  "recorded_at",
+  "room_id",
+  "room_name",
+  "metric_id",
+  "metric_name",
+  "unit",
+  "numeric_value",
+  "text_value",
+  "shift_manager_name",
+  "condition",
+] as const;
 const VIEW_SOURCE_TABLES = new Set([
   "metric_readings",
   "metrics",
@@ -31,13 +46,10 @@ const VIEW_SOURCE_TABLES = new Set([
 ]);
 const ALLOWED_FUNCTIONS = new Set([
   "abs",
-  "avg",
   "coalesce",
-  "count",
   "date",
   "datetime",
   "first_value",
-  "group_concat",
   "ifnull",
   "julianday",
   "lag",
@@ -52,9 +64,7 @@ const ALLOWED_FUNCTIONS = new Set([
   "row_number",
   "strftime",
   "substr",
-  "sum",
   "time",
-  "total",
   "unixepoch",
   "upper",
 ]);
@@ -218,7 +228,7 @@ export function validateHistorianStatement(sql: string): string {
 
 type ExecutedHistorianQuery = Pick<
   Extract<HistorianToolResult, { status: "executed" }>,
-  "columns" | "rows" | "rowCount" | "truncated" | "durationMs"
+  "entries" | "rowCount" | "truncated" | "durationMs"
 >;
 
 export function executeHistorianSql(
@@ -277,10 +287,15 @@ export function executeHistorianSql(
       );
     }
     const columnNames = statement.columns().map((column) => column.name);
-    if (columnNames.length > 64) {
+    if (
+      columnNames.length !== HISTORIAN_RESULT_COLUMNS.length ||
+      columnNames.some(
+        (column, index) => column !== HISTORIAN_RESULT_COLUMNS[index],
+      )
+    ) {
       throw new HistorianPolicyError(
-        "TOO_MANY_COLUMNS",
-        "Historian results may contain at most 64 columns.",
+        "UNSUPPORTED_RESULT_SHAPE",
+        `Historian queries must return complete reading records with these columns in order: ${HISTORIAN_RESULT_COLUMNS.join(", ")}. Computed result shapes such as averages and counts require a later A2UI milestone.`,
       );
     }
     const objects = statement.all() as Record<
@@ -288,19 +303,10 @@ export function executeHistorianSql(
       null | number | bigint | string | Uint8Array
     >[];
     const truncated = objects.length > HISTORIAN_ROW_LIMIT;
-    const rows = objects.slice(0, HISTORIAN_ROW_LIMIT).map((row) =>
-      columnNames.map((column) => {
-        const value = row[column];
-        if (value instanceof Uint8Array) {
-          throw new HistorianPolicyError(
-            "BINARY_RESULT",
-            "Binary historian result values are not permitted.",
-          );
-        }
-        return typeof value === "bigint" ? Number(value) : (value ?? null);
-      }),
-    );
-    const serializedSize = Buffer.byteLength(JSON.stringify(rows));
+    const entries = objects
+      .slice(0, HISTORIAN_ROW_LIMIT)
+      .map((row) => parseHistorianReading(row));
+    const serializedSize = Buffer.byteLength(JSON.stringify(entries));
     if (serializedSize > 256 * 1024) {
       throw new HistorianPolicyError(
         "RESULT_TOO_LARGE",
@@ -308,9 +314,8 @@ export function executeHistorianSql(
       );
     }
     return {
-      columns: columnNames,
-      rows,
-      rowCount: rows.length,
+      entries,
+      rowCount: entries.length,
       truncated,
       durationMs: Math.max(0, Math.round(performance.now() - startedAt)),
     };
@@ -324,6 +329,43 @@ export function executeHistorianSql(
     );
   } finally {
     database.close();
+  }
+}
+
+function parseHistorianReading(
+  row: Record<string, null | number | bigint | string | Uint8Array>,
+): FacilityReadingEntry {
+  for (const value of Object.values(row)) {
+    if (value instanceof Uint8Array) {
+      throw new HistorianPolicyError(
+        "BINARY_RESULT",
+        "Binary historian result values are not permitted.",
+      );
+    }
+  }
+
+  const id = row["reading_id"];
+  const numericValue = row["numeric_value"];
+  try {
+    return facilityReadingEntrySchema.parse({
+      id: typeof id === "bigint" ? Number(id) : id,
+      recordedAt: row["recorded_at"],
+      roomId: row["room_id"],
+      roomName: row["room_name"],
+      metricId: row["metric_id"],
+      metricName: row["metric_name"],
+      unit: row["unit"],
+      numericValue:
+        typeof numericValue === "bigint" ? Number(numericValue) : numericValue,
+      textValue: row["text_value"],
+      shiftManagerName: row["shift_manager_name"],
+      condition: row["condition"],
+    });
+  } catch {
+    throw new HistorianPolicyError(
+      "UNSUPPORTED_RESULT_SHAPE",
+      "The historian query returned values that do not match the fixed historical-reading grid.",
+    );
   }
 }
 

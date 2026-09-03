@@ -36,7 +36,18 @@ directly from this checkpoint.
 - Never use reviewer approval as the security decision.
 - Keep SQLite ownership in `apps/facility-service`; the Mastra service calls
   its localhost historian endpoint rather than opening the facility file.
-- Render the same structured result contract in Angular and React.
+- Return only complete historian-reading records that fit the existing fixed
+  reading-log grid. Maximum and minimum questions select the underlying stored
+  readings; computed summaries such as averages and counts are rejected until
+  the later A2UI checkpoint.
+- In Angular, register `show_historian_readings` as a frontend tool. After a
+  successful backend query, it receives the validated complete readings, sets
+  the historian-result signal, and opens the dedicated Historian result view.
+- Treat Snapshot, Reading log, and Historian result as three explicit views.
+  Reading log and Historian result reuse the same fixed reading table. Preserve
+  the latest historian result when switching views so its tab remains available
+  until another query replaces it. Do not render the backend tool call as a card
+  in chat.
 - Keep operational actions and human approval out of this checkpoint.
 
 ## Request flow
@@ -51,8 +62,9 @@ Angular :4200 or React :5173
   -> deterministic-validate-and-execute calls POST /api/historian/query on :3001
   -> facility-owned deterministic policy validates and authorizes the exact statement
   -> worker opens facility SQLite read-only and executes with a deadline
-  -> columns, rows, SQL, explanation, review, and policy metadata stream back
-  -> CopilotKit renders the generic result in the active framework host
+  -> fixed-shape reading entries plus SQL, review, and policy metadata stream back
+  -> default agent calls show_historian_readings with the validated entries
+  -> Angular frontend tool opens the Historian result view and populates the shared grid
 ```
 
 No additional process or port is introduced. Mastra's local LibSQL file still
@@ -69,12 +81,14 @@ The execution boundary applies defense in depth:
    columns expose timestamps, rooms, metrics, values, managers, units, and the
    derived reading condition.
 3. SQLite's runtime authorizer allows only approved view columns, underlying
-   view reads, and a focused set of aggregate, window, string, and date/time
-   functions. Everything else is denied by default.
+   view reads, extrema, window, string, and date/time functions. Average,
+   count, sum, and total functions are denied in this checkpoint.
 4. SQLite opens independently with `readOnly: true`, extension loading disabled,
    double-quoted string literals disabled, `query_only` enabled, and trusted
    schema disabled.
-5. An outer limit caps the result at 200 rows, 64 columns, and 256 KB.
+5. The final projection must contain the eleven fields of a complete historian
+   reading in their prescribed order. An outer limit caps the result at 200
+   records and 256 KB.
 6. Execution runs in a worker that is terminated after 750 ms.
 
 The result identifies whether rejection came from the reviewer, deterministic
@@ -85,15 +99,17 @@ validator, or execution layer. The primary agent cannot override any rejection.
 1. Ask: **Show me when the Cooling room went into warning during the last seven
    days and when each warning ended.**
 2. Open the `historian-query` workflow in Mastra Studio and inspect the three
-   typed steps, then expand the generated SQL and reviewer verdict in chat.
-3. Confirm that earlier warning periods end at 14:00 factory time and the
-   current warning is reported as **Still active**.
-4. Ask: **Show me the maximum air temperature for shift manager Charles Bond
-   and, below that, for Denise Weber.**
-5. Show that the same workflow answers the second question without another endpoint.
-6. Submit a write statement and then two statements; confirm deterministic
+   typed steps and generated SQL.
+3. Confirm that the agent calls `show_historian_readings` and the selected
+   complete readings appear in the dedicated Historian result view rather than
+   as a chat card.
+4. Ask: **Show me the maximum air temperature for each shift manager.**
+5. Confirm that one complete stored reading per manager appears in the fixed grid.
+6. Ask for the average temperature and the number of readings; confirm both are
+   rejected as unsupported result shapes reserved for the later A2UI checkpoint.
+7. Submit a write statement and then two statements; confirm deterministic
    rejection before SQLite execution.
-7. Motivate Checkpoint 07: flexible read-only analysis is useful, but an alarm
+8. Motivate Checkpoint 07: flexible read-only selection is useful, but an alarm
    action needs human authority and a correlated audit trail.
 
 ## Completion criteria
@@ -112,9 +128,11 @@ validator, or execution layer. The primary agent cannot override any rejection.
 - Deterministic validation remains authoritative after reviewer approval.
 - Direct table access, writes, multiple statements, unauthorized functions,
   oversized results, and overlong execution are rejected.
-- The two golden historian questions are supported through the same workflow.
-- Generated SQL, reviewer verdict, policy metadata, and generic rows render in
-  Angular and React.
+- Maximum-reading questions return complete stored records through the same workflow.
+- Average, count, and other computed result shapes fail with a clear error.
+- In Angular, successful results cause an explicit `show_historian_readings`
+  frontend call that switches to the Historian result view and populates the
+  shared fixed grid without a tool card in chat.
 - Service, agent, Angular, and React production builds and the complete
   workspace check pass.
-- The rendered Angular and React chat flows are visually verified.
+- The rendered Angular frontend-tool and grid-update flow is visually verified.

@@ -45,7 +45,7 @@ local Mastra Studio. Checkpoint 07 and later rows remain planned progression.
 | `03-copilotkit-ag-ui` | replace the custom chat with CopilotKit, BuiltInAgent, and AG-UI streaming | the standardized path still uses an embedded agent            |
 | `04-mastra-agent`     | replace BuiltInAgent with Mastra while keeping CopilotKit chat-only        | the standardized stack is ready for application capabilities  |
 | `05-frontend-tool`    | bounded view context and one patch-based frontend view/filter tool         | fixed controls cannot answer unanticipated data questions     |
-| `06-sql-tool`         | reviewed generated SQL, deterministic policy, generic result table         | consequential tools need an authority boundary                |
+| `06-sql-tool`         | reviewed SQL feeds a frontend tool and fixed Historian result view         | computed result shapes need bounded A2UI                      |
 | `07-human-in-loop`    | approve/reject and correlated audit                                        | presentation is still entirely predetermined                  |
 | `08-a2ui`             | trusted decision component catalogue                                       | specialist knowledge belongs behind another boundary          |
 | `09-a2a`              | facilities/compliance Agent Card and conditional runbook                   | a case result still needs explorable evidence and UI          |

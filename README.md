@@ -17,9 +17,12 @@ Soverius Chocolate has two adjacent production areas: a climate-controlled **Coo
 
 A person on night duty can inspect seven days of stored telemetry, use the continuously updated snapshot, raise an alarm for any metric, and acknowledge or resolve it. In snapshot mode, individual devices report at randomized intervals and every new reading is persisted. The application cannot interpret the combined evidence and recommend checking the connecting door before calling maintenance.
 
-The assistant can now answer historian questions that were not anticipated as
-screens or fixed endpoints. The generated SQL, reviewer verdict, policy
-version, and generic result table remain visible in both framework hosts.
+The assistant can now select stored historian readings that were not anticipated
+by the fixed filters. In Angular, a successful reviewed query is passed to the
+`show_historian_readings` frontend tool, which opens a dedicated Historian result
+view backed by the existing fixed reading grid. The result remains available
+while the operator moves between all three views. Computed result shapes such as
+averages and counts remain out of scope until the later A2UI checkpoint.
 
 ## What this checkpoint adds
 
@@ -34,9 +37,10 @@ version, and generic result table remain visible in both framework hosts.
   authorization, a dedicated `historian_readings` view, function and column
   allowlists, one-statement enforcement, row/size caps, and a worker deadline;
 - one internal facility endpoint that owns historian execution;
-- structured SQL, reviewer, policy, and table results over the existing AG-UI
-  run; and
-- equivalent accessible generic result renderers in Angular 22 and React 19.
+- a fixed result contract containing complete stored reading records over the
+  existing AG-UI run; and
+- an Angular frontend tool that explicitly populates a third Historian result
+  view while reusing the existing reading table.
 
 The reviewer is deliberately not a security boundary. Even an approved query
 must pass deterministic validation, and the generated-SQL connection cannot

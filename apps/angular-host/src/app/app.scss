@@ -188,6 +188,10 @@ p {
   background: #e9e3dc;
 }
 
+.mode-switch.has-historian-result {
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+
 .mode-switch button {
   display: grid;
   padding: 10px 15px;
@@ -730,6 +734,10 @@ button:disabled {
     display: grid;
     grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .mode-switch.has-historian-result {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .pagination {
