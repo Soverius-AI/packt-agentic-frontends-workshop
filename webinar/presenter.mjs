@@ -202,6 +202,7 @@ const routes = new Map([
   ["/", "presenter.html"],
   ["/presenter.html", "presenter.html"],
   ["/presenter-data.js", "presenter-data.js"],
+  ["/favicon.png", "favicon.png"],
 ]);
 const server = createServer(async (request, response) => {
   const path = routes.get(
@@ -215,9 +216,11 @@ const server = createServer(async (request, response) => {
   try {
     const contents = await readFile(join(directory, path));
     response.writeHead(200, {
-      "content-type": path.endsWith(".js")
-        ? "text/javascript; charset=utf-8"
-        : "text/html; charset=utf-8",
+      "content-type": path.endsWith(".png")
+        ? "image/png"
+        : path.endsWith(".js")
+          ? "text/javascript; charset=utf-8"
+          : "text/html; charset=utf-8",
       "cache-control": "no-store",
     });
     response.end(contents);
