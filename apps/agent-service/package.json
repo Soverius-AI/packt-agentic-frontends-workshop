@@ -16,7 +16,8 @@
     "@mastra/observability": "1.17.2",
     "@packt-workshop/contracts": "workspace:*",
     "zod": "^4.4.3",
-    "@ag-ui/a2ui-toolkit": "0.0.4"
+    "@ag-ui/a2ui-toolkit": "0.0.4",
+    "@packt-workshop/common": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

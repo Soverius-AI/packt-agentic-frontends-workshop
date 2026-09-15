@@ -19,3 +19,17 @@ During chapter 4:
 Historian implementation files remain available for their later chapter. They
 are not connected by these two entry files. The completed chapter-4 code will
 be saved on webinar-04 once it has been implemented and verified.
+
+## Shared helpers
+
+Mastra declares `@packt-workshop/common` as a workspace dependency and resolves
+its built package exports. Use the extensionless public import:
+
+```ts
+import { getOrThrow } from "@packt-workshop/common/assert-defined";
+```
+
+`pnpm dev:mastra` builds common and contracts before launching Mastra.
+`pnpm dev:all` already builds both through the facility-service dependencies.
+After switching to an updated checkpoint, run `pnpm install --frozen-lockfile`
+to link the workspace dependencies in that checkout.
