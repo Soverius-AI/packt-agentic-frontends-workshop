@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Conventional application",
       source: "workshop/speaker-notes/01-conventional-app.md",
       intro:
-        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4211 (same server and port).\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
+        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4212 (separate Studio process).\nStartup commands: `pnpm dev:angular`, `pnpm dev:backend`, `pnpm dev:mastra`,\n`pnpm dev:studio`; or `pnpm dev:all` for all four. Mastra needs a configured key.\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4211 (same server and port).\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
+          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4212 (separate Studio process).\nStartup commands: `pnpm dev:angular`, `pnpm dev:backend`, `pnpm dev:mastra`,\n`pnpm dev:studio`; or `pnpm dev:all` for all four. Mastra needs a configured key.\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -115,7 +115,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change, in this order · 6",
-          body: "Restart `pnpm dev` to rebuild the server; reload the browser.",
+          body: "Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher) to rebuild the server; reload the browser.",
         },
         {
           label: "DEMONSTRATE",
@@ -153,7 +153,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "`pnpm workshop:select 02`, restart `pnpm dev`, reload the browser. On a provider\nerror, inspect the backend terminal and key configuration off screen. Successful\ndashboard loading does not prove that a model request can succeed.",
+        "`pnpm workshop:select 02`, restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher), reload the browser. On a provider\nerror, inspect the backend terminal and key configuration off screen. Successful\ndashboard loading does not prove that a model request can succeed.",
       files: [
         {
           path: "apps/angular-host/src/app/chat/chat.component.ts",
@@ -222,7 +222,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 5",
-          body: "Restart `pnpm dev`; reload the browser to start a new conversation.",
+          body: "Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher); reload the browser to start a new conversation.",
         },
         {
           label: "DEMONSTRATE",
@@ -325,7 +325,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 3",
-          body: "Start `pnpm dev:agent` in a second terminal. Open http://localhost:4211 and check\n   that the default agent appears. Do not display the API key.",
+          body: "Start `pnpm dev:mastra` and `pnpm dev:studio` in separate terminals. Open\n   http://localhost:4212 and check that the default agent appears. Studio connects\n   to the API at 4211. Skip startup if `pnpm dev:all` is already running. Saving\n   agent code reloads Mastra automatically; wait until ready, then refresh Studio.\n   Do not display the API key.",
         },
         {
           label: "DO",
@@ -340,7 +340,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 6",
-          body: "Restart `pnpm dev` and reload the browser. No Angular file changes are needed.",
+          body: "Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher) and reload the browser. No Angular file changes are needed.",
         },
         {
           label: "DEMONSTRATE",
@@ -359,7 +359,7 @@ window.workshopPresenter = {
           prompt:
             "In one sentence, why is humidity relevant in a chocolate factory?",
           before:
-            "Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Open Studio on port 4211.",
+            "Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Start `pnpm dev:studio` and open Studio on port 4212.",
           expected:
             "A short general answer in the app, with the corresponding run visible in Mastra Studio.",
           inspect:
@@ -379,7 +379,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Select 04, restart both terminals, reload browser/Studio. Confirm port 4211 and\nthe bridge URL before investigating model behavior. A direct Studio conversation\ndoes not have the app's browser tools; use the app for subsequent demonstrations.",
+        "Select 04, restart the backend launcher, wait for Mastra to reload, and refresh\nthe app and Studio. Confirm API port 4211, Studio port 4212 and\nthe bridge URL before investigating model behavior. A direct Studio conversation\ndoes not have the app's browser tools; use the app for subsequent demonstrations.",
       files: [
         {
           path: "apps/facility-service/src/workshop.ts",
@@ -430,7 +430,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 5",
-          body: "Restart Mastra if needed and reload the browser. Keep `pnpm dev` running.",
+          body: "Wait for Mastra to reload automatically, then reload the browser. Keep `pnpm dev` running.",
         },
         {
           label: "DEMONSTRATE",
@@ -448,7 +448,7 @@ window.workshopPresenter = {
           title: "Discover valid application options",
           prompt: "Which rooms and shift managers can I filter by?",
           before:
-            "Complete milestone 05, restart/reload and start a fresh conversation. Clear filters manually.",
+            "Complete milestone 05, wait for Mastra to reload automatically, refresh the app and start a fresh conversation. Clear filters manually.",
           expected:
             "Room and manager names come from discovery tools rather than guesses.",
           inspect:
@@ -522,7 +522,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Select 05 and restart/reload. If the model guesses an option, ask for discovery\nfirst and inspect the returned IDs. If filters unexpectedly disappear, inspect\nthe patch arguments and handler before changing the model prompt.",
+        "Select 05 and wait for Mastra to reload, then refresh the app and Studio. Restart\nthe backend launcher only if its presenter file changed. If the model guesses an option, ask for discovery\nfirst and inspect the returned IDs. If filters unexpectedly disappear, inspect\nthe patch arguments and handler before changing the model prompt.",
       files: [
         {
           path: "apps/angular-host/src/app/workshop/connect.ts",
@@ -584,7 +584,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 6",
-          body: "Restart Mastra and reload the browser/Studio. The historian workflow should\n   now appear in Studio. The facility API was already prepared in the starter.",
+          body: "Wait for Mastra to reload automatically, then refresh the app and Studio. The historian workflow should\n   now appear in Studio. The facility API was already prepared in the starter.",
         },
         {
           label: "DEMONSTRATE",
@@ -597,7 +597,7 @@ window.workshopPresenter = {
           title: "Select records through the reviewed workflow",
           prompt: "Show me the maximum air temperature for each shift manager.",
           before:
-            "Complete milestone 06, restart/reload and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
+            "Complete milestone 06, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
           expected:
             "The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.",
           inspect:
@@ -629,7 +629,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Select 06, restart services and reload. On failure find the workflow step and\nstructured error. A model refusal, schema mismatch, validator rejection and HTTP\nfailure are distinct. Never weaken SQL restrictions to make a live demo pass.",
+        "Select 06, wait for Mastra to reload, then refresh the app and Studio. Restart\nthe backend launcher only if its presenter file changed. On failure find the workflow step and\nstructured error. A model refusal, schema mismatch, validator rejection and HTTP\nfailure are distinct. Never weaken SQL restrictions to make a live demo pass.",
       files: [
         {
           path: "apps/agent-service/src/mastra/agents/main/agent.ts",
@@ -690,7 +690,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 6",
-          body: "Restart Mastra if needed and reload the browser.",
+          body: "Wait for Mastra to reload automatically, then reload the browser.",
         },
         {
           label: "DEMONSTRATE",
@@ -714,7 +714,7 @@ window.workshopPresenter = {
           prompt:
             "Raise an alarm for the Packaging hall package reject rate because I want it investigated.",
           before:
-            "Complete milestone 07, restart/reload and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.",
+            "Complete milestone 07, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.",
           expected:
             "An approval card shows the exact metric, reason and operator. Click Reject. No alarm is raised, and the audit records the rejected decision.",
           inspect:
@@ -747,7 +747,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Select 07, restart/reload. If no card appears, check the registration, metric\ndiscovery and tool arguments. If saving a decision fails, inspect the facility\nresponse; never report success based only on the model's acknowledgement.",
+        "Select 07, wait for Mastra to reload, then refresh the app and Studio. Restart\nthe backend launcher only if its presenter file changed. If no card appears, check the registration, metric\ndiscovery and tool arguments. If saving a decision fails, inspect the facility\nresponse; never report success based only on the model's acknowledgement.",
       files: [
         {
           path: "apps/angular-host/src/app/workshop/connect.ts",
@@ -824,7 +824,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 8",
-          body: "Restart the facility service and Mastra, then reload the app and Studio.\n   Select 08 only as a recovery shortcut; the preceding four edits are the live work.",
+          body: "Restart the facility backend launcher and wait for Mastra to reload automatically,\n   then refresh the app and Studio. If using `pnpm dev:all`, restart that command.\n   Select 08 only as a recovery shortcut; the preceding four edits are the live work.",
         },
         {
           label: "DEMONSTRATE",
@@ -863,7 +863,7 @@ window.workshopPresenter = {
           prompt:
             "Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.",
           before:
-            "Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
+            "Complete 08, restart the facility backend launcher, wait for Mastra to reload automatically and refresh the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
           expected:
             "The Generated view shows a standalone Table with Time, Temperature and Shift Manager in that order. Paging is local. No surrounding titled Card, explanatory Text or column chooser.",
           inspect:
@@ -920,7 +920,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Select 08, restart both backend services, and reload the browser. If the generated\nview is missing, inspect catalogue registration, the result-format decision,\n`a2ui_operations`, and the prepared main-area renderer in that order.\n\nIf SQL, layout validation, or composition times out, show the reported failure.\nThe previous successful view may remain; do not present it as the failed request’s\nanswer. Do not loosen the schema. A new user message starts a fresh workflow run.\n\nFor stale dates or existing demo alarms, stop the app first and deliberately run\n`pnpm reset:demo`. It reseeds the local seven-day readings and deletes demo alarms\nand approval records. Start services again and begin a fresh conversation. Never\nrun it merely to switch a code checkpoint.",
+        "Select 08, restart the backend launcher, wait for Mastra to reload automatically,\nand refresh the app and Studio. If the generated\nview is missing, inspect catalogue registration, the result-format decision,\n`a2ui_operations`, and the prepared main-area renderer in that order.\n\nIf SQL, layout validation, or composition times out, show the reported failure.\nThe previous successful view may remain; do not present it as the failed request’s\nanswer. Do not loosen the schema. A new user message starts a fresh workflow run.\n\nFor stale dates or existing demo alarms, stop the app first and deliberately run\n`pnpm reset:demo`. It reseeds the local seven-day readings and deletes demo alarms\nand approval records. Start services again and begin a fresh conversation. Never\nrun it merely to switch a code checkpoint.",
       files: [
         {
           path: "apps/angular-host/src/app/chat/chat.component.ts",

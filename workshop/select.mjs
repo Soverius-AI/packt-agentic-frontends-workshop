@@ -57,5 +57,5 @@ for (const [path, text] of selected) await writeFile(join(root, path), text);
 console.log(`${phase}: ${manifest.milestones[phase]}`);
 console.log(`Previous presenter files saved to ${backup}`);
 console.log(
-  "Restart pnpm dev after a backend change. Start/restart pnpm dev:agent for milestones 04–08. Reload the browser for a fresh conversation.",
+  "After backend edits, restart its launcher (pnpm dev:backend, pnpm dev or pnpm dev:all). For 04–08 run pnpm dev:mastra and pnpm dev:studio, or use pnpm dev:all. Mastra reloads source edits automatically; wait until ready, then refresh Studio and reload the app for a fresh conversation.",
 );

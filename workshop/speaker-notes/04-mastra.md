@@ -22,13 +22,16 @@ Show the route: Angular :4200 → facility runtime :3101 → Mastra :4211 → mo
 2. `apps/agent-service/src/mastra/index.ts`: show agent registration, storage and
    observability. Environment/model resolution lives here. Prepared historian
    code is not registered as a Studio workflow until milestone 06.
-3. Start `pnpm dev:agent` in a second terminal. Open http://localhost:4211 and check
-   that the default agent appears. Do not display the API key.
+3. Start `pnpm dev:mastra` and `pnpm dev:studio` in separate terminals. Open
+   http://localhost:4212 and check that the default agent appears. Studio connects
+   to the API at 4211. Skip startup if `pnpm dev:all` is already running. Saving
+   agent code reloads Mastra automatically; wait until ready, then refresh Studio.
+   Do not display the API key.
 4. `apps/facility-service/src/workshop.ts`: switch the import and call from
    `createEmbeddedCopilotRuntime` to `createWorkshopCopilotRuntime`.
 5. Open `copilot-runtime.ts`: show the remote Mastra agent and AG-UI bridge. Explain
    that its CommonJS compatibility loading is prepared setup, not the teaching goal.
-6. Restart `pnpm dev` and reload the browser. No Angular file changes are needed.
+6. Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher) and reload the browser. No Angular file changes are needed.
 
 ## Demonstrate
 
@@ -45,6 +48,7 @@ give it specific frontend capabilities.”
 
 ## Recovery
 
-Select 04, restart both terminals, reload browser/Studio. Confirm port 4211 and
+Select 04, restart the backend launcher, wait for Mastra to reload, and refresh
+the app and Studio. Confirm API port 4211, Studio port 4212 and
 the bridge URL before investigating model behavior. A direct Studio conversation
 does not have the app's browser tools; use the app for subsequent demonstrations.

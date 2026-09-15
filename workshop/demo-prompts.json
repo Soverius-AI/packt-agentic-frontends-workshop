@@ -40,7 +40,7 @@
     {
       "title": "Follow one request into Mastra",
       "prompt": "In one sentence, why is humidity relevant in a chocolate factory?",
-      "before": "Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Open Studio on port 4211.",
+      "before": "Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Start `pnpm dev:studio` and open Studio on port 4212.",
       "expected": "A short general answer in the app, with the corresponding run visible in Mastra Studio.",
       "inspect": "Find this exact question in the trace. Walk from the Angular chat through the runtime bridge to the main agent.",
       "optional": false
@@ -58,7 +58,7 @@
     {
       "title": "Discover valid application options",
       "prompt": "Which rooms and shift managers can I filter by?",
-      "before": "Complete milestone 05, restart/reload and start a fresh conversation. Clear filters manually.",
+      "before": "Complete milestone 05, wait for Mastra to reload automatically, refresh the app and start a fresh conversation. Clear filters manually.",
       "expected": "Room and manager names come from discovery tools rather than guesses.",
       "inspect": "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls. The handler now requires exact discovered IDs; it does not repair guessed spellings.",
       "optional": false
@@ -116,7 +116,7 @@
     {
       "title": "Select records through the reviewed workflow",
       "prompt": "Show me the maximum air temperature for each shift manager.",
-      "before": "Complete milestone 06, restart/reload and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
+      "before": "Complete milestone 06, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
       "expected": "The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.",
       "inspect": "In Studio follow query_historian → SQL generation → review → validation/execution. The application reads the delivered tool result directly into its prepared grid. Show toModelOutput: the model receives only a receipt, with no second display call. Do not promise one row per manager when ties exist.",
       "optional": false
@@ -142,7 +142,7 @@
     {
       "title": "Reject a proposed action",
       "prompt": "Raise an alarm for the Packaging hall package reject rate because I want it investigated.",
-      "before": "Complete milestone 07, restart/reload and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.",
+      "before": "Complete milestone 07, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.",
       "expected": "An approval card shows the exact metric, reason and operator. Click Reject. No alarm is raised, and the audit records the rejected decision.",
       "inspect": "Pause before clicking: the model has proposed, not executed. After rejection inspect the audit and the assistant response. This request is your reason for investigation, not proof of an abnormal reading.",
       "optional": false
@@ -168,7 +168,7 @@
     {
       "title": "Only a table",
       "prompt": "Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.",
-      "before": "Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
+      "before": "Complete 08, restart the facility backend launcher, wait for Mastra to reload automatically and refresh the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
       "expected": "The Generated view shows a standalone Table with Time, Temperature and Shift Manager in that order. Paging is local. No surrounding titled Card, explanatory Text or column chooser.",
       "inspect": "Inspect the query and result-format decision, then the validated Table definition and real dataset binding. Relative dates stay in the original question until SQL resolves them using the database clock.",
       "optional": false

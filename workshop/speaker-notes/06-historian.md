@@ -32,7 +32,7 @@ The result still has to fit our prepared reading table.”
    the agent store. `toModelOutput` in the backend tool gives the model only a
    completion message. The bridge removes old query payloads from replayed history.
    Explain why neither a second display tool nor model copying is needed.
-6. Restart Mastra and reload the browser/Studio. The historian workflow should
+6. Wait for Mastra to reload automatically, then refresh the app and Studio. The historian workflow should
    now appear in Studio. The facility API was already prepared in the starter.
 
 ## Demonstrate
@@ -58,6 +58,7 @@ with an earlier deterministic check and a data/UI branch; teach that when it is 
 
 ## Recovery
 
-Select 06, restart services and reload. On failure find the workflow step and
+Select 06, wait for Mastra to reload, then refresh the app and Studio. Restart
+the backend launcher only if its presenter file changed. On failure find the workflow step and
 structured error. A model refusal, schema mismatch, validator rejection and HTTP
 failure are distinct. Never weaken SQL restrictions to make a live demo pass.

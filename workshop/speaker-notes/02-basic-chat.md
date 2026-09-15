@@ -26,7 +26,7 @@ description, but no live readings, current filters, database tools, or actions.â
    `ChatApi.send(messages)`; the message list, form, loading and error UI are ready.
 5. Open `chat/chat-api.ts`: point to `POST /api/chat`. Explain the request schema
    and response validation rather than the form implementation.
-6. Restart `pnpm dev` to rebuild the server; reload the browser.
+6. Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher) to rebuild the server; reload the browser.
 
 ## Demonstrate
 
@@ -47,6 +47,6 @@ the actual dashboard. Never describe a correct guess as data access.
 
 ## Recovery
 
-`pnpm workshop:select 02`, restart `pnpm dev`, reload the browser. On a provider
+`pnpm workshop:select 02`, restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher), reload the browser. On a provider
 error, inspect the backend terminal and key configuration off screen. Successful
 dashboard loading does not prove that a model request can succeed.

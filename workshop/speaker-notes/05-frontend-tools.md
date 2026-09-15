@@ -25,7 +25,7 @@ discovery tools, not the entire application or its database.”
 4. In `apps/agent-service/src/mastra/agents/main/agent.ts`, change the prompt import
    from `main-04` to `main-05`. Keep backend `tools: {}`: these tools come from the
    browser, not the Mastra server tool list.
-5. Restart Mastra if needed and reload the browser. Keep `pnpm dev` running.
+5. Wait for Mastra to reload automatically, then reload the browser. Keep `pnpm dev` running.
 
 ## Demonstrate
 
@@ -54,6 +54,7 @@ per manager needs a different data capability.”
 
 ## Recovery
 
-Select 05 and restart/reload. If the model guesses an option, ask for discovery
+Select 05 and wait for Mastra to reload, then refresh the app and Studio. Restart
+the backend launcher only if its presenter file changed. If the model guesses an option, ask for discovery
 first and inspect the returned IDs. If filters unexpectedly disappear, inspect
 the patch arguments and handler before changing the model prompt.

@@ -2,7 +2,9 @@
 
 **Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.
 Backend: http://localhost:3101. Mastra API: http://localhost:4211/api.
-Mastra Studio: http://localhost:4211 (same server and port).
+Mastra Studio: http://localhost:4212 (separate Studio process).
+Startup commands: `pnpm dev:angular`, `pnpm dev:backend`, `pnpm dev:mastra`,
+`pnpm dev:studio`; or `pnpm dev:all` for all four. Mastra needs a configured key.
 Mastra starts from milestone 04; it need not be running here. No model key is required.
 
 **Demo inputs:** Follow the numbered prompts for milestone 01 in the

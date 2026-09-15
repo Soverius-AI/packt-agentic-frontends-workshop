@@ -68,7 +68,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Follow one request into Mastra
 
-**Before:** Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Open Studio on port 4211.
+**Before:** Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Start `pnpm dev:studio` and open Studio on port 4212.
 
 > In one sentence, why is humidity relevant in a chocolate factory?
 
@@ -92,7 +92,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Discover valid application options
 
-**Before:** Complete milestone 05, restart/reload and start a fresh conversation. Clear filters manually.
+**Before:** Complete milestone 05, wait for Mastra to reload automatically, refresh the app and start a fresh conversation. Clear filters manually.
 
 > Which rooms and shift managers can I filter by?
 
@@ -166,7 +166,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Select records through the reviewed workflow
 
-**Before:** Complete milestone 06, restart/reload and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.
+**Before:** Complete milestone 06, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.
 
 > Show me the maximum air temperature for each shift manager.
 
@@ -200,7 +200,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Reject a proposed action
 
-**Before:** Complete milestone 07, restart/reload and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.
+**Before:** Complete milestone 07, wait for Mastra to reload automatically, refresh the app and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.
 
 > Raise an alarm for the Packaging hall package reject rate because I want it investigated.
 
@@ -234,7 +234,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Only a table
 
-**Before:** Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.
+**Before:** Complete 08, restart the facility backend launcher, wait for Mastra to reload automatically and refresh the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.
 
 > Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.
 

@@ -44,14 +44,37 @@ pnpm dev
 | Workshop app (Angular)               | http://localhost:4200     |
 | Facility backend and Copilot runtime | http://localhost:3101     |
 | Mastra API                           | http://localhost:4211/api |
-| Mastra Studio                        | http://localhost:4211     |
+| Mastra Studio                        | http://localhost:4212     |
 | Presenter notes                      | http://localhost:4400     |
 
-Mastra and Studio share port 4211. Start Mastra from milestone 04 onward.
+## Startup commands
+
+Run these from the repository root. Use one terminal per service, or use
+`pnpm dev:all` in one terminal. Stop existing service terminals before switching
+to `dev:all`, so each port has only one owner. Ctrl+C stops the launched processes.
+
+| Command            | Starts                             | Address                   |
+| ------------------ | ---------------------------------- | ------------------------- |
+| `pnpm dev:angular` | Angular only                       | http://localhost:4200     |
+| `pnpm dev:backend` | Facility backend / Copilot runtime | http://localhost:3101     |
+| `pnpm dev:mastra`  | Mastra API in watch mode           | http://localhost:4211/api |
+| `pnpm dev:studio`  | Standalone Mastra Studio           | http://localhost:4212     |
+| `pnpm dev:all`     | All four above                     | All four ports above      |
+
+Studio connects to the API at 4211: start `dev:mastra` as well to use agents and
+workflows. Mastra dev also includes a Studio page at 4211; the dedicated Studio
+command uses 4212 and does not start another API server.
+
+The service commands build their required shared contracts before starting.
+`dev:all` builds contracts and the backend once, then starts all four processes.
+`pnpm dev` remains a shortcut for Angular plus backend (milestones 01–03), and
+`pnpm dev:agent` remains an alias for `pnpm dev:mastra`.
+The presenter desk is separate: `pnpm workshop:notes` at http://localhost:4400.
 
 For milestone 02 onward, copy `.env.example` to `.env` in this worktree and enter
-your OpenRouter key. For milestones 04–08 also run `pnpm dev:agent` in another
-terminal. `pnpm dev:all` starts all three services when the model is configured.
+your OpenRouter key. For milestones 04–08 also run `pnpm dev:mastra` and
+`pnpm dev:studio` in separate terminals, or replace all service terminals with
+`pnpm dev:all` when the model is configured.
 Each worktree owns its own ignored SQLite data directories and `.env`.
 
 ## Present or recover a checkpoint
@@ -64,8 +87,10 @@ pnpm workshop:status
 The selector copies the seven files listed in `workshop/manifest.json`. It first
 saves the previous contents under `.workshop-backups/`. It never changes Git
 branches or deletes database records. Stop/restart `pnpm dev` after changing the
-backend; start/restart `pnpm dev:agent` after changing the agent; reload the browser
-to discard the previous conversation. Code checkpoint selection is not a database
+backend (or restart `pnpm dev:backend` / `pnpm dev:all` if used); Mastra automatically
+reloads agent edits in development mode. Wait for it to be ready, then reload the
+browser to discard the previous conversation. See the presenter guide for
+[reload and recovery details](workshop/README.md#restart-and-recovery). Code checkpoint selection is not a database
 or conversation reset.
 
 The intended live workflow is to write/paste the small changes described in the

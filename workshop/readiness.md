@@ -11,8 +11,24 @@
 - A2UI components live in Angular; shared schemas remain in the contract package.
 - A2A (09) and MCP/MCP Apps (10) remain future additions.
 
-Current ports: Angular **4200**, backend **3101**, Mastra API and Studio **4211**,
+Current ports: Angular **4200**, backend **3101**, Mastra API **4211**, Studio **4212**,
 presenter notes **4400**.
+
+## Startup and reload check — 2026-09-15
+
+- Each of `dev:angular`, `dev:backend`, `dev:mastra`, and `dev:studio` started
+  successfully on its documented port. Angular's `/api/health` proxy and the
+  backend health endpoint both returned 200; the Mastra agent endpoint and
+  standalone Studio also returned 200.
+- `dev:all` launched all four processes after the shared builds. Ctrl+C released
+  all four ports. The individual commands were then checked separately.
+- Studio's served configuration targets `localhost:4211`, and the API allows
+  requests from the Studio origin at `localhost:4212`.
+- A temporary agent-name edit appeared in `/api/agents` without a manual restart.
+  Restoring the original source triggered another automatic reload. The presenter
+  files still match checkpoint 01. This check made no model calls.
+- Startup/reload instructions and demo setup text were updated, presenter data
+  regenerated (8 chapters, 85 actions), and changed-file formatting checked.
 
 ## Local checks — 15 September 2026
 

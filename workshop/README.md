@@ -27,11 +27,32 @@ Copy the code or checkpoint command when you decide to apply it.
 | Angular app                        | http://localhost:4200     |
 | Facility backend / Copilot runtime | http://localhost:3101     |
 | Mastra API                         | http://localhost:4211/api |
-| Mastra Studio                      | http://localhost:4211     |
+| Mastra Studio                      | http://localhost:4212     |
 | Presenter notes                    | http://localhost:4400     |
 
-Mastra and Studio use the same server and port. Start them with `pnpm dev:agent`
-from milestone 04 onward.
+## Startup commands
+
+Run these from the repository root. Use one terminal per service, or use
+`pnpm dev:all` in one terminal. Stop existing service terminals before switching
+to `dev:all`, so each port has only one owner. Ctrl+C stops the launched processes.
+
+| Command            | Starts                             | Address                   |
+| ------------------ | ---------------------------------- | ------------------------- |
+| `pnpm dev:angular` | Angular only                       | http://localhost:4200     |
+| `pnpm dev:backend` | Facility backend / Copilot runtime | http://localhost:3101     |
+| `pnpm dev:mastra`  | Mastra API in watch mode           | http://localhost:4211/api |
+| `pnpm dev:studio`  | Standalone Mastra Studio           | http://localhost:4212     |
+| `pnpm dev:all`     | All four above                     | All four ports above      |
+
+Studio connects to the API at 4211: start `dev:mastra` as well to use agents and
+workflows. Mastra dev also includes a Studio page at 4211; the dedicated Studio
+command uses 4212 and does not start another API server.
+
+The service commands build their required shared contracts before starting.
+`dev:all` builds contracts and the backend once, then starts all four processes.
+`pnpm dev` remains a shortcut for Angular plus backend (milestones 01–03), and
+`pnpm dev:agent` remains an alias for `pnpm dev:mastra`.
+The presenter desk is separate: `pnpm workshop:notes` at http://localhost:4400.
 
 ## Delivery contract
 
@@ -52,7 +73,7 @@ reason for a change before scrolling through implementation details.
 3. Rehearse with `pnpm workshop:select 01`, then `pnpm dev`.
 4. Confirm the conventional UI at port 4200, snapshot, filters, history, and manual
    alarm actions. Confirm a fresh conversation after each checkpoint transition.
-5. Start `pnpm dev:agent` for milestone 04 and check Studio at port 4211.
+5. Start `pnpm dev:mastra` and `pnpm dev:studio` for milestone 04; check Studio at port 4212.
 6. Rehearse all model prompts with the configured model. Model responses and SQL
    choices are not deterministic; expected behavior in the notes is an acceptance
    criterion, not a claim that a particular live response has already been observed.
@@ -116,10 +137,23 @@ configured demo database. Code checkpoint selection does not reset data.
 
 ## Restart and recovery
 
-Angular reloads frontend edits. The facility service runs compiled JavaScript:
-after a backend change, stop and restart `pnpm dev` so it rebuilds. Mastra changes
-can reload in dev mode; for a reliable milestone transition restart its terminal
-and refresh Studio. Reload the browser after each capability change.
+- **Angular:** saving frontend edits triggers a rebuild and browser update.
+- **Mastra:** saving imported agent, tool, workflow or prompt files automatically
+  rebuilds and restarts the API under `pnpm dev:mastra` or `pnpm dev:all`.
+  Wait for the terminal to report that the server is ready before the next demo.
+  You do not manually restart Mastra for ordinary glue-code edits. The configured
+  existing `.env` file is watched too. Refresh Studio to see changed registrations;
+  start a fresh app conversation after changing capabilities.
+- **Facility backend:** it runs compiled JavaScript without a watcher. Stop and
+  rerun `pnpm dev:backend` after backend edits so it rebuilds. If you launched it
+  with `pnpm dev` or `pnpm dev:all`, restart that command instead.
+- **Dependencies, shared contracts or server port settings:** stop and rerun the
+  affected startup command; install changed dependencies first. Startup commands
+  rebuild shared contracts. The production `start` command does not watch files.
+
+For a checkpoint transition, restart the backend if its presenter file changed,
+wait for Mastra's automatic restart, then reload the app and Studio. If a request
+was running during an edit, start a new request after the server is ready.
 
 For a complete code checkpoint use `pnpm workshop:select NN`. The command tells
 you where it backed up your presenter files. Do not use a Git reset during a talk.

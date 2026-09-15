@@ -24,7 +24,7 @@ records the actual outcome. A plausible model response is not authorization.”
    call, persisted outcome, and the response that allows the paused run to continue.
 5. Briefly open `FacilityRepository.decideAlarmApproval` to explain its transaction
    and correlation ID. Implementation is prepared; do not type database code.
-6. Restart Mastra if needed and reload the browser.
+6. Wait for Mastra to reload automatically, then reload the browser.
 
 ## Demonstrate: rejection first
 
@@ -56,6 +56,7 @@ and MCP/MCP Apps remain later additions.
 
 ## Recovery
 
-Select 07, restart/reload. If no card appears, check the registration, metric
+Select 07, wait for Mastra to reload, then refresh the app and Studio. Restart
+the backend launcher only if its presenter file changed. If no card appears, check the registration, metric
 discovery and tool arguments. If saving a decision fails, inspect the facility
 response; never report success based only on the model's acknowledgement.

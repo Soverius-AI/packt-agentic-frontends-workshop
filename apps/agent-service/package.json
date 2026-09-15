@@ -6,7 +6,8 @@
   "scripts": {
     "build": "MASTRA_TELEMETRY_DISABLED=1 mastra build --studio",
     "dev": "MASTRA_TELEMETRY_DISABLED=1 mastra dev --env ../../.env",
-    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env"
+    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env",
+    "dev:studio": "MASTRA_TELEMETRY_DISABLED=1 mastra studio --port 4212 --server-host localhost --server-port 4211"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.101",

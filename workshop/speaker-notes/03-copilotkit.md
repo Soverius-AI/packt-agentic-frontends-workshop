@@ -24,7 +24,7 @@ the run lifecycle, streamed text, and later tool activity.”
    `createEmbeddedCopilotRuntime(options)` and disconnect native chat.
 4. Open `embedded-copilot-runtime.ts`: show the `BuiltInAgent`, model, static prompt,
    `agents.default`, and listener. No tools are registered.
-5. Restart `pnpm dev`; reload the browser to start a new conversation.
+5. Restart `pnpm dev` (or your `pnpm dev:backend` / `pnpm dev:all` launcher); reload the browser to start a new conversation.
 
 ## Demonstrate
 
