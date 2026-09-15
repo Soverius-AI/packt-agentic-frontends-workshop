@@ -9,6 +9,6 @@ export class ChatApi {
 
   async send(messages: readonly ChatMessage[]): Promise<ChatResponse> {
     const response = await firstValueFrom(this.#http.post<unknown>('/api/chat', { messages }));
-    return chatResponseSchema.parse(response);
+    return chatResponseSchema.parse({ message: response });
   }
 }

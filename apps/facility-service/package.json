@@ -13,11 +13,13 @@
     "@ag-ui/client": "0.0.57",
     "@ag-ui/core": "0.0.57",
     "@ag-ui/mastra": "1.1.0",
+    "@ai-sdk/openai": "^3.0.101",
     "@copilotkit/runtime": "^1.69.2",
     "@mastra/client-js": "1.42.1",
+    "@packt-workshop/common": "workspace:*",
     "@packt-workshop/contracts": "workspace:*",
-    "openai": "^6.0.0",
-    "@ai-sdk/openai": "^3.0.101"
+    "dotenv": "^17.4.2",
+    "openai": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

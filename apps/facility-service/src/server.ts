@@ -1,27 +1,27 @@
-import { ChatServiceError, type ChatService } from "./chat.js";
+import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
 import {
-  createServer,
-  type IncomingMessage,
-  type ServerResponse,
-} from "node:http";
-import {
-  chatRequestSchema,
-  alarmApprovalRequestSchema,
   alarmActionRequestSchema,
+  alarmApprovalRequestSchema,
+  chatRequestSchema,
   historianExecutionRequestSchema,
   historianValidationRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
-import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
-import type { LiveTelemetry } from "./live-telemetry.js";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+import { ChatServiceError, type ChatService } from "./chat.js";
+import type { HistorianQueryExecutor as ReadingExecutor } from "./historian-query-legacy.js";
+import type { HistorianQueryExecutor as DatasetExecutor } from "./historian-query.js";
+import { LiveTelemetry } from "./live-telemetry.js";
 import {
   FacilityRepository,
   FacilityRepositoryError,
   type ReadingEntryFilters,
 } from "./repository.js";
-import type { HistorianQueryExecutor as DatasetExecutor } from "./historian-query.js";
-import type { HistorianQueryExecutor as ReadingExecutor } from "./historian-query-legacy.js";
 type HistorianQueryExecutor = ReadingExecutor & {
   validate?: DatasetExecutor["validate"];
 };
@@ -59,13 +59,21 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
   }
 };
 
-export const createFacilityServer = (
-  repository: FacilityRepository,
-  telemetry: LiveTelemetry,
-  copilotRuntime: NodeCopilotListener | undefined,
-  historian?: HistorianQueryExecutor,
-  chat?: ChatService,
-) =>
+export interface FacilityServiceOptions {
+  repository: FacilityRepository;
+  telemetry: LiveTelemetry;
+  copilotRuntime?: NodeCopilotListener;
+  historian?: HistorianQueryExecutor;
+  chat: ChatService;
+}
+
+export const createFacilityServer = ({
+  repository,
+  telemetry,
+  copilotRuntime,
+  historian,
+  chat,
+}: FacilityServiceOptions) =>
   createServer(async (request, response) => {
     try {
       const method = request.method ?? "GET";
@@ -83,10 +91,6 @@ export const createFacilityServer = (
       }
 
       if (method === "POST" && url.pathname === "/api/chat") {
-        if (!chat) {
-          sendJson(response, 404, { error: "Basic chat is not connected." });
-          return;
-        }
         const input = chatRequestSchema.parse(await readBody(request));
         sendJson(response, 200, await chat.reply(input.messages));
         return;

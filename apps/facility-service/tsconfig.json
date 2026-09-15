@@ -8,7 +8,10 @@
     "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
-    "types": ["node"]
+    "types": ["node"],
+    // NodeNext + tsc emit cannot compile files outside rootDir.
+    // Resolve this specifier via the workspace package instead.
+    "paths": {}
   },
   "include": ["src/**/*.ts"]
 }
