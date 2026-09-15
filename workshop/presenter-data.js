@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Conventional application",
       source: "workshop/speaker-notes/01-conventional-app.md",
       intro:
-        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
+        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4211 (same server and port).\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
+          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.\nBackend: http://localhost:3101. Mastra API: http://localhost:4211/api.\nMastra Studio: http://localhost:4211 (same server and port).\nMastra starts from milestone 04; it need not be running here. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -310,7 +310,7 @@ window.workshopPresenter = {
         {
           label: "EXPLAIN",
           title: "Say",
-          body: "“The Angular chat can remain as it is. We are changing the agent behind the runtime\nand adding a place to inspect its execution.”\n\nShow the route: Angular :4300 → facility runtime :3101 → Mastra :4211 → model.",
+          body: "“The Angular chat can remain as it is. We are changing the agent behind the runtime\nand adding a place to inspect its execution.”\n\nShow the route: Angular :4200 → facility runtime :3101 → Mastra :4211 → model.",
         },
         {
           label: "DO",

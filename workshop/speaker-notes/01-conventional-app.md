@@ -1,7 +1,9 @@
 # 01 — Establish the application
 
-**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.
-Mastra need not be running. No model key is required.
+**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4200.
+Backend: http://localhost:3101. Mastra API: http://localhost:4211/api.
+Mastra Studio: http://localhost:4211 (same server and port).
+Mastra starts from milestone 04; it need not be running here. No model key is required.
 
 **Demo inputs:** Follow the numbered prompts for milestone 01 in the
 [demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts

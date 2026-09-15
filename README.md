@@ -39,9 +39,15 @@ pnpm workshop:status
 pnpm dev
 ```
 
-Open http://localhost:4300. The facility API uses port 3101. The prepared Mastra
-service and Studio use port 4211. These defaults keep this worktree separate from
-the original milestone development ports (4200, 3001, 4111).
+| Service                              | Address                   |
+| ------------------------------------ | ------------------------- |
+| Workshop app (Angular)               | http://localhost:4200     |
+| Facility backend and Copilot runtime | http://localhost:3101     |
+| Mastra API                           | http://localhost:4211/api |
+| Mastra Studio                        | http://localhost:4211     |
+| Presenter notes                      | http://localhost:4400     |
+
+Mastra and Studio share port 4211. Start Mastra from milestone 04 onward.
 
 For milestone 02 onward, copy `.env.example` to `.env` in this worktree and enter
 your OpenRouter key. For milestones 04–08 also run `pnpm dev:agent` in another

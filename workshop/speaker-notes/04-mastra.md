@@ -11,7 +11,7 @@ in the Presenter desk. Each includes setup, expected results and what to show.
 “The Angular chat can remain as it is. We are changing the agent behind the runtime
 and adding a place to inspect its execution.”
 
-Show the route: Angular :4300 → facility runtime :3101 → Mastra :4211 → model.
+Show the route: Angular :4200 → facility runtime :3101 → Mastra :4211 → model.
 
 ## Open and change
 

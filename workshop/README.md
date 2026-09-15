@@ -20,6 +20,19 @@ open together directly from disk. They are committed with the repository.
 Presenter navigation never switches the application's milestone or edits code.
 Copy the code or checkpoint command when you decide to apply it.
 
+## Workshop ports
+
+| Service                            | Address                   |
+| ---------------------------------- | ------------------------- |
+| Angular app                        | http://localhost:4200     |
+| Facility backend / Copilot runtime | http://localhost:3101     |
+| Mastra API                         | http://localhost:4211/api |
+| Mastra Studio                      | http://localhost:4211     |
+| Presenter notes                    | http://localhost:4400     |
+
+Mastra and Studio use the same server and port. Start them with `pnpm dev:agent`
+from milestone 04 onward.
+
 ## Delivery contract
 
 This is a three-day workshop with presenter coding. There are no participant
@@ -37,7 +50,7 @@ reason for a change before scrolling through implementation details.
 1. Use this worktree, not the original `08-a2ui` worktree. Run `pnpm install`.
 2. Put your model key into this worktree's `.env` and keep that file off screen.
 3. Rehearse with `pnpm workshop:select 01`, then `pnpm dev`.
-4. Confirm the conventional UI at port 4300, snapshot, filters, history, and manual
+4. Confirm the conventional UI at port 4200, snapshot, filters, history, and manual
    alarm actions. Confirm a fresh conversation after each checkpoint transition.
 5. Start `pnpm dev:agent` for milestone 04 and check Studio at port 4211.
 6. Rehearse all model prompts with the configured model. Model responses and SQL

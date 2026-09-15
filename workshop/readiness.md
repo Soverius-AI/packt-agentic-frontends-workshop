@@ -11,6 +11,9 @@
 - A2UI components live in Angular; shared schemas remain in the contract package.
 - A2A (09) and MCP/MCP Apps (10) remain future additions.
 
+Current ports: Angular **4200**, backend **3101**, Mastra API and Studio **4211**,
+presenter notes **4400**.
+
 ## Local checks — 15 September 2026
 
 Node 26.7.0 and pnpm 11.19.0. The update used source commits through `9931134`;
@@ -21,7 +24,7 @@ see [the update report](update-report.md) for the complete branch comparison.
 | Angular production build, facility build, Mastra TypeScript for 01–08 | Passed for every selection                                                                                               |
 | `pnpm workshop:test`                                                  | 7 server checks including parent, plus 3 direct-result/model-history checks passed                                       |
 | `pnpm workshop:test:a2ui`                                             | 27 checks passed: dataset/SQL policy, composition, native bindings, workflow order and model-data separation             |
-| Milestone 08 Mastra dev bundle and all three services                 | Started successfully on 4300 / 3101 / 4211                                                                               |
+| Milestone 08 Mastra dev bundle and all three services                 | Started successfully on 4300 / 3101 / 4211 before the Angular port change                                                |
 | Milestone 08 production Mastra/Studio bundle                          | Passed                                                                                                                   |
 | Exact filter IDs and explicit reset                                   | Verified with temporary data; startup preserves alarms/audit and explicit reset reseeds readings and clears alarms/audit |
 | Presenter data                                                        | Eight chapters, 24 prompts, exact solution copies and JavaScript syntax verified                                         |
