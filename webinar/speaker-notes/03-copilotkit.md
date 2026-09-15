@@ -54,11 +54,15 @@ streams the response through AG-UI. The model still has no tools or facility dat
 
 ## Demonstrate
 
-1. Ask: **Why does temperature control matter when making chocolate?**
+1. **Show the AG-UI Chrome extension again.** Open its panel in Chrome DevTools
+   before sending the first prompt. Keep the event stream visible and explain
+   run-start, text-message content and run-finish events as the answer arrives.
+   This is a required demonstration, not an optional debugging step.
+2. Ask: **Why does temperature control matter when making chocolate?**
    Show incremental text and inspect the `/api/copilotkit` streaming response.
    Explain run-start, text-message and run-finish events. Streaming is observable
    protocol activity, not a view into hidden reasoning.
-2. Ask: **Show only warnings from the Cooling room.**
+3. Ask: **Show only warnings from the Cooling room.**
    The filters should remain unchanged. The assistant has no tools and does not
    receive current application data. Compare its words with the actual view.
 

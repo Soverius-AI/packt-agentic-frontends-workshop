@@ -44,13 +44,13 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. Streaming conversation
 
-**Before:** Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200.
+**Before:** Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200. Open the AG-UI Chrome extension panel again before sending the prompt.
 
 > Why does temperature control matter when making chocolate?
 
 **Expected:** The answer arrives progressively and uses general knowledge, without claiming access to this factory.
 
-**Show and explain:** Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.
+**Show and explain:** Show the AG-UI Chrome extension again: run-start, text-delta and run-finish events. Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.
 
 ### 2. No frontend tools yet
 
