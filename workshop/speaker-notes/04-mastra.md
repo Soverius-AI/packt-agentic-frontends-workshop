@@ -2,6 +2,10 @@
 
 **Start:** completed 03. **Completed code:** [solution 04](../solutions/04/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 04 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The Angular chat can remain as it is. We are changing the agent behind the runtime

@@ -1,4 +1,4 @@
-// Generated from speaker-notes and solutions. Run pnpm workshop:notes to refresh.
+// Generated from speaker-notes, demo-prompts.json and solutions. Run pnpm workshop:notes to refresh.
 window.workshopPresenter = {
   milestones: [
     {
@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Conventional application",
       source: "workshop/speaker-notes/01-conventional-app.md",
       intro:
-        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.",
+        "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.",
+          body: "**Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.\nMastra need not be running. No model key is required.\n\n**Demo inputs:** Follow the numbered prompts for milestone 01 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -75,12 +75,12 @@ window.workshopPresenter = {
       name: "Basic chat",
       source: "workshop/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start:** completed 01. Configure `.env` privately before this section.\n**Completed code:** [solution 02](../solutions/02/).",
+        "**Start:** completed 01. Configure `.env` privately before this section.\n**Completed code:** [solution 02](../solutions/02/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 02 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 01. Configure `.env` privately before this section.\n**Completed code:** [solution 02](../solutions/02/).",
+          body: "**Start:** completed 01. Configure `.env` privately before this section.\n**Completed code:** [solution 02](../solutions/02/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 02 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -129,8 +129,28 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "Why does temperature control matter when making chocolate?",
-        "What is the current air temperature in our Cooling room?",
+        {
+          title: "General knowledge",
+          prompt: "Why does temperature control matter when making chocolate?",
+          before:
+            "Complete milestone 02. Open the native chat and start a fresh conversation.",
+          expected:
+            "An ordinary explanation based on general knowledge, without claiming to have inspected this factory.",
+          inspect:
+            "Point to the chat request and response. Explain that conversation works before facility access exists.",
+          optional: false,
+        },
+        {
+          title: "Expose the missing data connection",
+          prompt: "What is the current air temperature in our Cooling room?",
+          before:
+            "Keep the same conversation. Do not paste readings into the chat.",
+          expected:
+            "The assistant should explain that it cannot access current facility readings. Any invented temperature is a failed demonstration, not evidence of access.",
+          inspect:
+            "Compare with the real snapshot. The backend route supplies no facility tools or live readings.",
+          optional: false,
+        },
       ],
       recovery:
         "`pnpm workshop:select 02`, restart `pnpm dev`, reload the browser. On a provider\nerror, inspect the backend terminal and key configuration off screen. Successful\ndashboard loading does not prove that a model request can succeed.",
@@ -167,12 +187,12 @@ window.workshopPresenter = {
       name: "CopilotKit and AG-UI",
       source: "workshop/speaker-notes/03-copilotkit.md",
       intro:
-        "**Start:** completed 02. **Completed code:** [solution 03](../solutions/03/).",
+        "**Start:** completed 02. **Completed code:** [solution 03](../solutions/03/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 03 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 02. **Completed code:** [solution 03](../solutions/03/).",
+          body: "**Start:** completed 02. **Completed code:** [solution 03](../solutions/03/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 03 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -216,8 +236,28 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "Why does temperature control matter when making chocolate?",
-        "Show only warnings from the Cooling room.",
+        {
+          title: "Show streaming in CopilotChat",
+          prompt: "Why does temperature control matter when making chocolate?",
+          before:
+            "Complete milestone 03, restart the facility service and reload the app. Use a fresh conversation.",
+          expected:
+            "A general answer arrives through CopilotChat and the embedded agent runtime. Exact chunk timing depends on the model.",
+          inspect:
+            "Open the browser network stream. Trace the request through the Copilot runtime and AG-UI lifecycle events.",
+          optional: false,
+        },
+        {
+          title: "Introduce the future frontend tool demo",
+          prompt: "Show only warnings from the Cooling room.",
+          before:
+            "Clear filters manually first. There are no frontend tools in this checkpoint.",
+          expected:
+            "Filters stay unchanged. The assistant should acknowledge that it cannot operate the interface yet.",
+          inspect:
+            "Point to the unchanged filters. Save this request to repeat after milestone 05.",
+          optional: false,
+        },
       ],
       recovery:
         "Select 03, restart the facility process and reload. Check\nhttp://localhost:3101/api/copilotkit/info for discovery. Inspect matching\n`default` agent IDs and provider URL if the chat is empty. Mastra is not needed yet.",
@@ -260,12 +300,12 @@ window.workshopPresenter = {
       name: "Mastra agent",
       source: "workshop/speaker-notes/04-mastra.md",
       intro:
-        "**Start:** completed 03. **Completed code:** [solution 04](../solutions/04/).",
+        "**Start:** completed 03. **Completed code:** [solution 04](../solutions/04/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 04 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 03. **Completed code:** [solution 04](../solutions/04/).",
+          body: "**Start:** completed 03. **Completed code:** [solution 04](../solutions/04/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 04 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -314,7 +354,29 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "In one sentence, why is humidity relevant in a chocolate factory?",
+        {
+          title: "Follow one request into Mastra",
+          prompt:
+            "In one sentence, why is humidity relevant in a chocolate factory?",
+          before:
+            "Complete milestone 04. Start Mastra, restart the facility service, reload the app and use a fresh conversation. Open Studio on port 4211.",
+          expected:
+            "A short general answer in the app, with the corresponding run visible in Mastra Studio.",
+          inspect:
+            "Find this exact question in the trace. Walk from the Angular chat through the runtime bridge to the main agent.",
+          optional: false,
+        },
+        {
+          title: "An agent still needs data access",
+          prompt: "What is the current air temperature in our Cooling room?",
+          before:
+            "Stay in milestone 04. Do not provide a temperature in the conversation.",
+          expected:
+            "Moving the agent to Mastra does not give it readings. It should explain the missing access.",
+          inspect:
+            "Show the tool-free agent factory before introducing frontend tools.",
+          optional: true,
+        },
       ],
       recovery:
         "Select 04, restart both terminals, reload browser/Studio. Confirm port 4211 and\nthe bridge URL before investigating model behavior. A direct Studio conversation\ndoes not have the app's browser tools; use the app for subsequent demonstrations.",
@@ -333,12 +395,12 @@ window.workshopPresenter = {
       name: "Frontend tools",
       source: "workshop/speaker-notes/05-frontend-tools.md",
       intro:
-        "**Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).",
+        "**Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 05 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).",
+          body: "**Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 05 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -382,9 +444,82 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "Which rooms and shift managers can I filter by?",
-        "Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.",
-        "Change the start date to now.",
+        {
+          title: "Discover valid application options",
+          prompt: "Which rooms and shift managers can I filter by?",
+          before:
+            "Complete milestone 05, restart/reload and start a fresh conversation. Clear filters manually.",
+          expected:
+            "Room and manager names come from discovery tools rather than guesses.",
+          inspect:
+            "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls.",
+          optional: false,
+        },
+        {
+          title: "Repeat the previously impossible request",
+          prompt: "Show only warnings from the Cooling room.",
+          before: "Continue after discovery with empty filters.",
+          expected:
+            "The room and condition filters change. An empty grid is valid if the current data contains no matching readings.",
+          inspect:
+            "Compare with milestone 03. Inspect discovery as needed and update_filters; the Angular handler performs the state change.",
+          optional: false,
+        },
+        {
+          title: "Change view and combine filters",
+          prompt:
+            "Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.",
+          before:
+            "Continue in the same conversation. Leave date boundaries empty.",
+          expected:
+            "The reading log opens with the requested room, condition and manager selected. The number of rows depends on recorded data.",
+          inspect:
+            "Show set_view and update_filters, then point to the corresponding controls.",
+          optional: false,
+        },
+        {
+          title: "Patch one field",
+          prompt: "Change the start date to now.",
+          before:
+            "Keep the room, condition and manager from the previous prompt.",
+          expected:
+            "The start boundary changes; the existing room, condition and manager remain. Few or no rows immediately after now are expected.",
+          inspect:
+            "Point to the browser-resolved start time and unchanged filters. Explain omitted fields versus changed fields.",
+          optional: false,
+        },
+        {
+          title: "Clear one field",
+          prompt:
+            "Clear only the start date. Keep all other filters as they are.",
+          before: "Continue immediately after setting the start date.",
+          expected:
+            "Only the start boundary is cleared; room, condition and manager remain selected.",
+          inspect:
+            "Inspect the null boundary in update_filters and compare all other filter controls.",
+          optional: false,
+        },
+        {
+          title: "Clarify an ambiguous request",
+          prompt: "Change the date to now.",
+          before:
+            "Ensure both date boundaries are empty. Keep the other filters selected.",
+          expected:
+            "The assistant should ask whether you mean the start or end date. Answer: The end date.",
+          inspect:
+            "Explain why the model needs clarification before choosing a boundary. Verify unrelated filters survive.",
+          optional: true,
+        },
+        {
+          title: "Reset the demonstration",
+          prompt: "Clear all filters and switch to the snapshot view.",
+          before:
+            "Run after the filter sequence, including any optional prompt.",
+          expected: "All filter values clear and the snapshot view opens.",
+          inspect:
+            "Show clear_filters and set_view. This prepares a clean visible state for the next chapter.",
+          optional: false,
+        },
       ],
       recovery:
         "Select 05 and restart/reload. If the model guesses an option, ask for discovery\nfirst and inspect the returned IDs. If filters unexpectedly disappear, inspect\nthe patch arguments and handler before changing the model prompt.",
@@ -409,12 +544,12 @@ window.workshopPresenter = {
       name: "Reviewed historian workflow",
       source: "workshop/speaker-notes/06-historian.md",
       intro:
-        "**Start:** completed 05. **Completed code:** [solution 06](../solutions/06/).",
+        "**Start:** completed 05. **Completed code:** [solution 06](../solutions/06/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 06 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 05. **Completed code:** [solution 06](../solutions/06/).",
+          body: "**Start:** completed 05. **Completed code:** [solution 06](../solutions/06/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 06 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -458,8 +593,40 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "Show me the maximum air temperature for each shift manager.",
-        "Show me the average air temperature for each shift manager.",
+        {
+          title: "Select records through the reviewed workflow",
+          prompt: "Show me the maximum air temperature for each shift manager.",
+          before:
+            "Complete milestone 06, restart/reload and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
+          expected:
+            "The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.",
+          inspect:
+            "In Studio follow query_historian → SQL generation → review → validation/execution. Then inspect show_historian_readings and the fixed result grid. Do not promise one row per manager when ties exist.",
+          optional: false,
+        },
+        {
+          title: "Narrow the data question",
+          prompt:
+            "Show the latest ten air temperature readings from the Cooling room.",
+          before:
+            "Continue after the first successful query. Put scope in the question explicitly; do not assume screen filters are automatically included in the SQL request.",
+          expected:
+            "Up to ten matching complete reading records appear in the Historian result view, ordered by recency as requested.",
+          inspect:
+            "Compare room, metric and timestamps with returned records. Explain that SQL selects records while the application owns the layout.",
+          optional: true,
+        },
+        {
+          title: "Expose the fixed result shape",
+          prompt: "Show me the average air temperature for each shift manager.",
+          before:
+            "Use the completed milestone 06 implementation, which accepts complete reading records rather than computed summaries.",
+          expected:
+            "The workflow should reject the unsupported aggregate request and the assistant should explain why. It must not fabricate averages or render a new result. An earlier result grid may remain visible.",
+          inspect:
+            "Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the later A2UI topic.",
+          optional: false,
+        },
       ],
       recovery:
         "Select 06, restart services and reload. On failure find the workflow step and\nstructured error. A model refusal, schema mismatch, validator rejection and HTTP\nfailure are distinct. Never weaken SQL restrictions to make a live demo pass.",
@@ -489,12 +656,12 @@ window.workshopPresenter = {
       name: "Human approval and audit",
       source: "workshop/speaker-notes/07-approval.md",
       intro:
-        "**Start:** completed 06. Ensure the demo metric has no active alarm; use the\nconventional controls to acknowledge/resolve an existing one.\n**Completed code:** [solution 07](../solutions/07/).",
+        "**Start:** completed 06. Ensure the demo metric has no active alarm; use the\nconventional controls to acknowledge/resolve an existing one.\n**Completed code:** [solution 07](../solutions/07/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 07 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** completed 06. Ensure the demo metric has no active alarm; use the\nconventional controls to acknowledge/resolve an existing one.\n**Completed code:** [solution 07](../solutions/07/).",
+          body: "**Start:** completed 06. Ensure the demo metric has no active alarm; use the\nconventional controls to acknowledge/resolve an existing one.\n**Completed code:** [solution 07](../solutions/07/).\n\n**Demo inputs:** Follow the numbered prompts for milestone 07 in the\n[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts\nin the Presenter desk. Each includes setup, expected results and what to show.",
         },
         {
           label: "EXPLAIN",
@@ -548,9 +715,42 @@ window.workshopPresenter = {
         },
       ],
       prompts: [
-        "Raise an alarm for the Packaging hall package reject rate because I want it investigated.",
-        "Reject",
-        "Approve and raise alarm",
+        {
+          title: "Reject a proposed action",
+          prompt:
+            "Raise an alarm for the Packaging hall package reject rate because I want it investigated.",
+          before:
+            "Complete milestone 07, restart/reload and use a fresh conversation. Ensure this metric has no active alarm; resolve any previous demo alarm with the conventional UI.",
+          expected:
+            "An approval card shows the exact metric, reason and operator. Click Reject. No alarm is raised, and the audit records the rejected decision.",
+          inspect:
+            "Pause before clicking: the model has proposed, not executed. After rejection inspect the audit and the assistant response. This request is your reason for investigation, not proof of an abnormal reading.",
+          optional: false,
+        },
+        {
+          title: "Approve and verify execution",
+          prompt:
+            "Raise an alarm for the Packaging hall package reject rate because I want it investigated.",
+          before:
+            "Repeat the request after rejecting it. Ensure the metric still has no active alarm. A new proposal has a new correlation ID.",
+          expected:
+            "Click Approve and raise alarm. Verify the actual alarm and the executed outcome in the audit. Approval alone is not proof of successful execution.",
+          inspect:
+            "Follow the card into the facility decision API and correlated audit. If execution fails, show the failure honestly. Finish by acknowledging and resolving the demo alarm through conventional controls.",
+          optional: false,
+        },
+        {
+          title: "Show the action boundary",
+          prompt:
+            "Resolve the alarm for the Packaging hall package reject rate.",
+          before:
+            "Optional: run while the approved demo alarm is still active, before manual cleanup.",
+          expected:
+            "The assistant should explain that resolving alarms remains a conventional operator action in this checkpoint.",
+          inspect:
+            "Use the normal acknowledge/resolve controls yourself, then confirm the alarm state. Distinguish the one exposed action from unrestricted operational access.",
+          optional: true,
+        },
       ],
       recovery:
         "Select 07, restart/reload. If no card appears, check the registration, metric\ndiscovery and tool arguments. If saving a decision fails, inspect the facility\nresponse; never report success based only on the model's acknowledgement.",

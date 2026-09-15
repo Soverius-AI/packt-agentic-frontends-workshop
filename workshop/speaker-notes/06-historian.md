@@ -2,6 +2,10 @@
 
 **Start:** completed 05. **Completed code:** [solution 06](../solutions/06/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 06 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The agent gets one narrow question tool. A workflow generates a SQL proposal,

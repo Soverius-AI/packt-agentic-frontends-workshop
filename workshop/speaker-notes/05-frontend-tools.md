@@ -2,6 +2,10 @@
 
 **Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 05 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The model chooses a named operation with structured arguments. Angular applies

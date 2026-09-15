@@ -11,7 +11,7 @@ the next action, copyable demo prompts, exact file diffs and completed code, plu
 recovery instructions. Arrow keys move between actions; your place is remembered
 in the browser. The app and Mastra do not need to be running.
 
-The Markdown notes and completed solutions remain the sources. This command
+The Markdown notes, `demo-prompts.json` and completed solutions remain the sources. This command
 rebuilds the presenter data before starting a local notes server. Restart the
 command after editing the notes, or run `pnpm workshop:notes:build` and reload.
 `workshop/presenter.html` and `workshop/presenter-data.js` are also available to
@@ -80,7 +80,8 @@ pseudocode, and stay outside the application compiler roots.
   `main-07.ts`; select the appropriate import in the agent factory.
 - SQL generator and reviewer: `apps/agent-service/src/mastra/prompts/sql-generator.ts`
   and `sql-reviewer.ts`.
-- Questions you type into the app: the **Demonstrate** section of each notes file.
+- Questions you type into the app: [demo prompt sequence](demo-prompts.md), also shown in the Presenter desk. Each includes setup, expected behavior and what to inspect. Follow the numbered order; optional prompts are marked.
+- Edit `workshop/demo-prompts.json` to change that sequence, then run `pnpm workshop:notes:build`. This updates both the readable catalogue and the presenter data. The **Demonstrate** sections in the speaker notes give the surrounding teaching script.
 
 ## Restart and recovery
 

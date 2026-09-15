@@ -4,6 +4,10 @@
 conventional controls to acknowledge/resolve an existing one.
 **Completed code:** [solution 07](../solutions/07/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 07 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The assistant can propose an alarm. The operator decides, and the facility service

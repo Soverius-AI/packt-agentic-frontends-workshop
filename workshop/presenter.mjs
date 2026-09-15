@@ -10,6 +10,9 @@ const root = resolve(directory, "..");
 const manifest = JSON.parse(
   await readFile(join(directory, "manifest.json"), "utf8"),
 );
+const promptCatalog = JSON.parse(
+  await readFile(join(directory, "demo-prompts.json"), "utf8"),
+);
 const noteFiles = await readdir(join(directory, "speaker-notes"));
 const milestones = [];
 const flows = {
@@ -89,13 +92,17 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
     if (section.title === "Recovery") recovery = section.body;
     else actions.push(...actionsFrom(section.title, section.body));
   }
-  const prompts = sections
-    .filter((section) => /demonstrate/i.test(section.title))
-    .flatMap((section) =>
-      [...section.body.matchAll(/\*\*([^*]+)\*\*/g)].map((match) =>
-        match[1].replace(/\s+/g, " ").trim(),
-      ),
-    );
+  const prompts = promptCatalog[id];
+  if (!Array.isArray(prompts))
+    throw new Error(`Demo prompts missing for milestone ${id}`);
+  for (const prompt of prompts) {
+    for (const field of ["title", "prompt", "before", "expected", "inspect"]) {
+      if (typeof prompt[field] !== "string" || !prompt[field].trim())
+        throw new Error(`Missing ${field} in milestone ${id} demo prompt`);
+    }
+    if (typeof prompt.optional !== "boolean")
+      throw new Error(`Missing optional flag in milestone ${id} demo prompt`);
+  }
   const previous = String(Number(id) - 1).padStart(2, "0");
   const files = [];
   for (const path of manifest.files) {
@@ -136,12 +143,45 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
 }
 const data = JSON.stringify({ milestones }, null, 2).replaceAll("<", "\\u003c");
 const dataPath = join(directory, "presenter-data.js");
-const source = `// Generated from speaker-notes and solutions. Run pnpm workshop:notes to refresh.\nwindow.workshopPresenter = ${data};\n`;
+const source = `// Generated from speaker-notes, demo-prompts.json and solutions. Run pnpm workshop:notes to refresh.\nwindow.workshopPresenter = ${data};\n`;
 await writeFile(
   dataPath,
   await format(source, {
     ...(await resolveConfig(dataPath)),
     filepath: dataPath,
+  }),
+);
+const promptGuide =
+  [
+    "# Demo prompts for the presenter",
+    "<!-- Generated from demo-prompts.json. Edit that file, then run pnpm workshop:notes:build. -->",
+    "Type these questions into the application chat after completing the named milestone. These are demo inputs; the agent instruction prompts live in the source files listed in the presenter guide.",
+    "Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Selecting a checkpoint changes code only, not conversations, stored readings or alarms.",
+    "Rehearse against your configured model before the workshop. The expected results below are acceptance criteria checked against the code, not a record of successful live model runs. If a request fails, inspect the tool call or trace rather than treating a confident chat reply as evidence.",
+    ...milestones.flatMap((milestone) => [
+      `## ${milestone.id} — ${milestone.name}`,
+      `[Speaker notes](speaker-notes/${milestone.source.split("/").at(-1)})`,
+      ...(milestone.prompts.length
+        ? milestone.prompts.flatMap((prompt, index) => [
+            `### ${index + 1}. ${prompt.title}${prompt.optional ? " (optional)" : ""}`,
+            `**Before:** ${prompt.before}`,
+            `> ${prompt.prompt}`,
+            `**Expected:** ${prompt.expected}`,
+            `**Show and explain:** ${prompt.inspect}`,
+          ])
+        : [
+            "There is no chat in this milestone. Tour the snapshot, reading log, filters and conventional alarm controls. Establish which state the application already owns before connecting an assistant.",
+          ]),
+    ]),
+    "## Later milestones",
+    "A2UI, A2A and MCP demos will be added when their implementations are ready. The aggregate refusal in milestone 06 is the setup for discussing why a fixed reading grid eventually becomes limiting.",
+  ].join("\n\n") + "\n";
+const promptGuidePath = join(directory, "demo-prompts.md");
+await writeFile(
+  promptGuidePath,
+  await format(promptGuide, {
+    ...(await resolveConfig(promptGuidePath)),
+    filepath: promptGuidePath,
   }),
 );
 console.log(

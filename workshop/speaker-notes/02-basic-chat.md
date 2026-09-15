@@ -3,6 +3,10 @@
 **Start:** completed 01. Configure `.env` privately before this section.
 **Completed code:** [solution 02](../solutions/02/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 02 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The first connection carries messages to a model. It supplies a static application

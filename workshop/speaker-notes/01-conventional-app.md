@@ -3,6 +3,10 @@
 **Start:** `pnpm workshop:select 01`, then `pnpm dev`. Open http://localhost:4300.
 Mastra need not be running. No model key is required.
 
+**Demo inputs:** Follow the numbered prompts for milestone 01 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “This application already works. It owns the readings, filters, history, and alarm

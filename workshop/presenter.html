@@ -339,6 +339,20 @@
       .prompt p {
         margin: 0 0 9px;
       }
+      .prompt h3 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+      .prompt .prompt-text {
+        border-left: 3px solid var(--line);
+        padding-left: 12px;
+      }
+      .prompt .prompt-help {
+        margin-top: 12px;
+      }
+      .prompt .prompt-help p {
+        margin-top: 10px;
+      }
       .file {
         border-top: 1px solid var(--line);
         padding: 12px 0;
@@ -618,6 +632,11 @@
           <aside class="right" aria-label="Presenter reference">
             <section class="card section">
               <h2>Demo prompts</h2>
+              <p class="empty">
+                Run in order after connecting this milestone. Open each prompt’s
+                setup before sending it. Expected results are rehearsal
+                criteria.
+              </p>
               <div id="prompts"></div>
             </section>
             <section class="card section code-section">
@@ -823,14 +842,35 @@
         if (!m.prompts.length)
           $("prompts").innerHTML =
             '<p class="empty">No model prompt here. Demonstrate the prepared application.</p>';
-        for (const prompt of m.prompts) {
+        for (const [index, prompt] of m.prompts.entries()) {
           const el = document.createElement("div");
           el.className = "prompt";
+          const title = document.createElement("h3");
+          title.textContent = `${index + 1}. ${prompt.title}${prompt.optional ? " · optional" : ""}`;
           const p = document.createElement("p");
-          p.textContent = prompt;
+          p.className = "prompt-text";
+          p.textContent = prompt.prompt;
+          const help = document.createElement("details");
+          help.className = "prompt-help";
+          const summary = document.createElement("summary");
+          summary.textContent = "Setup, expected result & what to show";
+          help.append(summary);
+          for (const [label, value] of [
+            ["Before", prompt.before],
+            ["Expected", prompt.expected],
+            ["Show and explain", prompt.inspect],
+          ]) {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = label + ": ";
+            paragraph.append(strong, document.createTextNode(value));
+            help.append(paragraph);
+          }
           el.append(
+            title,
             p,
-            button("Copy prompt", (b) => copy(prompt, b)),
+            button("Copy prompt", (b) => copy(prompt.prompt, b)),
+            help,
           );
           $("prompts").append(el);
         }

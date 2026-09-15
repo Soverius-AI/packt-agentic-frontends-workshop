@@ -2,6 +2,10 @@
 
 **Start:** completed 02. **Completed code:** [solution 03](../solutions/03/).
 
+**Demo inputs:** Follow the numbered prompts for milestone 03 in the
+[demo prompt sequence](../demo-prompts.md), or use this milestone’s Demo prompts
+in the Presenter desk. Each includes setup, expected results and what to show.
+
 ## Say
 
 “The next change is how we connect and display an agent run. The assistant still
