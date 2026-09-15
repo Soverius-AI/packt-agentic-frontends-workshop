@@ -50,3 +50,10 @@ Only webinar states 01 and 02 are prepared in this branch's selector. Later
 milestone implementations remain available in the original branches and their
 unchanged reference files. Do not use the inherited selector to overwrite this
 new backend; the root workshop commands point to the webinar equivalents.
+
+## Test scope update
+
+Basic Chat API tests and their model-response helper have been removed at the
+presenter's request. The earlier Basic Chat assertions above describe historical
+verification only. Current tests retain facility, Copilot routing and presenter
+recovery checks. The inherited workshop server test delegates to that same suite.
