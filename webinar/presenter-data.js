@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Webinar starting state",
       source: "webinar/speaker-notes/01-start.md",
       intro:
-        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
         },
         {
           label: "EXPLAIN",
@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-03`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-03`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",

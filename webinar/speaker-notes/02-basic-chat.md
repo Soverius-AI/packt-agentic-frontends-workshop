@@ -1,7 +1,9 @@
 # 02 — Implement and connect Basic Chat
 
 **Start branch:** `webinar-01` in `packt-webinar-zero`.
-**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).
+**Completed branch:** `webinar-02` (end of chapter 2).
+The `packt-webinar-02` worktree now uses branch `webinar-03`; select state 02
+there to rehearse this chapter without switching branches.
 **In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.
 The component, Angular imports, API response adapter, environment setup, types,
 assertion helpers and system prompt are prepared. The live work is three files.

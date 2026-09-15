@@ -31,6 +31,10 @@ The chapter-3 discovery check uses the real runtime and a placeholder key locall
 - Recovery status identifies 03 and presenter data contains three chapters,
   30 action cards, four demo prompts, and all nine chapter-3 file changes.
 
+The running presenter desk at localhost:4400 was refreshed and inspected. It
+shows chapters 01–03, the chapter-3 sequence, two prompts and nine file changes
+with explicit deletion labels.
+
 ## Rehearsal
 
 Run the two chapter-3 demo prompts with your configured model. Streaming was
