@@ -1,5 +1,13 @@
 # Webinar — chapter branches
 
+## Simplified baseline for milestone 5
+
+The shared application methods and the four Angular-local schemas are prepared.
+No frontend tools or agent context are registered on webinar-01 through webinar-04.
+The presenter writes the context connection, two tool registrations and the Mastra
+prompt change during milestone 5. See [the preparation and teaching guide](webinar/milestone-05.md).
+
+
 The checkpoints preserve the presenter’s cumulative implementation. Chapter 2
 connects the prepared Basic Chat component to a hand-written model call. Chapter 3
 introduces CopilotChat and AG-UI. Chapter 4 moves the agent into Mastra and shows

@@ -9,7 +9,6 @@ import { createFacilityServer } from "../apps/facility-service/dist/server.js";
 import { FacilityRepository } from "../apps/facility-service/dist/repository.js";
 import { LiveTelemetry } from "../apps/facility-service/dist/live-telemetry.js";
 import { HistorianQueryService } from "../apps/facility-service/dist/historian-query-legacy.js";
-import { applyFacilityViewCommand } from "../packages/contracts/dist/index.js";
 
 test("prepared server preserves facility data, Copilot routing and approval behavior", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "packt-presenter-test-"));
@@ -85,31 +84,6 @@ test("prepared server preserves facility data, Copilot routing and approval beha
         );
         const { MastraAgent } = require("@ag-ui/mastra");
         assert.equal(info.agents.default.className, MastraAgent.name);
-      },
-    );
-    await t.test(
-      "05 patching a room preserves dates and unrelated filters",
-      () => {
-        const state = {
-          view: "reading-log",
-          filters: {
-            from: "2026-01-01T12:00",
-            to: null,
-            shiftManager: "Charles Bond",
-            roomId: null,
-            metricId: null,
-            condition: "warning",
-          },
-        };
-        const result = applyFacilityViewCommand(state, {
-          action: "update_filters",
-          filters: { roomId: "cooling-room" },
-        });
-        assert.equal(result.filters.from, state.filters.from);
-        assert.equal(result.filters.shiftManager, "Charles Bond");
-        assert.equal(result.filters.condition, "warning");
-        assert.equal(result.filters.roomId, "cooling-room");
-        assert.equal(state.filters.roomId, null);
       },
     );
     await t.test(

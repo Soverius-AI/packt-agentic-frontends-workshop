@@ -1,5 +1,9 @@
 # Webinar chapter 4 verification — 15 September 2026
 
+The results below record the original checkpoint. The shared UI baseline and its
+recovery snapshots have since been simplified; see [baseline verification](baseline-verification.md).
+
+
 ## Saved implementation
 
 Commit `ed3982f` preserves the presenter’s four changed application files exactly
