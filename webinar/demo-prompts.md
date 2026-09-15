@@ -26,7 +26,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Expected:** An ordinary explanation based on general knowledge, without claiming to have inspected this factory.
 
-**Show and explain:** Trace POST /api/chat to the OpenAI client and completion call written live in basic-chat-model.ts. Explain that conversation works before facility access exists.
+**Show and explain:** Trace POST /api/chat to the OpenAI client and completion call written live in chat.ts. Explain that conversation works before facility access exists.
 
 ### 2. Expose the missing data connection
 
@@ -37,6 +37,30 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 **Expected:** The assistant should explain that it cannot access current facility readings. Any invented temperature is a failed demonstration, not evidence of access.
 
 **Show and explain:** Compare with the real snapshot. The backend route supplies no facility tools or live readings.
+
+## 03 — CopilotKit and AG-UI
+
+[Speaker notes](speaker-notes/03-copilotkit.md)
+
+### 1. Streaming conversation
+
+**Before:** Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200.
+
+> Why does temperature control matter when making chocolate?
+
+**Expected:** The answer arrives progressively and uses general knowledge, without claiming access to this factory.
+
+**Show and explain:** Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.
+
+### 2. No frontend tools yet
+
+**Before:** Keep the snapshot or reading log visible and note the current filters.
+
+> Show only warnings from the Cooling room.
+
+**Expected:** The application filters remain unchanged. The model has no frontend tools; a textual claim of success is not an application action.
+
+**Show and explain:** Show that BuiltInAgent has a model and static prompt, with no tools connected. Mastra is introduced in chapter 04.
 
 ## Later milestones
 

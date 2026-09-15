@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { format, resolveConfig } from "prettier";
 import { createServer } from "node:http";
+import { readCheckpoint } from "./checkpoint-files.mjs";
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const root = resolve(directory, "..");
@@ -114,11 +115,11 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
   const files = [];
   for (const path of manifest.files) {
     const destination = join(directory, "solutions", id, path);
-    const after = await readFile(destination, "utf8");
+    const after = await readCheckpoint(root, manifest, id, path);
     const before =
       previous === undefined
         ? after
-        : await readFile(join(directory, "solutions", previous, path), "utf8");
+        : await readCheckpoint(root, manifest, previous, path);
     if (before === after) continue;
     const result = spawnSync(
       "git",
@@ -126,15 +127,17 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
         "diff",
         "--no-index",
         "--",
-        join(directory, "solutions", previous, path),
-        destination,
+        before === null
+          ? "/dev/null"
+          : join(directory, "solutions", previous, path),
+        after === null ? "/dev/null" : destination,
       ],
       { encoding: "utf8", cwd: root },
     );
     if (result.status !== 1)
       throw new Error(`Cannot compare ${path}: ${result.stderr}`);
     const diff = result.stdout.slice(result.stdout.indexOf("@@"));
-    files.push({ path, after, diff });
+    files.push({ path, after: after ?? "", deleted: after === null, diff });
   }
   milestones.push({
     id,

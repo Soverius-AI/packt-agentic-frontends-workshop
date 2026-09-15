@@ -1,59 +1,42 @@
-# Webinar verification — 15 September 2026
+# Webinar chapter 3 verification — 15 September 2026
 
-## Preserved working reference
+## Saved implementation
 
-Commit `1a9e25e` on `webinar-01` records the presenter's working milestone-02
-implementation, including the common package, environment setup, server options
-object and frontend response adapter. Preparation is a later commit on this new
-branch. The original Workshop branch and its uncommitted changes were compared
-against saved hashes after preparation and are unchanged. The inherited
-`workshop/` files, including all milestone solutions, also compare unchanged.
+Commit `5d9afdc` preserves the presenter's chapter-3 implementation as written.
+The current directory remains `packt-webinar-02`, with branch `webinar-03` checked out.
+The original webinar-02 branch remains the Basic Chat checkpoint. Shared container
+CSS is committed in webinar-01 and webinar-02. No application code was rewritten
+while preparing chapter 3 notes or tests.
 
-## Checked
+## Current checks
 
-- `pnpm webinar:test`: 9 tests passed, including the server parent test.
-- The test loads the actual completed `webinar/solutions/02/.../chat.ts` factory,
-  substitutes only the HTTP response from OpenRouter, and verifies the model,
-  static system prompt, conversation, raw assistant response and Angular wrapper.
-- The prepared server supports disabled chat, the existing Copilot listener,
-  filter preservation, historian read-only rules and approval/replay behavior.
-- Selector tests exercise `01 → 02 → 01`, backups of all three files, rejection of
-  unsupported states, preservation of other files, and failure before writes when
-  a solution file is missing.
-- Generated presenter data has states 01 and 02, 16 actions, two demo prompts and
-  exactly three completed-code diffs. The inline browser script parses.
-- State 01 passed the full `check:types` command: common/contracts, facility
-  backend, Mastra TypeScript and Angular production build.
-- State 02 passed the facility build and Angular production build. The new
-  worktree was then restored to 01 and its backend rebuilt.
-- The browser presenter desk at port 4400 was refreshed and inspected: it shows
-  the new branch, correct states, three files and the actual OpenAI factory diff.
+The suite covers conventional facility data, forwarding to the Copilot listener,
+discovery of the real BuiltInAgent named default, filter preservation, historian
+policy and approval/replay behavior. Recovery tests exercise 01 → 02 → 03 → 02 →
+01 → 03, creation and deletion of files, backups including absent paths, and
+validation before any writes. Presenter checks compare all completed code and
+file-deletion markers with the saved snapshots.
 
-Angular reports an unused-component warning in each state because both
-ChatComponent and BasicChatComponent are intentionally imported beforehand. This
-keeps app.ts out of the live edits; the warning does not block either build.
+Basic Chat API tests and their model-response helper were removed from webinar-01,
+webinar-02 and webinar-03 at the presenter's request. The inherited workshop server
+test delegates to the same maintained suite. No model call is made by these tests.
+The chapter-3 discovery check uses the real runtime and a placeholder key locally.
 
-These checks made no external model calls and did not reset the existing demo
-database. The working chat was previously exercised by the presenter in Workshop;
-rehearse the actual demo prompts after starting this new worktree's backend.
+## Results
 
-## Runtime handover
+- webinar-01: eight remaining tests passed after removing Basic Chat API tests.
+- webinar-02: the same test-removal commit is included; no application changes.
+- webinar-03: nine tests passed, including real CopilotKit agent discovery.
+- The facility TypeScript build and Angular production build passed on webinar-03.
+- Recovery status identifies 03 and presenter data contains three chapters,
+  30 action cards, four demo prompts, and all nine chapter-3 file changes.
 
-The presenter server on 4400 now serves this worktree. The previously running
-application services were not stopped or moved. Stop their old terminals before
-starting the new worktree on 4200 / 3101 / 4211 / 4212. The private .env has been
-copied to this worktree and remains ignored and permission-restricted.
+## Rehearsal
 
-## Scope
+Run the two chapter-3 demo prompts with your configured model. Streaming was
+observed during the presenter's earlier manual run; discovery checks do not
+verify model generation or the quality of an answer. The private .env stays ignored.
+Ports: Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.
+Mastra is not needed for chapter 3. Restart the backend launcher after source edits.
 
-Only webinar states 01 and 02 are prepared in this branch's selector. Later
-milestone implementations remain available in the original branches and their
-unchanged reference files. Do not use the inherited selector to overwrite this
-new backend; the root workshop commands point to the webinar equivalents.
-
-## Test scope update
-
-Basic Chat API tests and their model-response helper have been removed at the
-presenter's request. The earlier Basic Chat assertions above describe historical
-verification only. Current tests retain facility, Copilot routing and presenter
-recovery checks. The inherited workshop server test delegates to that same suite.
+Chapter 4 is the next preparation step. Existing milestone branches were not changed.

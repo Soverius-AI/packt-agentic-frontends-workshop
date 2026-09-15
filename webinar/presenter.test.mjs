@@ -15,74 +15,96 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
+import { readOptional, readCheckpoint } from "./checkpoint-files.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const manifest = JSON.parse(
   await readFile(new URL("./manifest.json", import.meta.url), "utf8"),
 );
-const expectedFiles = [
+const chapterTwoFiles = [
   "apps/angular-host/src/app/app.html",
   "apps/facility-service/src/chat.ts",
   "apps/facility-service/src/main.ts",
 ];
 
-test("webinar selector restores exactly the three live files and keeps backups", async () => {
-  assert.deepEqual(manifest.files, expectedFiles);
+test("checkpoint recovery handles additions, deletions and backups without changing support files", async () => {
   const dir = await mkdtemp(join(tmpdir(), "webinar-selector-"));
   try {
     await mkdir(join(dir, "webinar"));
-    for (const name of ["manifest.json", "select.mjs", "solutions"]) {
+    for (const name of [
+      "manifest.json",
+      "select.mjs",
+      "checkpoint-files.mjs",
+      "solutions",
+    ]) {
       await cp(join(root, "webinar", name), join(dir, "webinar", name), {
         recursive: true,
       });
     }
-    for (const file of expectedFiles) {
-      await mkdir(join(dir, file, ".."), { recursive: true });
-      await cp(join(dir, "webinar/solutions/01", file), join(dir, file));
-    }
-    const sentinel = join(dir, "apps/angular-host/src/app/app.ts");
-    await writeFile(sentinel, "Prepared imports must stay unchanged.");
-    const select = (state) =>
-      spawnSync(process.execPath, [join(dir, "webinar/select.mjs"), state], {
+    const select = (phase) =>
+      spawnSync(process.execPath, [join(dir, "webinar/select.mjs"), phase], {
         encoding: "utf8",
       });
-    assert.match(select("status").stdout, /^01:/);
-    assert.equal(select("02").status, 0);
-    assert.match(select("status").stdout, /^02:/);
-    for (const file of expectedFiles) {
-      assert.equal(
-        await readFile(join(dir, file), "utf8"),
-        await readFile(join(dir, "webinar/solutions/02", file), "utf8"),
-      );
+    const matches = async (phase) => {
+      assert.match(select("status").stdout, new RegExp(`^${phase}:`));
+      for (const path of manifest.files)
+        assert.equal(
+          await readOptional(join(dir, path)),
+          await readCheckpoint(dir, manifest, phase, path),
+          path,
+        );
+    };
+    const sentinel = join(dir, "apps/angular-host/src/app/app.scss");
+    await mkdir(join(sentinel, ".."), { recursive: true });
+    await writeFile(sentinel, "Prepared chat-container styles");
+    for (const phase of ["01", "02", "03", "02", "01", "03"]) {
+      assert.equal(select(phase).status, 0);
+      await matches(phase);
     }
     assert.equal(
       await readFile(sentinel, "utf8"),
-      "Prepared imports must stay unchanged.",
+      "Prepared chat-container styles",
     );
-    const [backup] = await readdir(join(dir, ".webinar-backups"));
-    for (const file of expectedFiles) {
+    const oldBackups = new Set(await readdir(join(dir, ".webinar-backups")));
+    assert.equal(select("02").status, 0);
+    const backupName = (await readdir(join(dir, ".webinar-backups"))).find(
+      (n) => !oldBackups.has(n),
+    );
+    const backup = join(dir, ".webinar-backups", backupName);
+    assert.deepEqual(
+      JSON.parse(await readFile(join(backup, "absent.json"), "utf8")),
+      manifest.absent["03"],
+    );
+    for (const path of manifest.files.filter(
+      (p) => !manifest.absent["03"].includes(p),
+    )) {
       assert.equal(
-        await readFile(join(dir, ".webinar-backups", backup, file), "utf8"),
-        await readFile(join(dir, "webinar/solutions/01", file), "utf8"),
+        await readFile(join(backup, path), "utf8"),
+        await readCheckpoint(dir, manifest, "03", path),
       );
     }
-    const html = join(dir, expectedFiles[0]);
+    const html = join(dir, chapterTwoFiles[0]);
     await writeFile(html, "Presenter live edit");
     assert.match(select("status").stdout, /Custom presenter edits/);
-    assert.equal(select("03").status, 1);
+    assert.equal(select("04").status, 1);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
-    // A missing solution file must fail before any live file is overwritten.
-    await unlink(join(dir, "webinar/solutions/02", expectedFiles[2]));
-    assert.notEqual(select("02").status, 0);
+    const missing = "apps/facility-service/src/create-copilot-runtime.ts";
+    await unlink(join(dir, "webinar/solutions/03", missing));
+    assert.notEqual(select("03").status, 0);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
+    // Validation must fail before deleting the chapter-2 file.
+    assert.notEqual(
+      await readOptional(join(dir, "apps/facility-service/src/chat.ts")),
+      null,
+    );
     assert.equal(select("01").status, 0);
-    assert.match(select("status").stdout, /^01:/);
+    await matches("01");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
 });
 
-test("presenter data shows the new branch sequence and exact completed code", async () => {
+test("presenter shows chapter 03 with exact code, file deletions and demo prompts", async () => {
   const context = { window: {} };
   vm.runInNewContext(
     await readFile(new URL("./presenter-data.js", import.meta.url), "utf8"),
@@ -91,21 +113,35 @@ test("presenter data shows the new branch sequence and exact completed code", as
   const data = JSON.parse(JSON.stringify(context.window.workshopPresenter));
   assert.deepEqual(
     data.milestones.map((m) => m.id),
-    ["01", "02"],
+    ["01", "02", "03"],
   );
   assert.equal(data.milestones[0].files.length, 0);
   assert.deepEqual(
     data.milestones[1].files.map((f) => f.path),
-    expectedFiles,
+    chapterTwoFiles,
   );
-  for (const file of data.milestones[1].files) {
-    assert.equal(
-      file.after,
-      await readFile(join(root, "webinar/solutions/02", file.path), "utf8"),
-    );
-    assert.match(file.diff, /@@/);
+  assert.deepEqual(
+    data.milestones[2].files.map((f) => f.path),
+    manifest.files,
+  );
+  for (const milestone of data.milestones.slice(1)) {
+    for (const file of milestone.files) {
+      const expected = await readCheckpoint(
+        root,
+        manifest,
+        milestone.id,
+        file.path,
+      );
+      assert.equal(file.after, expected ?? "");
+      assert.equal(file.deleted, expected === null);
+      assert.match(file.diff, /@@/);
+    }
+    assert.equal(milestone.prompts.length, 2);
   }
-  assert.equal(data.milestones[1].prompts.length, 2);
+  assert.deepEqual(
+    data.milestones[2].files.filter((f) => f.deleted).map((f) => f.path),
+    manifest.absent["03"],
+  );
   const html = await readFile(
     new URL("./presenter.html", import.meta.url),
     "utf8",
@@ -113,13 +149,13 @@ test("presenter data shows the new branch sequence and exact completed code", as
   assert.deepEqual(manifest.branches, {
     "01": "webinar-01",
     "02": "webinar-02",
+    "03": "webinar-03",
   });
-  assert.match(html, /webinar-01 · Prepared starting state/);
-  assert.match(html, /webinar-02 · End of chapter 2/);
+  for (const branch of Object.values(manifest.branches))
+    assert.ok(html.includes(branch));
   assert.match(html, /pnpm webinar:select/);
   for (const match of html.matchAll(
     /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g,
-  )) {
+  ))
     new vm.Script(match[1]);
-  }
 });

@@ -587,6 +587,7 @@
           <strong>Chapter branches</strong>
           <p>webinar-01 · Prepared starting state</p>
           <p>webinar-02 · End of chapter 2</p>
+          <p>webinar-03 · CopilotKit and AG-UI</p>
         </div>
       </aside>
       <main id="main" tabindex="-1">
@@ -905,7 +906,9 @@
           details.className = "file";
           details.open = codeFirst && item.body.includes(file.path);
           const summary = document.createElement("summary");
-          summary.textContent = file.path.split("/").slice(-2).join("/");
+          summary.textContent =
+            file.path.split("/").slice(-2).join("/") +
+            (file.deleted ? " — delete file" : "");
           const path = document.createElement("code");
           path.className = "path";
           path.textContent = file.path;
@@ -915,7 +918,11 @@
           let full = false;
           const paint = () => {
             pre.innerHTML = full
-              ? esc(file.after)
+              ? esc(
+                  file.deleted
+                    ? "Delete this file in this chapter."
+                    : file.after,
+                )
               : file.diff
                   .split("\n")
                   .map(
@@ -943,7 +950,9 @@
               b.textContent = full ? "Show diff" : "Show completed code";
               paint();
             }),
-            button("Copy completed file", (b) => copy(file.after, b)),
+            ...(file.deleted
+              ? []
+              : [button("Copy completed file", (b) => copy(file.after, b))]),
             button("Copy path", (b) => copy(file.path, b)),
           );
           details.append(summary, path, controls, pre);

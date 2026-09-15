@@ -31,5 +31,5 @@ an existing Angular component to a model through our backend.”
 ## Recovery
 
 Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.
-The selector backs up and replaces only the three webinar files. It never resets
+The selector backs up and replaces the checkpoint files. It never resets
 readings or alarms. Existing milestone branches and `workshop/solutions` are separate.

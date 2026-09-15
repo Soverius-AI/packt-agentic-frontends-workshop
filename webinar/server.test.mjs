@@ -68,6 +68,23 @@ test("prepared server preserves facility data, Copilot routing and approval beha
       },
     );
     await t.test(
+      "03 exposes the real runtime's default agent without calling a model",
+      async () => {
+        process.env.COPILOTKIT_TELEMETRY_DISABLED = "true";
+        const { createChatClient } =
+          await import("../apps/facility-service/dist/create-copilot-runtime.js");
+        const copilot = await start(
+          createChatClient("local-test-key", "test-model"),
+        );
+        const response = await fetch(copilot + "/api/copilotkit/info");
+        assert.equal(response.status, 200);
+        const info = await response.json();
+        assert.deepEqual(Object.keys(info.agents), ["default"]);
+        assert.equal(info.agents.default.name, "default");
+        assert.equal(info.agents.default.className, "BuiltInAgent");
+      },
+    );
+    await t.test(
       "05 patching a room preserves dates and unrelated filters",
       () => {
         const state = {
