@@ -18,7 +18,9 @@
     "workshop:select": "node workshop/select.mjs",
     "workshop:status": "node workshop/select.mjs status",
     "check:types": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --filter @packt-workshop/agent-service exec tsc --noEmit && pnpm --filter angular-host build",
-    "workshop:test": "node --test workshop/server.test.mjs"
+    "workshop:test": "node --test workshop/server.test.mjs",
+    "workshop:notes": "node workshop/presenter.mjs",
+    "workshop:notes:build": "node workshop/presenter.mjs --build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

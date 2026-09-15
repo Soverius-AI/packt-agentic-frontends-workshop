@@ -24,7 +24,9 @@ the run lifecycle, streamed text, and later tool activity.”
 
 ## Demonstrate
 
-Ask the same general-knowledge question from 02. Show text arriving incrementally.
+Ask: **Why does temperature control matter when making chocolate?**
+
+Show text arriving incrementally.
 In Network, inspect the CopilotKit request and its streaming response; locate
 the run-start, text-message, and run-finish events where exposed by the transport.
 Explain that streaming chunks are transport observations, not a trace of hidden reasoning.

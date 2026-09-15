@@ -1,5 +1,8 @@
 # Presenter cue sheet
 
+For an action-by-action view with code diffs and copy buttons, run
+`pnpm workshop:notes` and open http://localhost:4400.
+
 Open this while presenting; follow the linked notes for exact files and prompts.
 Recovery for each row: `pnpm workshop:select NN`, restart affected services, reload
 the browser. This restores code only; existing alarms/audit/data remain.

@@ -37,6 +37,18 @@ Inherited image-size warnings remain in the conventional UI; no new rendering
 failure was observed. The project has not been newly audited for full accessibility
 conformance in this pass.
 
+## Presenter desk
+
+The repository also contains a browser presenter view, started with
+`pnpm workshop:notes` at http://localhost:4400. Its 69 action cards are generated
+from the seven Markdown note chapters; 16 changed-file snapshots and diffs come
+from the completed solutions.
+
+Verified: generated code matches all source solutions, regeneration is deterministic,
+formatting and script syntax pass, and browser navigation, arrow keys, reload
+position, prompt copying, completed-code copying and diff/full-code display work.
+This view does not select an application checkpoint or alter application state.
+
 ## Add A2UI after its reference milestone is ready
 
 1. Read the reviewed final 08 diff and its contract changes. Adapt the feature

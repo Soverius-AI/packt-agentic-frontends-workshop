@@ -9,6 +9,26 @@ SQL policy, and approval handling are already implemented.
 · [speaker notes](workshop/speaker-notes/01-conventional-app.md)
 · [readiness and future work](workshop/readiness.md)
 
+## Open your presenter notes
+
+```sh
+pnpm workshop:notes
+```
+
+Open http://localhost:4400 for the **Presenter desk**: one action at a time,
+the next action, copyable demo prompts, exact file diffs and completed code, plus
+recovery instructions. Arrow keys move between actions; your place is remembered
+in the browser. The app and Mastra do not need to be running.
+
+The Markdown notes and completed solutions remain the sources. This command
+rebuilds the presenter data before starting a local notes server. Restart the
+command after editing the notes, or run `pnpm workshop:notes:build` and reload.
+`workshop/presenter.html` and `workshop/presenter-data.js` are also available to
+open together directly from disk. They are committed with the repository.
+
+Presenter navigation never switches the application's milestone or edits code.
+Copy the code or checkpoint command when you decide to apply it.
+
 ## Run the starting state
 
 Requirements: Node 24 or newer and pnpm 11. No model key is needed for milestone 01.
