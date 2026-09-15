@@ -14,7 +14,7 @@
     "dev:backend": "pnpm --filter @packt-workshop/facility-service... build && pnpm --filter @packt-workshop/facility-service dev",
     "dev:agent": "pnpm dev:mastra",
     "dev:angular": "pnpm --filter @packt-workshop/contracts build && pnpm --filter angular-host dev",
-    "dev:mastra": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/agent-service dev",
+    "dev:mastra": "pnpm --filter @packt-workshop/common --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/agent-service dev",
     "dev:studio": "pnpm --filter @packt-workshop/agent-service dev:studio",
     "dev:all": "pnpm --filter @packt-workshop/facility-service... build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host run \"/^dev(:studio)?$/\"",
     "workshop:select": "pnpm webinar:select",
