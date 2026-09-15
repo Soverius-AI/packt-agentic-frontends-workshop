@@ -1,29 +1,22 @@
-import { CopilotA2UIActivityRenderer, type injectAgentStore } from '@copilotkit/angular';
 import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import {
+  CopilotA2UIActivityRenderer,
+  type injectAgentStore,
+} from '@copilotkit/angular';
 import type {
   AlarmApprovalAuditEntry,
-  ConfigureFacilityView,
   FacilityDashboard,
   FacilityReadingEntry,
   FacilityReadingPage,
-  FacilityViewState,
   MetricHistory,
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
 } from '@packt-workshop/contracts';
-import {
-  applyFacilityViewCommand,
-  historianToolResultSchema,
-  listMetricsToolSchema,
-  metricConditionSchema,
-  resolveFacilityViewDates,
-  resolveFacilityViewAvailableOptions,
-} from '@packt-workshop/contracts';
-import { connectWorkshop } from './workshop/connect';
+import { historianToolResultSchema } from '@packt-workshop/contracts';
 import { AlarmApprovalEvents } from './alarm-approval-events';
-import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
+import { ChatComponent } from './chat/chat.component';
 import { BasicChatComponent } from './basic-chat/basic-chat.component';
 
 type DisplayMode = 'snapshot' | 'reading-log' | 'historian-result' | 'a2ui-result';
@@ -127,15 +120,15 @@ export class App {
       })),
     ),
   );
-  protected readonly facilityViewState = computed<FacilityViewState>(() => ({
-    view: this.displayMode() === 'snapshot' ? ('snapshot' as const) : ('reading-log' as const),
+  protected readonly facilityViewState = computed(() => ({
+    view: this.displayMode(),
     filters: {
       from: this.updatedFrom() || null,
       to: this.updatedTo() || null,
       shiftManager: this.shiftManagerFilter() || null,
       roomId: this.roomFilter() || null,
       metricId: this.metricFilter() || null,
-      condition: metricConditionSchema.safeParse(this.conditionFilter()).data ?? null,
+      condition: this.conditionFilter() || null,
     },
   }));
   protected readonly currentRows = computed(() =>
@@ -164,15 +157,6 @@ export class App {
   });
 
   constructor() {
-    connectWorkshop({
-      facilityViewState: this.facilityViewState,
-      rooms: this.rooms,
-      shiftManagerOptions: this.shiftManagerOptions,
-      listMetrics: (input) => this.#listMetrics(input),
-      configureFacilityView: (command) => this.#configureFacilityView(command),
-      invalidToolPayload: (message) => this.#invalidToolPayload(message),
-      connectResultStore: (store) => this.resultStore.set(store),
-    });
     const approvalSubscription = this.#approvalEvents.recorded$.subscribe((record) => {
       this.alarmApprovals.update((entries) => [
         record,
@@ -188,103 +172,6 @@ export class App {
     this.#startContinuousUpdates();
     void this.loadDashboard();
     void this.loadAlarmApprovalAudit();
-  }
-
-  async #listMetrics(input: unknown): Promise<unknown> {
-    const validation = listMetricsToolSchema.safeParse(input);
-    if (!validation.success) return this.#invalidToolPayload(validation.error.issues[0]?.message);
-
-    let roomId = validation.data.roomId;
-    if (roomId) {
-      try {
-        const resolved = resolveFacilityViewAvailableOptions(
-          { action: 'update_filters', filters: { roomId } },
-          this.#availableFilterOptions(),
-        );
-        roomId =
-          resolved.action === 'update_filters' ? (resolved.filters.roomId ?? undefined) : roomId;
-      } catch (error) {
-        return {
-          ok: false,
-          error: error instanceof Error ? error.message : 'Invalid room option.',
-        };
-      }
-    }
-
-    return {
-      metrics: this.rooms()
-        .filter((room) => !roomId || room.id === roomId)
-        .flatMap((room) =>
-          room.metrics.map((metric) => ({
-            id: metric.id,
-            name: metric.name,
-            roomId: room.id,
-            roomName: room.name,
-            kind: metric.kind,
-            unit: metric.unit,
-          })),
-        ),
-    };
-  }
-
-  async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
-    let validatedCommand = command;
-    try {
-      validatedCommand = resolveFacilityViewAvailableOptions(
-        validatedCommand,
-        this.#availableFilterOptions(),
-      );
-    } catch (error) {
-      return {
-        ok: false,
-        state: this.facilityViewState(),
-        error: error instanceof Error ? error.message : 'Invalid facility filter option.',
-      };
-    }
-    const next = resolveFacilityViewDates(
-      applyFacilityViewCommand(this.facilityViewState(), validatedCommand),
-    );
-    const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'reading-log';
-    const viewChanged = nextDisplayMode !== this.displayMode();
-
-    this.updatedFrom.set(next.filters.from ?? '');
-    this.updatedTo.set(next.filters.to ?? '');
-    this.shiftManagerFilter.set(next.filters.shiftManager ?? '');
-    this.roomFilter.set(next.filters.roomId ?? '');
-    this.metricFilter.set(next.filters.metricId ?? '');
-    this.conditionFilter.set(next.filters.condition ?? '');
-    this.readingPageIndex.set(0);
-
-    if (viewChanged) {
-      this.displayMode.set(nextDisplayMode);
-      this.closeHistory();
-      if (nextDisplayMode === 'snapshot') this.#startContinuousUpdates();
-      else this.#stopContinuousUpdates();
-    }
-    if (nextDisplayMode === 'reading-log') await this.loadReadingEntries();
-
-    this.status.set('The assistant updated the facility view.');
-    return {
-      ok: true,
-      state: next,
-      message: 'Facility view updated. Unspecified values were preserved.',
-    };
-  }
-
-  #invalidToolPayload(message?: string): unknown {
-    return {
-      ok: false,
-      state: this.facilityViewState(),
-      error: message ?? 'Invalid frontend tool payload.',
-    };
-  }
-
-  #availableFilterOptions() {
-    return {
-      rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
-      metrics: this.metricOptions(),
-      shiftManagers: this.shiftManagerOptions(),
-    };
   }
 
   protected setDisplayMode(mode: DisplayMode): void {
@@ -394,45 +281,64 @@ export class App {
     }
   }
 
-  protected setFilter(
-    filter: 'from' | 'to' | 'shiftManager' | 'room' | 'metric' | 'condition',
-    event: Event,
-  ): void {
-    const value = (event.target as HTMLInputElement).value;
-    const filters = {
-      from: this.updatedFrom,
-      to: this.updatedTo,
-      shiftManager: this.shiftManagerFilter,
-      room: this.roomFilter,
-      metric: this.metricFilter,
-      condition: this.conditionFilter,
-    };
-    filters[filter].set(value);
+  // Shared by the template controls and the update_filters tool.
+  protected async updateFilters(filters: {
+    from?: string | null;
+    to?: string | null;
+    roomId?: string | null;
+    metricId?: string | null;
+    shiftManager?: string | null;
+    condition?: string | null;
+  }) {
+    if (filters.roomId && !this.rooms().some((room) => room.id === filters.roomId))
+      return { ok: false, error: 'Unknown room ID. Use an available room from context.' };
+    if (filters.metricId && !this.metricOptions().some((metric) => metric.id === filters.metricId))
+      return { ok: false, error: 'Unknown metric ID. Use an available metric from context.' };
+    if (filters.shiftManager && !this.shiftManagerOptions().includes(filters.shiftManager))
+      return { ok: false, error: 'Unknown shift manager. Use an available name from context.' };
+    if (
+      filters.condition &&
+      !['normal', 'warning', 'critical', 'unavailable'].includes(filters.condition)
+    )
+      return { ok: false, error: 'Unknown reading condition.' };
+
+    // Resolve both dates before changing any state, so invalid input changes nothing.
+    let from = this.updatedFrom();
+    let to = this.updatedTo();
+    try {
+      if (filters.from !== undefined) from = this.#localFilterDate(filters.from);
+      if (filters.to !== undefined) to = this.#localFilterDate(filters.to);
+    } catch {
+      return { ok: false, error: 'Invalid date. Use "now", an ISO date-time or YYYY-MM-DDTHH:mm.' };
+    }
+    this.updatedFrom.set(from);
+    this.updatedTo.set(to);
+    if (filters.roomId !== undefined) this.roomFilter.set(filters.roomId ?? '');
+    if (filters.metricId !== undefined) this.metricFilter.set(filters.metricId ?? '');
+    if (filters.shiftManager !== undefined) this.shiftManagerFilter.set(filters.shiftManager ?? '');
+    if (filters.condition !== undefined) this.conditionFilter.set(filters.condition ?? '');
     this.readingPageIndex.set(0);
-    void this.loadReadingEntries();
+    await this.loadReadingEntries();
+    return { ok: true, state: this.facilityViewState() };
   }
 
   protected clearFilters(): void {
-    this.updatedFrom.set('');
-    this.updatedTo.set('');
-    this.shiftManagerFilter.set('');
-    this.roomFilter.set('');
-    this.metricFilter.set('');
-    this.conditionFilter.set('');
-    this.readingPageIndex.set(0);
-    void this.loadReadingEntries();
+    void this.updateFilters({
+      from: null,
+      to: null,
+      roomId: null,
+      metricId: null,
+      shiftManager: null,
+      condition: null,
+    });
   }
 
-  protected clearDateFilter(filter: 'from' | 'to'): void {
-    if (filter === 'from') {
-      this.updatedFrom.set('');
-      this.readingPageIndex.set(0);
-      void this.loadReadingEntries();
-      return;
-    }
-    this.updatedTo.set('');
-    this.readingPageIndex.set(0);
-    void this.loadReadingEntries();
+  #localFilterDate(value: string | null): string {
+    if (!value) return '';
+    const date = value === 'now' ? new Date() : new Date(value);
+    if (Number.isNaN(date.getTime())) throw new Error('Invalid date');
+    const pad = (part: number) => String(part).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 
   protected goToReadingPage(pageIndex: number): void {

@@ -1,5 +1,9 @@
 # Webinar verification — 15 September 2026
 
+The results below record the original checkpoint. The shared UI baseline and its
+recovery snapshots have since been simplified; see [baseline verification](baseline-verification.md).
+
+
 ## Preserved working reference
 
 Commit `1a9e25e` on `webinar-01` records the presenter's working milestone-02

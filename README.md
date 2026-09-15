@@ -1,5 +1,13 @@
 # Webinar — chapter branches
 
+## Simplified baseline for milestone 5
+
+The shared application methods and the four Angular-local schemas are prepared.
+No frontend tools or agent context are registered on webinar-01 through webinar-04.
+The presenter writes the context connection, two tool registrations and the Mastra
+prompt change during milestone 5. See [the preparation and teaching guide](webinar/milestone-05.md).
+
+
 The webinar branches preserve Rainer's working Basic Chat implementation and
 prepare the supporting code before the webinar. The live exercise changes only:
 
