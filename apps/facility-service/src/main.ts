@@ -41,7 +41,7 @@ const server = createFacilityServer({
   repository,
   telemetry,
   historian,
-  chat: undefined,
+  chat: createChatClient(OPENROUTER_API_KEY, OPENROUTER_MODEL),
 });
 
 server.listen(port, "127.0.0.1", () => {

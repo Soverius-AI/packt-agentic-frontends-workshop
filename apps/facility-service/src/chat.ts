@@ -17,6 +17,24 @@ export class ChatServiceError extends Error {
 }
 
 export function createChatClient(apiKey: string, model: string): ChatService {
-  // Live step: implement the OpenAI client and reply function here.
-  throw new ChatServiceError("Basic chat client is not implemented yet.", 503);
+  const client = new OpenAI({
+    apiKey,
+    baseURL: "https://openrouter.ai/api/v1",
+  });
+
+  return {
+    reply: async (messages: ChatMessage[]): Promise<ChatMessage> => {
+      const completions = await client.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: CHAT_SYSTEM_PROMPT },
+          ...messages,
+        ],
+      });
+
+      const { message } = getOrThrow(completions.choices[0]);
+
+      return { ...message, content: message.content ?? "" };
+    },
+  };
 }
