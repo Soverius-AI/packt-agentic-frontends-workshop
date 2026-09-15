@@ -44,7 +44,7 @@ service and Studio use port 4211. These defaults keep this worktree separate fro
 the original milestone development ports (4200, 3001, 4111).
 
 For milestone 02 onward, copy `.env.example` to `.env` in this worktree and enter
-your OpenRouter key. For milestones 04–07 also run `pnpm dev:agent` in another
+your OpenRouter key. For milestones 04–08 also run `pnpm dev:agent` in another
 terminal. `pnpm dev:all` starts all three services when the model is configured.
 Each worktree owns its own ignored SQLite data directories and `.env`.
 
@@ -73,7 +73,7 @@ notes. The selector provides rehearsal starting points and recovery snapshots.
 | `apps/facility-service`        | API, conventional app, SQLite, basic chat and Copilot runtime |
 | `apps/agent-service`           | Mastra agents, prepared workflow steps, prompts and Studio    |
 | `packages/contracts`           | Shared API, tool and result schemas                           |
-| `workshop/solutions/01` … `07` | Copyable completed presenter files                            |
+| `workshop/solutions/01` … `08` | Copyable completed presenter files                            |
 | `workshop/speaker-notes`       | What to say, open, change, demonstrate and inspect            |
 
 ## Verification
@@ -81,6 +81,7 @@ notes. The selector provides rehearsal starting points and recovery snapshots.
 ```sh
 pnpm check:types
 pnpm workshop:test
+pnpm workshop:test:a2ui
 pnpm format:check
 ```
 
@@ -91,12 +92,16 @@ model call. See `workshop/readiness.md` for the actual verification performed.
 
 ## Scope and source
 
-Based on completed `07-human-in-loop` (`e2e5d14`), with the basic chat and embedded
-Copilot runtime restored from completed checkpoints 02 and 03. The numbered
-reference branches remain separate. React is removed from this presenter branch;
-shared contracts remain because both browser and servers consume them.
+Updated from the local milestone branches 01–08; exact source commits are recorded
+in `workshop/manifest.json`. See the [update report](workshop/update-report.md) for
+what changed, what is smaller, and which checks passed. The numbered reference
+branches remain separate. Angular owns the prepared A2UI catalogue and components;
+shared contracts remain because the browser and servers consume them.
 
-A2UI (08), A2A (09), and MCP/MCP Apps (10) are future additions. No uncommitted
-A2UI code was copied from the original worktree. The existing blueprint and
-`docs/step-*` files record the original checkpoint design; older three-hour and
-two-framework descriptions are historical reference, not this presenter runbook.
+A2A (09) and MCP/MCP Apps (10) remain future additions. The `docs/step-*` files and
+older three-hour/two-framework plans are reference history; use `workshop/` for
+this three-day presenter runbook and current ports.
+
+To refresh stale demo data, stop the app and deliberately run `pnpm reset:demo`.
+It reseeds the last seven days and clears demo alarms and approval records. It is
+separate from selecting a code checkpoint.

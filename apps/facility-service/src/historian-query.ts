@@ -1,14 +1,20 @@
 import { Worker } from "node:worker_threads";
 import { constants, DatabaseSync } from "node:sqlite";
 import type {
-  FacilityReadingEntry,
+  DatasetColumn,
+  DatasetRow,
+  HistorianDataset,
   HistorianExecutionRequest,
-  HistorianToolResult,
+  HistorianExecutionResult,
+  HistorianValidationResult,
 } from "@packt-workshop/contracts";
-import { facilityReadingEntrySchema } from "@packt-workshop/contracts";
+import {
+  DATASET_ROW_LIMIT,
+  datasetCellSchema,
+} from "@packt-workshop/contracts";
 
-export const HISTORIAN_POLICY_VERSION = "historian-v1";
-export const HISTORIAN_ROW_LIMIT = 200;
+export const HISTORIAN_POLICY_VERSION = "historian-v2";
+export const HISTORIAN_ROW_LIMIT = DATASET_ROW_LIMIT;
 export const HISTORIAN_TIMEOUT_MS = 750;
 
 const HISTORIAN_VIEW = "historian_readings";
@@ -17,6 +23,8 @@ const HISTORIAN_COLUMNS = new Set([
   "recorded_at",
   "room_id",
   "room_name",
+  "room_area_type",
+  "room_description",
   "metric_id",
   "metric_name",
   "unit",
@@ -25,19 +33,6 @@ const HISTORIAN_COLUMNS = new Set([
   "shift_manager_name",
   "condition",
 ]);
-const HISTORIAN_RESULT_COLUMNS = [
-  "reading_id",
-  "recorded_at",
-  "room_id",
-  "room_name",
-  "metric_id",
-  "metric_name",
-  "unit",
-  "numeric_value",
-  "text_value",
-  "shift_manager_name",
-  "condition",
-] as const;
 const VIEW_SOURCE_TABLES = new Set([
   "metric_readings",
   "metrics",
@@ -46,6 +41,10 @@ const VIEW_SOURCE_TABLES = new Set([
 ]);
 const ALLOWED_FUNCTIONS = new Set([
   "abs",
+  "avg",
+  "count",
+  "sum",
+  "total",
   "coalesce",
   "date",
   "datetime",
@@ -226,14 +225,16 @@ export function validateHistorianStatement(sql: string): string {
   return normalized;
 }
 
-type ExecutedHistorianQuery = Pick<
-  Extract<HistorianToolResult, { status: "executed" }>,
-  "entries" | "rowCount" | "truncated" | "durationMs"
->;
+type ExecutedHistorianQuery = {
+  columns: DatasetColumn[];
+  rows: DatasetRow[];
+  durationMs: number;
+};
 
 export function executeHistorianSql(
   databasePath: string,
   untrustedSql: string,
+  validateOnly = false,
 ): ExecutedHistorianQuery {
   const sql = validateHistorianStatement(untrustedSql);
   const database = new DatabaseSync(databasePath, {
@@ -259,8 +260,8 @@ export function executeHistorianSql(
         if (actionCode === constants.SQLITE_READ) {
           if (
             argument1 === HISTORIAN_VIEW &&
-            argument2 &&
-            HISTORIAN_COLUMNS.has(argument2)
+            argument2 !== null &&
+            (HISTORIAN_COLUMNS.has(argument2) || argument2 === "")
           ) {
             readHistorianView = true;
             return constants.SQLITE_OK;
@@ -288,35 +289,71 @@ export function executeHistorianSql(
     }
     const columnNames = statement.columns().map((column) => column.name);
     if (
-      columnNames.length !== HISTORIAN_RESULT_COLUMNS.length ||
-      columnNames.some(
-        (column, index) => column !== HISTORIAN_RESULT_COLUMNS[index],
-      )
+      columnNames.length > 24 ||
+      columnNames.some((name) => !/^[a-z][a-z0-9_]{0,63}$/.test(name)) ||
+      new Set(columnNames).size !== columnNames.length
     ) {
       throw new HistorianPolicyError(
         "UNSUPPORTED_RESULT_SHAPE",
-        `Historian queries must return complete reading records with these columns in order: ${HISTORIAN_RESULT_COLUMNS.join(", ")}. Computed result shapes such as averages and counts require a later A2UI milestone.`,
+        "Return up to 24 uniquely named scalar columns using snake_case aliases.",
       );
     }
-    const objects = statement.all() as Record<
-      string,
-      null | number | bigint | string | Uint8Array
-    >[];
-    const truncated = objects.length > HISTORIAN_ROW_LIMIT;
-    const entries = objects
-      .slice(0, HISTORIAN_ROW_LIMIT)
-      .map((row) => parseHistorianReading(row));
-    const serializedSize = Buffer.byteLength(JSON.stringify(entries));
-    if (serializedSize > 256 * 1024) {
+    // Preparing the statement applies the same SQL/SQLite rules without running it.
+    if (validateOnly)
+      return {
+        columns: [],
+        rows: [],
+        durationMs: Math.max(0, Math.round(performance.now() - startedAt)),
+      };
+    const objects = statement.all();
+    if (objects.length > HISTORIAN_ROW_LIMIT) {
+      throw new HistorianPolicyError(
+        "DATASET_TOO_LARGE",
+        `The query exceeds ${HISTORIAN_ROW_LIMIT} rows. Narrow the date range or filters; partial datasets cannot supply accurate group summaries.`,
+      );
+    }
+    const rows: DatasetRow[] = objects.map((object) =>
+      Object.fromEntries(
+        Object.entries(object).map(([key, value]) => {
+          const parsed = datasetCellSchema.safeParse(value);
+          if (!parsed.success)
+            throw new HistorianPolicyError(
+              "INVALID_RESULT_VALUE",
+              "Only finite numbers, text up to 2,000 characters, and null are permitted.",
+            );
+          return [key, parsed.data];
+        }),
+      ),
+    );
+    if (Buffer.byteLength(JSON.stringify(rows)) > 16 * 1024 * 1024) {
       throw new HistorianPolicyError(
         "RESULT_TOO_LARGE",
-        "The historian result exceeds the 256 KB limit.",
+        "The historian dataset exceeds the 16 MB limit. Narrow the request.",
       );
     }
+    const columns: DatasetColumn[] = columnNames.map((key) => {
+      const values = rows
+        .map((row) => row[key])
+        .filter((value) => value !== null);
+      return {
+        key,
+        label: key
+          .split("_")
+          .map((word) => word[0]!.toUpperCase() + word.slice(1))
+          .join(" "),
+        type:
+          key === "recorded_at"
+            ? "datetime"
+            : ["reading_id", "numeric_value"].includes(key) ||
+                (values.length &&
+                  values.every((value) => typeof value === "number"))
+              ? "number"
+              : "text",
+      };
+    });
     return {
-      entries,
-      rowCount: entries.length,
-      truncated,
+      columns,
+      rows,
       durationMs: Math.max(0, Math.round(performance.now() - startedAt)),
     };
   } catch (error) {
@@ -332,43 +369,6 @@ export function executeHistorianSql(
   }
 }
 
-function parseHistorianReading(
-  row: Record<string, null | number | bigint | string | Uint8Array>,
-): FacilityReadingEntry {
-  for (const value of Object.values(row)) {
-    if (value instanceof Uint8Array) {
-      throw new HistorianPolicyError(
-        "BINARY_RESULT",
-        "Binary historian result values are not permitted.",
-      );
-    }
-  }
-
-  const id = row["reading_id"];
-  const numericValue = row["numeric_value"];
-  try {
-    return facilityReadingEntrySchema.parse({
-      id: typeof id === "bigint" ? Number(id) : id,
-      recordedAt: row["recorded_at"],
-      roomId: row["room_id"],
-      roomName: row["room_name"],
-      metricId: row["metric_id"],
-      metricName: row["metric_name"],
-      unit: row["unit"],
-      numericValue:
-        typeof numericValue === "bigint" ? Number(numericValue) : numericValue,
-      textValue: row["text_value"],
-      shiftManagerName: row["shift_manager_name"],
-      condition: row["condition"],
-    });
-  } catch {
-    throw new HistorianPolicyError(
-      "UNSUPPORTED_RESULT_SHAPE",
-      "The historian query returned values that do not match the fixed historical-reading grid.",
-    );
-  }
-}
-
 type HistorianWorkerResult =
   | { ok: true; result: ExecutedHistorianQuery }
   | { ok: false; code: string; message: string };
@@ -377,13 +377,13 @@ export function executeHistorianSqlInWorker(
   databasePath: string,
   sql: string,
   timeoutMs = HISTORIAN_TIMEOUT_MS,
+  validateOnly = false,
 ): Promise<ExecutedHistorianQuery> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(
       new URL("./historian-query-worker.js", import.meta.url),
       {
-        workerData: { databasePath, sql },
-        // The worker runs compiled JavaScript; parent CLI/test flags are not worker options.
+        workerData: { databasePath, sql, validateOnly },
         execArgv: ["--enable-source-maps"],
       },
     );
@@ -421,7 +421,10 @@ export function executeHistorianSqlInWorker(
 }
 
 export type HistorianQueryExecutor = {
-  execute(request: HistorianExecutionRequest): Promise<HistorianToolResult>;
+  validate(sql: string): Promise<HistorianValidationResult>;
+  execute(
+    request: HistorianExecutionRequest,
+  ): Promise<HistorianExecutionResult>;
 };
 
 export class HistorianQueryService implements HistorianQueryExecutor {
@@ -430,16 +433,61 @@ export class HistorianQueryService implements HistorianQueryExecutor {
     private readonly runQuery = executeHistorianSqlInWorker,
   ) {}
 
+  async validate(sql: string): Promise<HistorianValidationResult> {
+    try {
+      await executeHistorianSqlInWorker(
+        this.databasePath,
+        sql,
+        HISTORIAN_TIMEOUT_MS,
+        true,
+      );
+      return { approved: true, policyVersion: HISTORIAN_POLICY_VERSION };
+    } catch (error) {
+      return {
+        approved: false,
+        policyVersion: HISTORIAN_POLICY_VERSION,
+        code:
+          error instanceof HistorianPolicyError
+            ? error.code
+            : "VALIDATION_FAILED",
+        message:
+          error instanceof Error ? error.message : "The SQL check failed.",
+      };
+    }
+  }
+
   async execute(
     request: HistorianExecutionRequest,
-  ): Promise<HistorianToolResult> {
+  ): Promise<HistorianExecutionResult> {
     try {
+      if (!request.review.approved)
+        throw new HistorianPolicyError(
+          "REVIEW_REQUIRED",
+          "The SQL reviewer must approve the query before execution.",
+        );
       const result = await this.runQuery(this.databasePath, request.sql);
+      const { columns, rows, durationMs } = result;
+      const metadata = {
+        columns,
+        rowCount: rows.length,
+        createdAt: new Date().toISOString(),
+      };
+      const data: HistorianDataset = {
+        ...metadata,
+        question: request.question,
+        sql: request.sql,
+        rows,
+      };
       return {
         status: "executed",
         ...request,
         policyVersion: HISTORIAN_POLICY_VERSION,
-        ...result,
+        dataset: metadata,
+        data,
+        entries: [],
+        rowCount: rows.length,
+        truncated: false,
+        durationMs,
       };
     } catch (error) {
       return {

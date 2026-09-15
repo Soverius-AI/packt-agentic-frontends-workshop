@@ -4,8 +4,10 @@ import { dirname, resolve } from "node:path";
 import { LiveTelemetry } from "./live-telemetry.js";
 import { createFacilityServer } from "./server.js";
 import { FacilityRepository } from "./repository.js";
-import { createWorkshopConnections } from "./workshop.js";
-import { HistorianQueryService } from "./historian-query.js";
+import {
+  createWorkshopConnections,
+  HistorianQueryService,
+} from "./workshop.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const environmentPath = resolve(packageRoot, "../../.env");
@@ -18,6 +20,14 @@ const databasePath = resolve(
 );
 const repository = new FacilityRepository(databasePath);
 repository.initialize();
+if (process.argv.includes("--reset-demo")) {
+  repository.resetDemoData();
+  repository.close();
+  console.log(
+    "Demo readings reset to the last seven days; alarms and approval records cleared.",
+  );
+  process.exit(0);
+}
 const telemetry = new LiveTelemetry(repository);
 const { chat, copilotRuntime } = createWorkshopConnections({
   apiKey: process.env["OPENROUTER_API_KEY"] ?? "",

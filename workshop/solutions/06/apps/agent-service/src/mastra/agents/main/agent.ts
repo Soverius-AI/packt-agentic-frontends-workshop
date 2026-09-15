@@ -1,3 +1,4 @@
+import { ToolCallFilter } from "@mastra/core/processors";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";
@@ -19,6 +20,9 @@ export function createMainAgent(
     name: "Soverius Chocolate Factory Assistant",
     instructions: CHAT_SYSTEM_PROMPT,
     model: openrouter(model),
+    inputProcessors: [new ToolCallFilter({ exclude: ["query_historian"] })],
     tools: { query_historian: createQueryHistorianTool(workflow) },
   });
 }
+
+export { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";

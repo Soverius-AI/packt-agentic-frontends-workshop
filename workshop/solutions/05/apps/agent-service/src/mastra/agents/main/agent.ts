@@ -21,3 +21,5 @@ export function createMainAgent(
     tools: {},
   });
 }
+
+export { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";

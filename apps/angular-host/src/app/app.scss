@@ -764,3 +764,9 @@ button:disabled {
     justify-content: space-between;
   }
 }
+
+.generated-results {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}

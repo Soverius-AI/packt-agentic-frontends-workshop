@@ -43,7 +43,9 @@ because the range starts now. Clear the start date and show the prior filters re
 
 Explain omitted fields versus explicit clearing. For a code-level explanation,
 open `applyFacilityViewCommand` in `packages/contracts/src/index.ts`; that is the
-prepared patch behavior behind the visible controls.
+prepared patch behavior behind the visible controls. IDs must now match the
+values returned by discovery exactly; there is no fuzzy name-to-ID conversion.
+Natural-language room names are fine in chat because the agent first discovers IDs.
 
 ## Transition
 

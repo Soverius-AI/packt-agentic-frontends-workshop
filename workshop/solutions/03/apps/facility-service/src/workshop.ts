@@ -9,3 +9,5 @@ export function createWorkshopConnections(
     copilotRuntime: createEmbeddedCopilotRuntime(options),
   };
 }
+
+export { HistorianQueryService } from "./historian-query-legacy.js";

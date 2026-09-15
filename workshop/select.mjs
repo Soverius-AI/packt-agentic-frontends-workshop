@@ -37,7 +37,7 @@ if (argument === "status") {
 }
 const phase = argument.padStart(2, "0");
 if (!Object.hasOwn(manifest.milestones, phase)) {
-  console.error("Usage: pnpm workshop:select <01–07> | pnpm workshop:status");
+  console.error("Usage: pnpm workshop:select <01–08> | pnpm workshop:status");
   process.exit(1);
 }
 // Read and validate every solution before touching the active files.
@@ -57,5 +57,5 @@ for (const [path, text] of selected) await writeFile(join(root, path), text);
 console.log(`${phase}: ${manifest.milestones[phase]}`);
 console.log(`Previous presenter files saved to ${backup}`);
 console.log(
-  "Restart pnpm dev after a backend change. Start/restart pnpm dev:agent for milestones 04–07. Reload the browser for a fresh conversation.",
+  "Restart pnpm dev after a backend change. Start/restart pnpm dev:agent for milestones 04–08. Reload the browser for a fresh conversation.",
 );

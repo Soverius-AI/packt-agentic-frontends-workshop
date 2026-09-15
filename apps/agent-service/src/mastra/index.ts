@@ -3,8 +3,11 @@ import { LibSQLStore } from "@mastra/libsql";
 import { MastraStorageExporter, Observability } from "@mastra/observability";
 import { existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { createMainAgent, historianEnabled } from "./agents/main/agent";
-import { createHistorianQueryWorkflow } from "./workflows/historian-query/workflow";
+import {
+  createMainAgent,
+  historianEnabled,
+  createHistorianQueryWorkflow,
+} from "./agents/main/agent";
 
 const packageRoot = process.cwd();
 const environmentPath = resolve(packageRoot, "../../.env");

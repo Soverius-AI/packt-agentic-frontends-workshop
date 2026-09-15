@@ -45,13 +45,14 @@ If explaining duplicate decisions, show that replaying the same correlation ID
 does not create another alarm. Do not claim that every new conversational request
 shares that ID; a new proposal is a new decision.
 
-## Transition to future content
+## Transition to milestone 08
 
 “We can select readings and request an approved action. Our result layout is still
 fixed. A2UI will let the assistant compose a view from components we supply.”
 
-Stop at this promise until reviewed milestone 08 is adapted. A2A and MCP/MCP Apps
-remain later additions, not hidden capabilities in this starter.
+Continue with [08 — A2UI](08-a2ui.md). The catalogue and renderer already exist;
+connect them and repeat a request that the fixed grid could not represent. A2A
+and MCP/MCP Apps remain later additions.
 
 ## Recovery
 

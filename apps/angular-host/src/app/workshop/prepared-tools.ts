@@ -1,5 +1,6 @@
 import {
   connectAgentContext,
+  injectAgentStore,
   registerFrontendTool,
   registerHumanInTheLoop,
 } from '@copilotkit/angular';
@@ -12,13 +13,13 @@ import {
   listRoomsToolSchema,
   listShiftManagersToolSchema,
   setViewToolSchema,
-  showHistorianReadingsToolSchema,
   updateFiltersToolSchema,
 } from '@packt-workshop/contracts';
 import { AlarmApprovalCard } from '../alarm-approval-card';
 import type { WorkshopHost } from './host';
 
 export function connectViewContext(host: WorkshopHost): void {
+  host.connectResultStore(injectAgentStore('default'));
   connectAgentContext(() => ({
     description:
       'Current facility view, active filters, and user timezone. This context contains no option catalogs, readings, alarm records, or historian results.',
@@ -113,22 +114,6 @@ export function registerFacilityTools(host: WorkshopHost): void {
       const validation = clearFiltersToolSchema.safeParse(input);
       if (!validation.success) return host.invalidToolPayload(validation.error.issues[0]?.message);
       return host.configureFacilityView({ action: 'clear_filters', ...validation.data });
-    },
-  });
-}
-
-export function registerHistorianView(host: WorkshopHost): void {
-  registerFrontendTool({
-    name: 'show_historian_readings',
-    description:
-      'Display complete reading records returned by query_historian in the dedicated Historian result view. Copy question, entries, and truncated exactly from the successful backend tool result.',
-    parameters: showHistorianReadingsToolSchema,
-    agentId: 'default',
-    followUp: true,
-    handler: async (input) => {
-      const validation = showHistorianReadingsToolSchema.safeParse(input);
-      if (!validation.success) return host.invalidToolPayload(validation.error.issues[0]?.message);
-      return host.showHistorianReadings(validation.data);
     },
   });
 }

@@ -1,5 +1,5 @@
 {
-  "sourceCommit": "e2e5d14",
+  "sourceCommit": "993113418f239b06f471fb9991328a8e4ed0b95a",
   "files": [
     "apps/angular-host/src/app/chat/chat.component.ts",
     "apps/angular-host/src/app/chat/chat.component.html",
@@ -16,6 +16,41 @@
     "04": "Mastra agent",
     "05": "Frontend tools",
     "06": "Reviewed historian workflow",
-    "07": "Human approval and audit"
+    "07": "Human approval and audit",
+    "08": "A2UI result composition"
+  },
+  "sources": {
+    "01": {
+      "branch": "01-base-app",
+      "commit": "0be43f53e649142ede012e3114bde4d2b3f3dcd8"
+    },
+    "02": {
+      "branch": "02-basic-chat",
+      "commit": "1fc5573a27593d7eba0c3d852907303d0c36fb4d"
+    },
+    "03": {
+      "branch": "03-copilotkit-ag-ui",
+      "commit": "21f370ce24457e3828ac2480909233f9192527dc"
+    },
+    "04": {
+      "branch": "04-mastra-agent",
+      "commit": "fa156433a63db331617e8e6ccff23af40b2a6876"
+    },
+    "05": {
+      "branch": "05-frontend-tool",
+      "commit": "734bef92e2ea9cf6310ac1427f9f16ee32809852"
+    },
+    "06": {
+      "branch": "06-sql-tool",
+      "commit": "2115c3de489b68e9e00f2336aa36cfb55045b079"
+    },
+    "07": {
+      "branch": "07-human-in-loop",
+      "commit": "592597491748abc6b2c87fd955c5fe1e88e4c73d"
+    },
+    "08": {
+      "branch": "08-a2ui",
+      "commit": "993113418f239b06f471fb9991328a8e4ed0b95a"
+    }
   }
 }

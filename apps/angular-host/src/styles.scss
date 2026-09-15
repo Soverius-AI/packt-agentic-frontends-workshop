@@ -16,3 +16,27 @@ app-chat copilot-chat-view-input-container > div {
 app-chat copilot-chat-view-feather {
   display: none;
 }
+
+// Give prompts the full width; keep CopilotKit's controls on the row below.
+app-chat copilot-chat-input [data-layout='compact'] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+
+  > :first-child {
+    grid-area: 2 / 1;
+  }
+
+  > :nth-child(2) {
+    grid-area: 1 / 1 / 2 / -1;
+  }
+
+  > :last-child {
+    grid-area: 2 / 2;
+  }
+
+  textarea {
+    max-height: 160px !important;
+    padding: 8px 0;
+    overflow-y: auto;
+  }
+}

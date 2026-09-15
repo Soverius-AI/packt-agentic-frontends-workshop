@@ -30,6 +30,9 @@
           @case ('reading-log') {
             Reading log
           }
+          @case ('a2ui-result') {
+            Generated view
+          }
           @case ('historian-result') {
             Historian result
           }
@@ -66,7 +69,7 @@
 
         <div
           class="mode-switch"
-          [class.has-historian-result]="historianResult()"
+          [class.has-historian-result]="historianResult() || a2uiActivity()"
           role="tablist"
           aria-label="Reading display mode"
         >
@@ -90,6 +93,17 @@
             Reading log
             <small>Historical readings · filterable</small>
           </button>
+          @if (a2uiActivity()) {
+            <button
+              type="button"
+              role="tab"
+              [attr.aria-selected]="displayMode() === 'a2ui-result'"
+              [class.active]="displayMode() === 'a2ui-result'"
+              (click)="setDisplayMode('a2ui-result')"
+            >
+              Generated view <small>Tables, cards and text</small>
+            </button>
+          }
           @if (historianResult()) {
             <button
               type="button"
@@ -105,7 +119,20 @@
         </div>
 
         <section class="room" aria-labelledby="rooms-title">
-          @if (displayMode() !== 'snapshot') {
+          @if (displayMode() === 'a2ui-result') {
+            <div class="generated-results">
+              @if (resultAgent(); as agent) {
+                @for (activity of a2uiActivities(); track activity.id) {
+                  <copilot-a2ui-activity-renderer
+                    [activityType]="activity.activityType"
+                    [content]="activity.content"
+                    [message]="activity"
+                    [agent]="agent"
+                  />
+                }
+              }
+            </div>
+          } @else if (displayMode() !== 'snapshot') {
             @if (displayMode() === 'historian-result' && historianResult(); as result) {
               <section class="filter-panel" aria-label="Historian query result">
                 <div class="filter-heading">

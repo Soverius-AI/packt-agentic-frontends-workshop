@@ -4,12 +4,20 @@ import {
   HistorianPolicyError,
 } from "./historian-query.js";
 
-const input = workerData as { databasePath: string; sql: string };
+const input = workerData as {
+  databasePath: string;
+  sql: string;
+  validateOnly?: boolean;
+};
 
 try {
   parentPort?.postMessage({
     ok: true,
-    result: executeHistorianSql(input.databasePath, input.sql),
+    result: executeHistorianSql(
+      input.databasePath,
+      input.sql,
+      input.validateOnly,
+    ),
   });
 } catch (error) {
   parentPort?.postMessage({

@@ -9,6 +9,7 @@ import {
   alarmApprovalRequestSchema,
   alarmActionRequestSchema,
   historianExecutionRequestSchema,
+  historianValidationRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
@@ -19,7 +20,11 @@ import {
   FacilityRepositoryError,
   type ReadingEntryFilters,
 } from "./repository.js";
-import type { HistorianQueryExecutor } from "./historian-query.js";
+import type { HistorianQueryExecutor as DatasetExecutor } from "./historian-query.js";
+import type { HistorianQueryExecutor as ReadingExecutor } from "./historian-query-legacy.js";
+type HistorianQueryExecutor = ReadingExecutor & {
+  validate?: DatasetExecutor["validate"];
+};
 
 const sendJson = (
   response: ServerResponse,
@@ -134,6 +139,20 @@ export const createFacilityServer = (
           condition ? metricConditionSchema.parse(condition) : undefined,
         );
         sendJson(response, 200, repository.getReadingEntries(filters));
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/historian/validate") {
+        if (!historian?.validate) {
+          sendJson(response, 503, {
+            error: "The dataset SQL check is not connected in this checkpoint.",
+          });
+          return;
+        }
+        const input = historianValidationRequestSchema.parse(
+          await readBody(request),
+        );
+        sendJson(response, 200, await historian.validate(input.sql));
         return;
       }
 

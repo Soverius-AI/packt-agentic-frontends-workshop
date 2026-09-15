@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "node --enable-source-maps dist/main.js",
-    "start": "node --enable-source-maps dist/main.js"
+    "start": "node --enable-source-maps dist/main.js",
+    "reset:demo": "node --enable-source-maps dist/main.js --reset-demo"
   },
   "dependencies": {
     "@ag-ui/client": "0.0.57",

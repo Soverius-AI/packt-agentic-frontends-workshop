@@ -578,7 +578,6 @@
         <nav id="milestones" aria-label="Milestones"></nav>
         <div class="later">
           <strong>Coming later</strong>
-          <p>08 · A2UI</p>
           <p>09 · A2A</p>
           <p>10 · MCP / MCP Apps</p>
         </div>
@@ -794,7 +793,11 @@
             return el;
           }),
         );
-        $("chapter").textContent = "Milestone " + m.id + " / 07";
+        $("chapter").textContent =
+          "Milestone " +
+          m.id +
+          " / " +
+          String(data.milestones.length).padStart(2, "0");
         $("title").textContent = m.name;
         $("flow").innerHTML = m.flow
           .map((phrase) => "<span>" + esc(phrase) + "</span>")
@@ -804,13 +807,15 @@
         $("action-body").innerHTML = markdown(item.body);
         $("next-label").textContent = m.actions[action + 1]
           ? m.actions[action + 1].label + " · " + m.actions[action + 1].title
-          : chapter < 6
+          : chapter < data.milestones.length - 1
             ? "Next milestone · " + data.milestones[chapter + 1].name
-            : "End of prepared milestones · A2UI follows when ready";
+            : "End of prepared milestones · A2A and MCP follow when ready";
         $("position").textContent =
           `Action ${action + 1} of ${m.actions.length}`;
         $("previous").disabled = chapter === 0 && action === 0;
-        $("next").disabled = chapter === 6 && action === m.actions.length - 1;
+        $("next").disabled =
+          chapter === data.milestones.length - 1 &&
+          action === m.actions.length - 1;
         $("progress-fill").style.width =
           ((action + 1) / m.actions.length) * 100 + "%";
         $("progress").setAttribute("aria-valuemax", String(m.actions.length));
@@ -959,7 +964,7 @@
         const m = data.milestones[chapter];
         if (direction > 0) {
           if (action < m.actions.length - 1) action++;
-          else if (chapter < 6) {
+          else if (chapter < data.milestones.length - 1) {
             chapter++;
             action = 0;
           }

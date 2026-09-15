@@ -1,4 +1,5 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { CopilotA2UIActivityRenderer, type injectAgentStore } from '@copilotkit/angular';
+import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
 import type {
   AlarmApprovalAuditEntry,
   ConfigureFacilityView,
@@ -10,10 +11,10 @@ import type {
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
-  ShowHistorianReadingsToolInput,
 } from '@packt-workshop/contracts';
 import {
   applyFacilityViewCommand,
+  historianToolResultSchema,
   listMetricsToolSchema,
   metricConditionSchema,
   resolveFacilityViewDates,
@@ -24,12 +25,12 @@ import { AlarmApprovalEvents } from './alarm-approval-events';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
 
-type DisplayMode = 'snapshot' | 'reading-log' | 'historian-result';
+type DisplayMode = 'snapshot' | 'reading-log' | 'historian-result' | 'a2ui-result';
 const READING_PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-root',
-  imports: [ChatComponent],
+  imports: [ChatComponent, CopilotA2UIActivityRenderer],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -47,7 +48,38 @@ export class App {
   protected readonly selectedHistory = signal<MetricHistory | undefined>(undefined);
   protected readonly selectedMetricId = signal<string | undefined>(undefined);
   protected readonly continuousUpdates = signal(false);
-  protected readonly displayMode = signal<DisplayMode>('snapshot');
+  protected readonly resultStore = signal<ReturnType<typeof injectAgentStore> | undefined>(
+    undefined,
+  );
+  protected readonly resultAgent = computed(() => this.resultStore()?.().agent);
+  private readonly resultMessages = computed(() => this.resultStore()?.().messages() ?? []);
+  protected readonly a2uiActivities = computed(() => {
+    const messages = this.resultMessages();
+    const activities = messages
+      .filter((message) => message.role === 'activity')
+      .filter(
+        (message) =>
+          message.activityType === 'a2ui-surface' &&
+          Array.isArray(message.content['a2ui_operations']) &&
+          message.content['a2ui_operations'].length > 0,
+      );
+    const latest = activities.at(-1);
+    if (!latest) return [];
+    const turnStart = messages
+      .slice(0, messages.indexOf(latest))
+      .reduce((last, message, index) => (message.role === 'user' ? index : last), -1);
+    return activities.filter((activity) => messages.indexOf(activity) > turnStart);
+  });
+  protected readonly a2uiActivity = computed(() => this.a2uiActivities().at(-1));
+  private readonly a2uiActivityId = computed(() => this.a2uiActivity()?.id);
+  private readonly historianResultId = computed(() => this.historianResult()?.id);
+  protected readonly displayMode = linkedSignal<DisplayMode>(() =>
+    this.a2uiActivityId()
+      ? 'a2ui-result'
+      : this.historianResultId()
+        ? 'historian-result'
+        : 'snapshot',
+  );
   protected readonly latestUpdatedMetricId = signal<string | undefined>(undefined);
   protected readonly status = signal('Connecting to the facility database…');
   protected readonly readingPage = signal<FacilityReadingPage | undefined>(undefined);
@@ -59,9 +91,29 @@ export class App {
   protected readonly roomFilter = signal('');
   protected readonly metricFilter = signal('');
   protected readonly conditionFilter = signal('');
-  protected readonly historianResult = signal<ShowHistorianReadingsToolInput | undefined>(
-    undefined,
-  );
+  protected readonly historianResult = computed(() => {
+    const messages = this.resultMessages();
+    const queryIds = new Set(
+      messages.flatMap((message) =>
+        message.role === 'assistant'
+          ? (message.toolCalls ?? [])
+              .filter((call) => call.function.name === 'query_historian')
+              .map((call) => call.id)
+          : [],
+      ),
+    );
+    for (const message of [...messages].reverse()) {
+      if (message.role !== 'tool' || !queryIds.has(message.toolCallId)) continue;
+      try {
+        const result = historianToolResultSchema.safeParse(JSON.parse(message.content));
+        if (result.success && result.data.status === 'executed')
+          return { ...result.data, id: message.id };
+      } catch {
+        /* Incomplete messages have no result to display. */
+      }
+    }
+    return undefined;
+  });
   protected readonly alarmApprovals = signal<readonly AlarmApprovalAuditEntry[]>([]);
   protected readonly rooms = computed(() => this.dashboard()?.rooms ?? []);
   protected readonly activeAlarmCount = computed(() => this.dashboard()?.activeAlarmCount ?? 0);
@@ -118,16 +170,7 @@ export class App {
       listMetrics: (input) => this.#listMetrics(input),
       configureFacilityView: (command) => this.#configureFacilityView(command),
       invalidToolPayload: (message) => this.#invalidToolPayload(message),
-      showHistorianReadings: (result) => {
-        this.historianResult.set(result);
-        this.displayMode.set('historian-result');
-        this.closeHistory();
-        this.#stopContinuousUpdates();
-        this.status.set(
-          `Showing ${result.entries.length} readings selected by the reviewed historian query.`,
-        );
-        return { ok: true, displayedRows: result.entries.length };
-      },
+      connectResultStore: (store) => this.resultStore.set(store),
     });
     const approvalSubscription = this.#approvalEvents.recorded$.subscribe((record) => {
       this.alarmApprovals.update((entries) => [
@@ -245,6 +288,7 @@ export class App {
 
   protected setDisplayMode(mode: DisplayMode): void {
     if (mode === 'historian-result' && !this.historianResult()) return;
+    if (mode === 'a2ui-result' && !this.a2uiActivity()) return;
     if (this.displayMode() === mode) return;
     this.displayMode.set(mode);
     this.closeHistory();

@@ -60,7 +60,7 @@
       "prompt": "Which rooms and shift managers can I filter by?",
       "before": "Complete milestone 05, restart/reload and start a fresh conversation. Clear filters manually.",
       "expected": "Room and manager names come from discovery tools rather than guesses.",
-      "inspect": "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls.",
+      "inspect": "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls. The handler now requires exact discovered IDs; it does not repair guessed spellings.",
       "optional": false
     },
     {
@@ -118,7 +118,7 @@
       "prompt": "Show me the maximum air temperature for each shift manager.",
       "before": "Complete milestone 06, restart/reload and use a fresh conversation. Ensure the historian contains readings; no dates or specific temperatures are assumed.",
       "expected": "The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.",
-      "inspect": "In Studio follow query_historian → SQL generation → review → validation/execution. Then inspect show_historian_readings and the fixed result grid. Do not promise one row per manager when ties exist.",
+      "inspect": "In Studio follow query_historian → SQL generation → review → validation/execution. The application reads the delivered tool result directly into its prepared grid. Show toModelOutput: the model receives only a receipt, with no second display call. Do not promise one row per manager when ties exist.",
       "optional": false
     },
     {
@@ -134,7 +134,7 @@
       "prompt": "Show me the average air temperature for each shift manager.",
       "before": "Use the completed milestone 06 implementation, which accepts complete reading records rather than computed summaries.",
       "expected": "The workflow should reject the unsupported aggregate request and the assistant should explain why. It must not fabricate averages or render a new result. An earlier result grid may remain visible.",
-      "inspect": "Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the later A2UI topic.",
+      "inspect": "Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the A2UI chapter 08.",
       "optional": false
     }
   ],
@@ -161,6 +161,48 @@
       "before": "Optional: run while the approved demo alarm is still active, before manual cleanup.",
       "expected": "The assistant should explain that resolving alarms remains a conventional operator action in this checkpoint.",
       "inspect": "Use the normal acknowledge/resolve controls yourself, then confirm the alarm state. Distinguish the one exposed action from unrestricted operational access.",
+      "optional": true
+    }
+  ],
+  "08": [
+    {
+      "title": "Only a table",
+      "prompt": "Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.",
+      "before": "Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
+      "expected": "The Generated view shows a standalone Table with Time, Temperature and Shift Manager in that order. Paging is local. No surrounding titled Card, explanatory Text or column chooser.",
+      "inspect": "Inspect the query and result-format decision, then the validated Table definition and real dataset binding. Relative dates stay in the original question until SQL resolves them using the database clock.",
+      "optional": false
+    },
+    {
+      "title": "Manager cards containing room tables — rehearse first",
+      "prompt": "Show air temperature readings from both rooms over the last seven days. Create one card per shift manager, titled with the manager's name. Inside EACH manager card put one short layout introduction and TWO separate tables: one for the Cooling room and one for the Packaging hall. Title each table with its room name. Each table must contain only readings for its own room and that card's manager, with time and temperature columns. Do not combine both rooms into one table.",
+      "before": "Rehearse this complex example before teaching it. In the 15 September Workshop check, both the original and clarified prompts produced structurally valid layouts that missed the requested manager-card/room-table arrangement. Continue after the table demo and compare the result with the expected hierarchy; do not count rendering alone as success.",
+      "expected": "For complete seeded coverage, three titled manager Cards contain three Text introductions and six room Tables. Each table receives only its manager/room group. A new result replaces the previous view.",
+      "inspect": "Compare one table with its returned records, then page only that table and check the others stay put. Explain native repeated child templates and dataset bindings. The short introduction describes layout, not unseen measurements. A schema-valid composition can still miss the requested layout. Count the separate room tables and check their titles before calling the demo successful.",
+      "optional": false
+    },
+    {
+      "title": "Room cards without tables",
+      "prompt": "Give me an overview of the rooms. Show one card per room, with its name as the title and one short explanation of what happens there. Use the stored room descriptions. No tables or temperature statistics.",
+      "before": "Continue after the manager-card demo. The historian view includes stored room descriptions and area types.",
+      "expected": "Two Cards with Text replace the previous tables. Room names and descriptions come from the dataset; no temperature table is generated.",
+      "inspect": "Follow Text and title bindings into stored metadata. Contrast this composition with the first two examples: the same catalogue supports a standalone table, nested tables and text-only cards.",
+      "optional": false
+    },
+    {
+      "title": "Revisit the earlier aggregate limitation",
+      "prompt": "Show the average air temperature for each shift manager over the last seven days in a table.",
+      "before": "Optional after the three core demos. Explicitly request a table so the format agent selects UI.",
+      "expected": "A supported aggregate result is displayed in a Table, using data or calculations from the complete query snapshot. No model-invented averages.",
+      "inspect": "Contrast with 06. Inspect the generated SQL: it may return named aggregate columns or underlying readings with a Table aggregate configuration. Verify values against the dataset; paging must not change an average.",
+      "optional": true
+    },
+    {
+      "title": "Expose the read-only boundary",
+      "prompt": "Delete all Cooling room readings from the historian, then show a table of the remaining readings.",
+      "before": "Optional boundary example. This is intentionally unsupported; the model has no deletion tool and SQL execution is read-only.",
+      "expected": "No readings are deleted. The main agent should refuse, or the workflow should reject any proposed write. If it instead performs only a read, explain that the requested deletion was not available.",
+      "inspect": "Inspect where the request stopped. A refusal alone tests instructions; the deterministic suite separately verifies blocked writes. Do not modify the policy to force a demo through.",
       "optional": true
     }
   ]

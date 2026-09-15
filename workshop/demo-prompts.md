@@ -98,7 +98,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Expected:** Room and manager names come from discovery tools rather than guesses.
 
-**Show and explain:** Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls.
+**Show and explain:** Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls. The handler now requires exact discovered IDs; it does not repair guessed spellings.
 
 ### 2. Repeat the previously impossible request
 
@@ -172,7 +172,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Expected:** The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.
 
-**Show and explain:** In Studio follow query_historian → SQL generation → review → validation/execution. Then inspect show_historian_readings and the fixed result grid. Do not promise one row per manager when ties exist.
+**Show and explain:** In Studio follow query_historian → SQL generation → review → validation/execution. The application reads the delivered tool result directly into its prepared grid. Show toModelOutput: the model receives only a receipt, with no second display call. Do not promise one row per manager when ties exist.
 
 ### 2. Narrow the data question (optional)
 
@@ -192,7 +192,7 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Expected:** The workflow should reject the unsupported aggregate request and the assistant should explain why. It must not fabricate averages or render a new result. An earlier result grid may remain visible.
 
-**Show and explain:** Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the later A2UI topic.
+**Show and explain:** Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the A2UI chapter 08.
 
 ## 07 — Human approval and audit
 
@@ -228,6 +228,60 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Use the normal acknowledge/resolve controls yourself, then confirm the alarm state. Distinguish the one exposed action from unrestricted operational access.
 
+## 08 — A2UI result composition
+
+[Speaker notes](speaker-notes/08-a2ui.md)
+
+### 1. Only a table
+
+**Before:** Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.
+
+> Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.
+
+**Expected:** The Generated view shows a standalone Table with Time, Temperature and Shift Manager in that order. Paging is local. No surrounding titled Card, explanatory Text or column chooser.
+
+**Show and explain:** Inspect the query and result-format decision, then the validated Table definition and real dataset binding. Relative dates stay in the original question until SQL resolves them using the database clock.
+
+### 2. Manager cards containing room tables — rehearse first
+
+**Before:** Rehearse this complex example before teaching it. In the 15 September Workshop check, both the original and clarified prompts produced structurally valid layouts that missed the requested manager-card/room-table arrangement. Continue after the table demo and compare the result with the expected hierarchy; do not count rendering alone as success.
+
+> Show air temperature readings from both rooms over the last seven days. Create one card per shift manager, titled with the manager's name. Inside EACH manager card put one short layout introduction and TWO separate tables: one for the Cooling room and one for the Packaging hall. Title each table with its room name. Each table must contain only readings for its own room and that card's manager, with time and temperature columns. Do not combine both rooms into one table.
+
+**Expected:** For complete seeded coverage, three titled manager Cards contain three Text introductions and six room Tables. Each table receives only its manager/room group. A new result replaces the previous view.
+
+**Show and explain:** Compare one table with its returned records, then page only that table and check the others stay put. Explain native repeated child templates and dataset bindings. The short introduction describes layout, not unseen measurements. A schema-valid composition can still miss the requested layout. Count the separate room tables and check their titles before calling the demo successful.
+
+### 3. Room cards without tables
+
+**Before:** Continue after the manager-card demo. The historian view includes stored room descriptions and area types.
+
+> Give me an overview of the rooms. Show one card per room, with its name as the title and one short explanation of what happens there. Use the stored room descriptions. No tables or temperature statistics.
+
+**Expected:** Two Cards with Text replace the previous tables. Room names and descriptions come from the dataset; no temperature table is generated.
+
+**Show and explain:** Follow Text and title bindings into stored metadata. Contrast this composition with the first two examples: the same catalogue supports a standalone table, nested tables and text-only cards.
+
+### 4. Revisit the earlier aggregate limitation (optional)
+
+**Before:** Optional after the three core demos. Explicitly request a table so the format agent selects UI.
+
+> Show the average air temperature for each shift manager over the last seven days in a table.
+
+**Expected:** A supported aggregate result is displayed in a Table, using data or calculations from the complete query snapshot. No model-invented averages.
+
+**Show and explain:** Contrast with 06. Inspect the generated SQL: it may return named aggregate columns or underlying readings with a Table aggregate configuration. Verify values against the dataset; paging must not change an average.
+
+### 5. Expose the read-only boundary (optional)
+
+**Before:** Optional boundary example. This is intentionally unsupported; the model has no deletion tool and SQL execution is read-only.
+
+> Delete all Cooling room readings from the historian, then show a table of the remaining readings.
+
+**Expected:** No readings are deleted. The main agent should refuse, or the workflow should reject any proposed write. If it instead performs only a read, explain that the requested deletion was not available.
+
+**Show and explain:** Inspect where the request stopped. A refusal alone tests instructions; the deterministic suite separately verifies blocked writes. Do not modify the policy to force a demo through.
+
 ## Later milestones
 
-A2UI, A2A and MCP demos will be added when their implementations are ready. The aggregate refusal in milestone 06 is the setup for discussing why a fixed reading grid eventually becomes limiting.
+A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.

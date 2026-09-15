@@ -228,12 +228,15 @@ export class FacilityRepository {
       CREATE INDEX IF NOT EXISTS alarm_approval_audit_decided_at
         ON alarm_approval_audit(decided_at DESC);
 
-      CREATE VIEW IF NOT EXISTS historian_readings AS
+      DROP VIEW IF EXISTS historian_readings;
+      CREATE VIEW historian_readings AS
       SELECT
         reading.id AS reading_id,
         reading.recorded_at,
         room.id AS room_id,
         room.name AS room_name,
+        room.area_type AS room_area_type,
+        room.description AS room_description,
         metric.id AS metric_id,
         metric.name AS metric_name,
         metric.unit,
@@ -253,20 +256,21 @@ export class FacilityRepository {
       JOIN shift_managers shift_manager ON shift_manager.id = reading.shift_manager_id;
     `);
 
-    this.#migrateShiftManagers();
-
-    this.#removeRetiredMetric("cooling-door-state");
-    this.#synchronizeSimulationConditions();
-
     const metricCount = this.#database
       .prepare("SELECT COUNT(*) AS count FROM metrics")
       .get() as { count: number };
     if (metricCount.count === 0) {
       this.#seedMetadata();
+      this.#seedHistory();
     }
-    this.#synchronizeMetricTargets();
-    this.#ensureHistoryCoverage();
-    this.#normalizeCurrentReadings();
+  }
+
+  // Explicitly restart the fictional scenario; normal startup preserves stored data.
+  resetDemoData(): void {
+    this.#database.exec(
+      "DELETE FROM alarm_approval_audit; DELETE FROM metric_alarms; DELETE FROM metric_readings;",
+    );
+    this.#seedHistory();
   }
 
   getDashboard(): FacilityDashboard {
@@ -700,6 +704,11 @@ export class FacilityRepository {
 
     this.#database.exec("BEGIN");
     try {
+      const insertManager = this.#database.prepare(
+        "INSERT INTO shift_managers (id, name) VALUES (?, ?)",
+      );
+      for (const manager of SHIFT_MANAGERS)
+        insertManager.run(manager.id, manager.name);
       for (const room of ROOMS) {
         insertRoom.run(
           room.id,
@@ -731,80 +740,7 @@ export class FacilityRepository {
     }
   }
 
-  #migrateShiftManagers(): void {
-    const columns = this.#database
-      .prepare("PRAGMA table_info(metric_readings)")
-      .all() as unknown as { name: string }[];
-    if (!columns.some((column) => column.name === "shift_manager_id")) {
-      this.#database.exec(
-        "ALTER TABLE metric_readings ADD COLUMN shift_manager_id TEXT REFERENCES shift_managers(id)",
-      );
-    }
-
-    const upsertManager = this.#database.prepare(
-      `INSERT INTO shift_managers (id, name) VALUES (?, ?)
-       ON CONFLICT(id) DO UPDATE SET name = excluded.name`,
-    );
-    for (const manager of SHIFT_MANAGERS) {
-      upsertManager.run(manager.id, manager.name);
-    }
-
-    const readings = this.#database
-      .prepare(
-        "SELECT id, recorded_at FROM metric_readings WHERE shift_manager_id IS NULL",
-      )
-      .all() as unknown as { id: number; recorded_at: string }[];
-    const assignManager = this.#database.prepare(
-      "UPDATE metric_readings SET shift_manager_id = ? WHERE id = ?",
-    );
-    for (const reading of readings) {
-      assignManager.run(shiftManagerIdAt(reading.recorded_at), reading.id);
-    }
-  }
-
-  #removeRetiredMetric(metricId: string): void {
-    this.#database.exec("BEGIN");
-    try {
-      this.#database
-        .prepare("DELETE FROM metric_alarms WHERE metric_id = ?")
-        .run(metricId);
-      this.#database
-        .prepare("DELETE FROM metric_readings WHERE metric_id = ?")
-        .run(metricId);
-      this.#database.prepare("DELETE FROM metrics WHERE id = ?").run(metricId);
-      this.#database.exec("COMMIT");
-    } catch (error) {
-      this.#database.exec("ROLLBACK");
-      throw error;
-    }
-  }
-
-  #synchronizeSimulationConditions(): void {
-    const updateMetric = this.#database.prepare(
-      "UPDATE metrics SET condition = ?, trend = ? WHERE id = ?",
-    );
-    for (const metric of METRICS) {
-      updateMetric.run(metric.condition, metric.trend, metric.id);
-    }
-  }
-
-  #synchronizeMetricTargets(): void {
-    const updateMetric = this.#database.prepare(
-      "UPDATE metrics SET target = ? WHERE id = ?",
-    );
-    for (const metric of METRICS) {
-      updateMetric.run(metric.target, metric.id);
-    }
-  }
-
-  #normalizeCurrentReadings(): void {
-    const findCurrent = this.#database.prepare(
-      `SELECT numeric_value, text_value
-       FROM metric_readings
-       WHERE metric_id = ?
-       ORDER BY recorded_at DESC, id DESC
-       LIMIT 1`,
-    );
+  #seedHistory(): void {
     const insertReading = this.#database.prepare(
       `INSERT INTO metric_readings
         (metric_id, recorded_at, numeric_value, text_value, shift_manager_id)
@@ -813,77 +749,19 @@ export class FacilityRepository {
     const updateMetric = this.#database.prepare(
       "UPDATE metrics SET condition = ?, trend = ? WHERE id = ?",
     );
-    const recordedAt = new Date().toISOString();
-
-    this.#database.exec("BEGIN");
-    try {
-      for (const metric of METRICS) {
-        const current = findCurrent.get(metric.id) as unknown as
-          CurrentReadingRow | undefined;
-        const reading = generateLiveReading(
-          metric.id,
-          current?.numeric_value ?? null,
-          current?.text_value ?? null,
-          Math.random,
-          metric.id === "cooling-air-temperature"
-            ? isCoolingAirTemperatureWarning(recordedAt)
-            : true,
-        );
-        insertReading.run(
-          metric.id,
-          recordedAt,
-          reading.numericValue,
-          reading.textValue,
-          shiftManagerIdAt(recordedAt),
-        );
-        updateMetric.run(reading.condition, reading.trend, metric.id);
-      }
-      this.#database.exec("COMMIT");
-    } catch (error) {
-      this.#database.exec("ROLLBACK");
-      throw error;
-    }
-  }
-
-  #ensureHistoryCoverage(): void {
-    const insertReading = this.#database.prepare(
-      `INSERT INTO metric_readings
-        (metric_id, recorded_at, numeric_value, text_value, shift_manager_id)
-       VALUES (?, ?, ?, ?, ?)`,
-    );
-    const intervalMinutes = 5;
-    const intervalMilliseconds = intervalMinutes * 60_000;
-    const total = (7 * 24 * 60) / intervalMinutes + 1;
+    const intervalMilliseconds = 5 * 60_000;
+    const total = 7 * 24 * 12 + 1;
     const end =
       Math.floor(Date.now() / intervalMilliseconds) * intervalMilliseconds;
     const start = end - (total - 1) * intervalMilliseconds;
-    const existingReadings = this.#database
-      .prepare(
-        `SELECT metric_id, recorded_at
-         FROM metric_readings
-         WHERE recorded_at >= ?`,
-      )
-      .all(new Date(start).toISOString()) as unknown as {
-      metric_id: string;
-      recorded_at: string;
-    }[];
-    const occupiedTimestamps = new Map<string, Set<string>>();
-    for (const reading of existingReadings) {
-      const timestamps =
-        occupiedTimestamps.get(reading.metric_id) ?? new Set<string>();
-      timestamps.add(reading.recorded_at);
-      occupiedTimestamps.set(reading.metric_id, timestamps);
-    }
 
     this.#database.exec("BEGIN");
     try {
       for (const metric of METRICS) {
-        const metricTimestamps =
-          occupiedTimestamps.get(metric.id) ?? new Set<string>();
         for (let index = 0; index < total; index += 1) {
-          const timestamp = start + index * intervalMilliseconds;
-          const recordedAt = new Date(timestamp).toISOString();
-          if (metricTimestamps.has(recordedAt)) continue;
+          const recordedAt = new Date(
+            start + index * intervalMilliseconds,
+          ).toISOString();
           const reading =
             metric.id === "cooling-air-temperature"
               ? {
@@ -898,31 +776,14 @@ export class FacilityRepository {
             reading.textValue,
             shiftManagerIdAt(recordedAt),
           );
-          metricTimestamps.add(recordedAt);
         }
-      }
-
-      const coolingReadings = this.#database
-        .prepare(
-          `SELECT id, recorded_at
-           FROM metric_readings
-           WHERE metric_id = 'cooling-air-temperature' AND recorded_at >= ?`,
-        )
-        .all(new Date(start).toISOString()) as unknown as {
-        id: number;
-        recorded_at: string;
-      }[];
-      const updateCoolingReading = this.#database.prepare(
-        "UPDATE metric_readings SET numeric_value = ? WHERE id = ?",
-      );
-      for (const reading of coolingReadings) {
-        const index = Math.floor(
-          (Date.parse(reading.recorded_at) - start) / intervalMilliseconds,
-        );
-        updateCoolingReading.run(
-          coolingAirTemperatureAt(reading.recorded_at, index),
-          reading.id,
-        );
+        const condition =
+          metric.id === "cooling-air-temperature"
+            ? isCoolingAirTemperatureWarning(new Date(end).toISOString())
+              ? "warning"
+              : "normal"
+            : metric.condition;
+        updateMetric.run(condition, metric.trend, metric.id);
       }
       this.#database.exec("COMMIT");
     } catch (error) {

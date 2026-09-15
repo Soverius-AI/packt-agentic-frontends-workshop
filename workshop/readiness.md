@@ -1,79 +1,75 @@
-# Readiness and future additions
+# Workshop verification and remaining rehearsal
 
 ## Current scope
 
-- Source: completed milestone 07, `e2e5d14`, with completed 02/03 adapters restored.
-- Delivery: presenter-led three-day workshop. No participant exercises.
-- Angular frontend only; shared contracts remain an internal workspace package.
-- Completed presenter code selections: 01–07.
-- Speaker notes, demo prompts and copyable solutions: 01–07.
-- Default selection: 01, conventional app without AI setup.
+- Angular-only presenter workshop with completed code selections 01–08.
+- Exact local reference commits are recorded in [manifest.json](manifest.json).
+- Default selection is 01: conventional app without model setup.
+- Seven presenter file paths; milestone 08 changes four of them.
+- Eight speaker-note chapters, 85 action cards, 24 demo prompt entries, and exact
+  completed-code diffs in the Presenter desk at http://localhost:4400.
+- A2UI components live in Angular; shared schemas remain in the contract package.
+- A2A (09) and MCP/MCP Apps (10) remain future additions.
 
-## Verification ledger
+## Local checks — 15 September 2026
 
-Verified locally on 2026-09-15 with Node 26.7.0 and pnpm 11.19.0:
+Node 26.7.0 and pnpm 11.19.0. The update used source commits through `9931134`;
+see [the update report](update-report.md) for the complete branch comparison.
 
-| Check                                                                            | Result                                                                                                 |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Angular production build, facility build, Mastra TypeScript for selections 01–07 | Passed for each selection                                                                              |
-| Mastra/Studio bundle with starting selection 01                                  | Passed                                                                                                 |
-| `pnpm workshop:test`                                                             | Passed: 6 scenarios plus parent test, temporary database, no model calls                               |
-| `pnpm format:check` and `git diff --check`                                       | Passed                                                                                                 |
-| Relative links in presenter Markdown                                             | All 10 files checked; no broken links                                                                  |
-| Browser at :4300, selection 01                                                   | Snapshot data, reading log, Cooling room + Warning filtering and unconnected chat placeholder verified |
-| Final presenter code selection                                                   | 01                                                                                                     |
+| Check                                                                 | Result                                                                                                                   |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Angular production build, facility build, Mastra TypeScript for 01–08 | Passed for every selection                                                                                               |
+| `pnpm workshop:test`                                                  | 7 server checks including parent, plus 3 direct-result/model-history checks passed                                       |
+| `pnpm workshop:test:a2ui`                                             | 27 checks passed: dataset/SQL policy, composition, native bindings, workflow order and model-data separation             |
+| Milestone 08 Mastra dev bundle and all three services                 | Started successfully on 4300 / 3101 / 4211                                                                               |
+| Milestone 08 production Mastra/Studio bundle                          | Passed                                                                                                                   |
+| Exact filter IDs and explicit reset                                   | Verified with temporary data; startup preserves alarms/audit and explicit reset reseeds readings and clears alarms/audit |
+| Presenter data                                                        | Eight chapters, 24 prompts, exact solution copies and JavaScript syntax verified                                         |
+| Presenter browser                                                     | 08 navigation, four code diffs, prompt setup and clipboard text verified                                                 |
+| Formatting and whitespace                                             | Passed                                                                                                                   |
 
-The boundary tests cover unavailable/available chat transports, native-chat
-validation and static context, filter patch preservation, complete historian rows,
-rejected writes/aggregate shapes, and approval/rejection/replay audit behavior.
-A discovered worker-start failure was fixed in this worktree: the compiled SQL
-worker now receives a known source-map option instead of arbitrary parent-process
-arguments, which Node's worker constructor can reject.
+The server checks preserve native chat versus Copilot transport boundaries,
+complete-reading results and aggregate/write rejection for 06, and rejection,
+approval and duplicate-decision audit behavior for 07. The A2UI suite verifies
+complete datasets and aggregates beyond page boundaries, query limits, no write
+access, bound stored descriptions, both data/UI workflow branches, and exclusion
+of result values from current and replayed model requests. Model tests use fixture
+responses; they do not establish live instruction-following.
 
-Live provider responses, end-to-end streamed tool calls, Studio traces from model
-runs, and the approval card's complete conversational flow still need rehearsal
-with a configured OpenRouter key. They are not implied by the tests above.
-Inherited image-size warnings remain in the conventional UI; no new rendering
-failure was observed. The project has not been newly audited for full accessibility
-conformance in this pass.
+The earlier fixed-grid workflow and executor remain separate prepared modules.
+Selecting 06 or 07 cannot silently pick up the 08 aggregate/data-shape policy.
+Neither setup nor this update reset the existing workshop database. Live telemetry
+continued recording normal simulated readings during browser checks.
 
-## Presenter desk
+## Live Angular rehearsal in this worktree
 
-The repository also contains a browser presenter view, started with
-`pnpm workshop:notes` at http://localhost:4400. Its 69 action cards are generated
-from the seven Markdown note chapters; 16 changed-file snapshots and diffs come
-from the completed solutions.
+| Demo                          | Observed result                                                                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Table only                    | Passed: 2,481 readings, Time / Temperature / Shift Manager columns, page 1 → page 2, no surrounding Card or explanatory Text       |
+| Stored room descriptions      | Passed: two Cards with Text and no tables; displayed descriptions matched the facility API exactly                                 |
+| Original manager-card prompt  | Did not meet the request: one table per manager combined the room data                                                             |
+| Clarified manager-card prompt | Still did not meet the requested hierarchy: grouped/duplicated manager tables instead of distinct room tables inside manager Cards |
 
-Verified: generated code matches all source solutions, regeneration is deterministic,
-formatting and script syntax pass, and browser navigation, arrow keys, reload
-position, prompt copying, completed-code copying and diff/full-code display work.
-This view does not select an application checkpoint or alter application state.
+The manager example is marked **rehearse first** in the prompt list and notes.
+The current code validates structure, bindings and data fields; it does not prove
+that a valid composition satisfies every natural-language layout requirement.
+Use a mismatch to teach review, or continue with the verified table and room-card
+examples. Do not present an earlier successful view as a failed request’s answer.
+The aggregate and read-only conversational prompts were not run live in this pass;
+their underlying behavior is covered by deterministic tests.
 
-## Add A2UI after its reference milestone is ready
+The three-day teaching format remains presenter-led. No participant exercises or
+new A2A/MCP behavior were introduced. The new chapter includes prompt setup,
+expected results, files to open, four live edits, trace points and recovery steps.
 
-1. Read the reviewed final 08 diff and its contract changes. Adapt the feature
-   into this branch; do not merge a numbered reference branch wholesale.
-2. Keep Angular-used components/catalogue/view state inside Angular. Retain
-   schemas consumed by Mastra and the facility service in the shared package.
-   Omit the React host and React catalogue adapter.
-3. Preserve complete-reading workflow behavior in selections 01–07. If 08 changes
-   the shared result contract or workflow, introduce an explicit prepared legacy
-   adapter so selecting 06 still demonstrates its original fixed-grid limitation.
-4. Add the A2UI view slot and catalogue connection, prepared composition prompts,
-   and a completed solution 08. Extend the selector manifest if new teaching
-   files are needed; provide defaults for all older selections.
-5. Add speaker notes with a real transition from fixed readings to composed UI,
-   a copyable demo, observable result, failure example, and recovery steps.
-6. Verify the earlier selections still build and demonstrate their original
-   capability boundaries. Rehearse the A2UI demo before marking it ready.
+## Remaining limits
 
-## Later topics
+Rehearse prompts with the intended model before the workshop, especially nested
+layouts. Model output and response time vary. The 07 conversational approval card
+was not newly rehearsed live; its facility transaction is covered by regression
+checks. Mastra logged its existing code-defined-agent fallback and no-memory notices;
+requests completed. Angular logged the inherited oversized-logo warning and Lit’s
+development-mode notice. This pass is not a new full accessibility audit.
 
-| Topic             | Status                                                      | Presenter connection to prepare                      |
-| ----------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
-| 08 A2UI           | In development in separate reference worktree; not included | Catalogue + result renderer + composition workflow   |
-| 09 A2A            | Planned                                                     | Coordinator-to-specialist call and visible trace     |
-| 10 MCP / MCP Apps | Planned                                                     | Capability/resource connection and embedded app host |
-
-Day allocation can be decided once this content is ready. Do not fill three days
-with exercises or assume the original three-hour timing still applies.
+The local milestone changes have not been published by this update. Workshop is
+committed locally, and the reference branches remain separate.

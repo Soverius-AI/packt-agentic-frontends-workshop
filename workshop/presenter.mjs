@@ -27,6 +27,12 @@ const flows = {
     "Validate + execute",
     "Result view",
   ],
+  "08": [
+    "Reviewed query",
+    "Format decision",
+    "Table / Card / Text",
+    "Generated view",
+  ],
   "07": [
     "Alarm proposal",
     "Operator decision",
@@ -174,7 +180,7 @@ const promptGuide =
           ]),
     ]),
     "## Later milestones",
-    "A2UI, A2A and MCP demos will be added when their implementations are ready. The aggregate refusal in milestone 06 is the setup for discussing why a fixed reading grid eventually becomes limiting.",
+    "A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.",
   ].join("\n\n") + "\n";
 const promptGuidePath = join(directory, "demo-prompts.md");
 await writeFile(

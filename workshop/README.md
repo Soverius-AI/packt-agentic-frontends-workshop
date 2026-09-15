@@ -7,7 +7,7 @@ pnpm workshop:notes
 ```
 
 Open http://localhost:4400 for the **Presenter desk**: one action at a time,
-the next action, copyable demo prompts, exact file diffs and completed code, plus
+the next action, ordered demo prompts with setup and expected results, exact file diffs and completed code, plus
 recovery instructions. Arrow keys move between actions; your place is remembered
 in the browser. The app and Mastra do not need to be running.
 
@@ -24,8 +24,8 @@ Copy the code or checkpoint command when you decide to apply it.
 
 This is a three-day workshop with presenter coding. There are no participant
 exercises or required student submissions. Day boundaries and time allocations
-are deliberately open: milestones 1–7 are the ready content to build on while
-A2UI and later topics are still being developed.
+are deliberately open: milestones 1–8 are prepared, including A2UI.
+A2A and MCP remain later additions.
 
 For each milestone: demonstrate the current limitation, explain the missing
 connection, inspect the contract, make the connection, run it, and trace the result.
@@ -77,11 +77,29 @@ pseudocode, and stay outside the application compiler roots.
 
 - Basic chat and embedded agent: `apps/facility-service/src/prompts/basic-chat.ts`.
 - Main Mastra agent: `apps/agent-service/src/mastra/prompts/main-04.ts` through
-  `main-07.ts`; select the appropriate import in the agent factory.
+  `main-08.ts`; select the appropriate import in the agent factory.
+- A2UI format/composer and SQL instructions: prepared agent files under
+  `apps/agent-service/src/mastra/workflows/historian-composition/agents/`.
 - SQL generator and reviewer: `apps/agent-service/src/mastra/prompts/sql-generator.ts`
   and `sql-reviewer.ts`.
 - Questions you type into the app: [demo prompt sequence](demo-prompts.md), also shown in the Presenter desk. Each includes setup, expected behavior and what to inspect. Follow the numbered order; optional prompts are marked.
 - Edit `workshop/demo-prompts.json` to change that sequence, then run `pnpm workshop:notes:build`. This updates both the readable catalogue and the presenter data. The **Demonstrate** sections in the speaker notes give the surrounding teaching script.
+
+## A2UI and preparation changes
+
+Milestone 08 needs four presenter files: the catalogue provider, chat notice,
+agent factory, and facility policy export. Table/Card/Text components and the
+main-area renderer are already in Angular. The shared contract package stays
+because both server services consume its schemas and dataset calculations.
+
+Milestone 06 now changes only the agent factory: results arrive directly in the
+prepared UI, and the model sees a completion receipt. The former display tool is
+gone. See [update report](update-report.md) for source commits and the measured
+change count.
+
+If the seven-day data is stale, stop the app and run `pnpm reset:demo` deliberately.
+This refreshes readings and clears alarms and approval records in this worktree’s
+configured demo database. Code checkpoint selection does not reset data.
 
 ## Restart and recovery
 

@@ -50,6 +50,15 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
       "Call once for the complete historian request. Copy the operator's entire message verbatim into question; never paraphrase or split it. This starts the historian-query workflow, which generates SQL, reviews it, and applies deterministic facility policy before returning complete reading records for the existing grid.",
     inputSchema: queryHistorianInputSchema,
     outputSchema: queryHistorianOutputSchema,
+    toModelOutput: (result) => ({
+      type: "text",
+      value:
+        result.status === "rejected"
+          ? `${result.message} Report this failure and stop. The user can send a new request to start a new run.`
+          : result.rowCount === 0
+            ? "No matching readings were found. The empty result is displayed."
+            : `The query result is displayed in the Historian result view.${result.truncated ? " Only the first 200 readings are shown." : ""}`,
+    }),
     execute: async (input, context): Promise<HistorianToolResult> => {
       const run = await workflow.createRun();
       const result = await run.start({

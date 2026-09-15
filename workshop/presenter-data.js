@@ -176,7 +176,7 @@ window.workshopPresenter = {
         {
           path: "apps/facility-service/src/workshop.ts",
           after:
-            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createChatService } from "./chat.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: createChatService(options),\n    copilotRuntime: undefined,\n  };\n}\n',
+            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createChatService } from "./chat.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: createChatService(options),\n    copilotRuntime: undefined,\n  };\n}\n\nexport { HistorianQueryService } from "./historian-query-legacy.js";\n',
           diff: '@@ -1,10 +1,11 @@\n import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\n+import { createChatService } from "./chat.js";\n \n export function createWorkshopConnections(\n-  _options: WorkshopOptions,\n+  options: WorkshopOptions,\n ): WorkshopConnections {\n   return {\n-    chat: undefined,\n+    chat: createChatService(options),\n     copilotRuntime: undefined,\n   };\n }\n',
         },
       ],
@@ -289,8 +289,8 @@ window.workshopPresenter = {
         {
           path: "apps/facility-service/src/workshop.ts",
           after:
-            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: undefined,\n    copilotRuntime: createEmbeddedCopilotRuntime(options),\n  };\n}\n',
-          diff: '@@ -1,11 +1,11 @@\n import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\n-import { createChatService } from "./chat.js";\n+import { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n \n export function createWorkshopConnections(\n   options: WorkshopOptions,\n ): WorkshopConnections {\n   return {\n-    chat: createChatService(options),\n-    copilotRuntime: undefined,\n+    chat: undefined,\n+    copilotRuntime: createEmbeddedCopilotRuntime(options),\n   };\n }\n',
+            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: undefined,\n    copilotRuntime: createEmbeddedCopilotRuntime(options),\n  };\n}\n\nexport { HistorianQueryService } from "./historian-query-legacy.js";\n',
+          diff: '@@ -1,12 +1,12 @@\n import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\n-import { createChatService } from "./chat.js";\n+import { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n \n export function createWorkshopConnections(\n   options: WorkshopOptions,\n ): WorkshopConnections {\n   return {\n-    chat: createChatService(options),\n-    copilotRuntime: undefined,\n+    chat: undefined,\n+    copilotRuntime: createEmbeddedCopilotRuntime(options),\n   };\n }\n \n',
         },
       ],
       flow: ["CopilotChat", "Copilot runtime", "BuiltInAgent", "Model"],
@@ -384,8 +384,8 @@ window.workshopPresenter = {
         {
           path: "apps/facility-service/src/workshop.ts",
           after:
-            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createWorkshopCopilotRuntime } from "./copilot-runtime.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: undefined,\n    copilotRuntime: createWorkshopCopilotRuntime(options),\n  };\n}\n',
-          diff: '@@ -1,11 +1,11 @@\n import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\n-import { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n+import { createWorkshopCopilotRuntime } from "./copilot-runtime.js";\n \n export function createWorkshopConnections(\n   options: WorkshopOptions,\n ): WorkshopConnections {\n   return {\n     chat: undefined,\n-    copilotRuntime: createEmbeddedCopilotRuntime(options),\n+    copilotRuntime: createWorkshopCopilotRuntime(options),\n   };\n }\n',
+            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createWorkshopCopilotRuntime } from "./copilot-runtime.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: undefined,\n    copilotRuntime: createWorkshopCopilotRuntime(options),\n  };\n}\n\nexport { HistorianQueryService } from "./historian-query-legacy.js";\n',
+          diff: '@@ -1,12 +1,12 @@\n import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\n-import { createEmbeddedCopilotRuntime } from "./embedded-copilot-runtime.js";\n+import { createWorkshopCopilotRuntime } from "./copilot-runtime.js";\n \n export function createWorkshopConnections(\n   options: WorkshopOptions,\n ): WorkshopConnections {\n   return {\n     chat: undefined,\n-    copilotRuntime: createEmbeddedCopilotRuntime(options),\n+    copilotRuntime: createWorkshopCopilotRuntime(options),\n   };\n }\n \n',
         },
       ],
       flow: ["CopilotChat", "Copilot runtime", "Mastra agent", "Model"],
@@ -435,7 +435,7 @@ window.workshopPresenter = {
         {
           label: "DEMONSTRATE",
           title: "Demonstrate",
-          body: "Ask: **Which rooms and shift managers can I filter by?** Inspect discovery calls.\n\nThen: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.**\n\nExpected: Reading log, room, condition and manager reflect the request.\n\nThen: **Change the start date to now.**\n\nBefore sending, say which values should stay the same. Afterward, inspect all\nfilters: only the start boundary changes. A temporarily empty log is reasonable\nbecause the range starts now. Clear the start date and show the prior filters remain.\n\nExplain omitted fields versus explicit clearing. For a code-level explanation,\nopen `applyFacilityViewCommand` in `packages/contracts/src/index.ts`; that is the\nprepared patch behavior behind the visible controls.",
+          body: "Ask: **Which rooms and shift managers can I filter by?** Inspect discovery calls.\n\nThen: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.**\n\nExpected: Reading log, room, condition and manager reflect the request.\n\nThen: **Change the start date to now.**\n\nBefore sending, say which values should stay the same. Afterward, inspect all\nfilters: only the start boundary changes. A temporarily empty log is reasonable\nbecause the range starts now. Clear the start date and show the prior filters remain.\n\nExplain omitted fields versus explicit clearing. For a code-level explanation,\nopen `applyFacilityViewCommand` in `packages/contracts/src/index.ts`; that is the\nprepared patch behavior behind the visible controls. IDs must now match the\nvalues returned by discovery exactly; there is no fuzzy name-to-ID conversion.\nNatural-language room names are fine in chat because the agent first discovers IDs.",
         },
         {
           label: "TRANSITION",
@@ -452,7 +452,7 @@ window.workshopPresenter = {
           expected:
             "Room and manager names come from discovery tools rather than guesses.",
           inspect:
-            "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls.",
+            "Inspect list_rooms and list_shift_managers calls and compare their returned options with the conventional controls. The handler now requires exact discovered IDs; it does not repair guessed spellings.",
           optional: false,
         },
         {
@@ -533,7 +533,7 @@ window.workshopPresenter = {
         {
           path: "apps/agent-service/src/mastra/agents/main/agent.ts",
           after:
-            'import { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-05";\n\nexport const historianEnabled = false;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    tools: {},\n  });\n}\n',
+            'import { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-05";\n\nexport const historianEnabled = false;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    tools: {},\n  });\n}\n\nexport { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n',
           diff: '@@ -1,7 +1,7 @@\n import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-04";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-05";\n \n export const historianEnabled = false;\n export function createMainAgent(\n',
         },
       ],
@@ -559,7 +559,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 1",
-          body: "`apps/agent-service/src/mastra/agents/main/agent.ts`: select `main-06`, set\n   `historianEnabled = true`, import `createQueryHistorianTool`, and add\n   `query_historian: createQueryHistorianTool(workflow)` to `tools`.",
+          body: "`apps/agent-service/src/mastra/agents/main/agent.ts`: select `main-06`, set\n   `historianEnabled = true`, import `createQueryHistorianTool`, and add\n   `query_historian: createQueryHistorianTool(workflow)` to `tools`. Import\n   `ToolCallFilter` and add the prepared `inputProcessors` line from solution 06\n   so previous historian results stay out of later model requests.",
         },
         {
           label: "DO",
@@ -579,7 +579,7 @@ window.workshopPresenter = {
         {
           label: "DO",
           title: "Open and change · 5",
-          body: "In Angular's `workshop/connect.ts`, add `registerHistorianView(host)`. In\n   `prepared-tools.ts`, show how `show_historian_readings` validates the response\n   and opens the prepared Historian result view.",
+          body: "No Angular edit is needed. Open the prepared `historianResult` computed value\n   in `apps/angular-host/src/app/app.ts`: it reads validated tool results from\n   the agent store. `toModelOutput` in the backend tool gives the model only a\n   completion message. The bridge removes old query payloads from replayed history.\n   Explain why neither a second display tool nor model copying is needed.",
         },
         {
           label: "DO",
@@ -589,7 +589,7 @@ window.workshopPresenter = {
         {
           label: "DEMONSTRATE",
           title: "Demonstrate",
-          body: "Ask: **Show me the maximum air temperature for each shift manager.**\n\nTrace `query_historian` → generator → reviewer → deterministic validation/execution\n→ `show_historian_readings`. Inspect the complete reading records in the result\nview. Explain that a maximum can be represented by selecting the stored row that\ncontains it. Do not promise an exact row count or value before seeing the data.\n\nThen: **Show me the average air temperature for each shift manager.**\n\nExpected: an explicit unsupported/rejected result because computed summaries do\nnot fit this milestone's complete-reading grid. It must not pretend an average\nis a stored reading. This motivates the later A2UI addition.\n\nFor the policy boundary, inspect `historian-query.ts` in the facility service:\nthe reviewer assesses meaning; deterministic policy and the read-only connection\nenforce execution restrictions. This branch preserves milestone 07's sequence:\ngenerate → review → validate-and-execute. Do not describe the unfinished 08 sequence.",
+          body: "Ask: **Show me the maximum air temperature for each shift manager.**\n\nTrace `query_historian` → generator → reviewer → deterministic validation/execution\n→ delivered tool result → the prepared grid. Inspect the complete reading records in the result\nview. Explain that a maximum can be represented by selecting the stored row that\ncontains it. Do not promise an exact row count or value before seeing the data.\n\nThen: **Show me the average air temperature for each shift manager.**\n\nExpected: an explicit unsupported/rejected result because computed summaries do\nnot fit this milestone's complete-reading grid. It must not pretend an average\nis a stored reading. This motivates the later A2UI addition.\n\nFor the policy boundary, inspect `historian-query-legacy.ts` in the facility service:\nthe reviewer assesses meaning; deterministic policy and the read-only connection\nenforce execution restrictions. This branch preserves milestone 07's sequence:\ngenerate → review → validate-and-execute. Milestone 08 adds a separate workflow\nwith an earlier deterministic check and a data/UI branch; teach that when it is connected.",
         },
       ],
       prompts: [
@@ -601,7 +601,7 @@ window.workshopPresenter = {
           expected:
             "The reviewed workflow returns complete stored reading records and the prepared Historian result view displays them. Empty or truncated results must be reported honestly.",
           inspect:
-            "In Studio follow query_historian → SQL generation → review → validation/execution. Then inspect show_historian_readings and the fixed result grid. Do not promise one row per manager when ties exist.",
+            "In Studio follow query_historian → SQL generation → review → validation/execution. The application reads the delivered tool result directly into its prepared grid. Show toModelOutput: the model receives only a receipt, with no second display call. Do not promise one row per manager when ties exist.",
           optional: false,
         },
         {
@@ -624,7 +624,7 @@ window.workshopPresenter = {
           expected:
             "The workflow should reject the unsupported aggregate request and the assistant should explain why. It must not fabricate averages or render a new result. An earlier result grid may remain visible.",
           inspect:
-            "Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the later A2UI topic.",
+            "Inspect the rejection in the workflow trace. If the model refuses before calling the tool, explain that this shows instruction-following only; open the workflow guard to show the enforced boundary. Use this limitation to introduce the A2UI chapter 08.",
           optional: false,
         },
       ],
@@ -632,16 +632,10 @@ window.workshopPresenter = {
         "Select 06, restart services and reload. On failure find the workflow step and\nstructured error. A model refusal, schema mismatch, validator rejection and HTTP\nfailure are distinct. Never weaken SQL restrictions to make a live demo pass.",
       files: [
         {
-          path: "apps/angular-host/src/app/workshop/connect.ts",
-          after:
-            "import type { WorkshopHost } from './host';\nimport { connectViewContext, registerFacilityTools, registerHistorianView } from './prepared-tools';\n\nexport function connectWorkshop(host: WorkshopHost): void {\n  connectViewContext(host);\n  registerFacilityTools(host);\n  registerHistorianView(host);\n}\n",
-          diff: "@@ -1,7 +1,8 @@\n import type { WorkshopHost } from './host';\n-import { connectViewContext, registerFacilityTools } from './prepared-tools';\n+import { connectViewContext, registerFacilityTools, registerHistorianView } from './prepared-tools';\n \n export function connectWorkshop(host: WorkshopHost): void {\n   connectViewContext(host);\n   registerFacilityTools(host);\n+  registerHistorianView(host);\n }\n",
-        },
-        {
           path: "apps/agent-service/src/mastra/agents/main/agent.ts",
           after:
-            'import { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { createQueryHistorianTool } from "./tools/query-historian-tool";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n\nexport const historianEnabled = true;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    tools: { query_historian: createQueryHistorianTool(workflow) },\n  });\n}\n',
-          diff: '@@ -1,9 +1,10 @@\n import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-05";\n+import { createQueryHistorianTool } from "./tools/query-historian-tool";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n \n-export const historianEnabled = false;\n+export const historianEnabled = true;\n export function createMainAgent(\n   apiKey: string,\n   model: string,\n@@ -18,6 +19,6 @@ export function createMainAgent(\n     name: "Soverius Chocolate Factory Assistant",\n     instructions: CHAT_SYSTEM_PROMPT,\n     model: openrouter(model),\n-    tools: {},\n+    tools: { query_historian: createQueryHistorianTool(workflow) },\n   });\n }\n',
+            'import { ToolCallFilter } from "@mastra/core/processors";\nimport { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { createQueryHistorianTool } from "./tools/query-historian-tool";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n\nexport const historianEnabled = true;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    inputProcessors: [new ToolCallFilter({ exclude: ["query_historian"] })],\n    tools: { query_historian: createQueryHistorianTool(workflow) },\n  });\n}\n\nexport { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n',
+          diff: '@@ -1,9 +1,11 @@\n+import { ToolCallFilter } from "@mastra/core/processors";\n import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-05";\n+import { createQueryHistorianTool } from "./tools/query-historian-tool";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n \n-export const historianEnabled = false;\n+export const historianEnabled = true;\n export function createMainAgent(\n   apiKey: string,\n   model: string,\n@@ -18,7 +20,8 @@ export function createMainAgent(\n     name: "Soverius Chocolate Factory Assistant",\n     instructions: CHAT_SYSTEM_PROMPT,\n     model: openrouter(model),\n-    tools: {},\n+    inputProcessors: [new ToolCallFilter({ exclude: ["query_historian"] })],\n+    tools: { query_historian: createQueryHistorianTool(workflow) },\n   });\n }\n \n',
         },
       ],
       flow: [
@@ -710,8 +704,8 @@ window.workshopPresenter = {
         },
         {
           label: "DO",
-          title: "Transition to future content",
-          body: "“We can select readings and request an approved action. Our result layout is still\nfixed. A2UI will let the assistant compose a view from components we supply.”\n\nStop at this promise until reviewed milestone 08 is adapted. A2A and MCP/MCP Apps\nremain later additions, not hidden capabilities in this starter.",
+          title: "Transition to milestone 08",
+          body: "“We can select readings and request an approved action. Our result layout is still\nfixed. A2UI will let the assistant compose a view from components we supply.”\n\nContinue with [08 — A2UI](08-a2ui.md). The catalogue and renderer already exist;\nconnect them and repeat a request that the fixed grid could not represent. A2A\nand MCP/MCP Apps remain later additions.",
         },
       ],
       prompts: [
@@ -758,14 +752,14 @@ window.workshopPresenter = {
         {
           path: "apps/angular-host/src/app/workshop/connect.ts",
           after:
-            "import type { WorkshopHost } from './host';\nimport {\n  connectViewContext,\n  registerFacilityTools,\n  registerHistorianView,\n  registerAlarmApproval,\n} from './prepared-tools';\n\nexport function connectWorkshop(host: WorkshopHost): void {\n  connectViewContext(host);\n  registerFacilityTools(host);\n  registerHistorianView(host);\n  registerAlarmApproval();\n}\n",
-          diff: "@@ -1,8 +1,14 @@\n import type { WorkshopHost } from './host';\n-import { connectViewContext, registerFacilityTools, registerHistorianView } from './prepared-tools';\n+import {\n+  connectViewContext,\n+  registerFacilityTools,\n+  registerHistorianView,\n+  registerAlarmApproval,\n+} from './prepared-tools';\n \n export function connectWorkshop(host: WorkshopHost): void {\n   connectViewContext(host);\n   registerFacilityTools(host);\n   registerHistorianView(host);\n+  registerAlarmApproval();\n }\n",
+            "import type { WorkshopHost } from './host';\nimport { connectViewContext, registerFacilityTools, registerAlarmApproval } from './prepared-tools';\n\nexport function connectWorkshop(host: WorkshopHost): void {\n  connectViewContext(host);\n  registerFacilityTools(host);\n  registerAlarmApproval();\n}\n",
+          diff: "@@ -1,7 +1,8 @@\n import type { WorkshopHost } from './host';\n-import { connectViewContext, registerFacilityTools } from './prepared-tools';\n+import { connectViewContext, registerFacilityTools, registerAlarmApproval } from './prepared-tools';\n \n export function connectWorkshop(host: WorkshopHost): void {\n   connectViewContext(host);\n   registerFacilityTools(host);\n+  registerAlarmApproval();\n }\n",
         },
         {
           path: "apps/agent-service/src/mastra/agents/main/agent.ts",
           after:
-            'import { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { createQueryHistorianTool } from "./tools/query-historian-tool";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-07";\n\nexport const historianEnabled = true;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    tools: { query_historian: createQueryHistorianTool(workflow) },\n  });\n}\n',
-          diff: '@@ -2,7 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n import { createQueryHistorianTool } from "./tools/query-historian-tool";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-07";\n \n export const historianEnabled = true;\n export function createMainAgent(\n',
+            'import { ToolCallFilter } from "@mastra/core/processors";\nimport { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\nimport { createQueryHistorianTool } from "./tools/query-historian-tool";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-07";\n\nexport const historianEnabled = true;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    inputProcessors: [new ToolCallFilter({ exclude: ["query_historian"] })],\n    tools: { query_historian: createQueryHistorianTool(workflow) },\n  });\n}\n\nexport { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n',
+          diff: '@@ -3,7 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n import { createQueryHistorianTool } from "./tools/query-historian-tool";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-06";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-07";\n \n export const historianEnabled = true;\n export function createMainAgent(\n',
         },
       ],
       flow: [
@@ -773,6 +767,191 @@ window.workshopPresenter = {
         "Operator decision",
         "Facility transaction",
         "Alarm + audit",
+      ],
+    },
+    {
+      id: "08",
+      name: "A2UI result composition",
+      source: "workshop/speaker-notes/08-a2ui.md",
+      intro:
+        "**Start:** completed 07. A working key and recent demo readings are required.\n**Completed code:** [solution 08](../solutions/08/).\n\n**Demo inputs:** Follow milestone 08 in the [demo prompt sequence](../demo-prompts.md)\nor this chapter’s Demo prompts in the Presenter desk. Use the three core examples\nin order; each replaces the previous generated view. The manager-card example\nrequires rehearsal: this worktree’s two live attempts rendered valid but incorrect\narrangements. Table-only and stored room-description examples passed.",
+      actions: [
+        {
+          label: "PREPARE",
+          title: "Before you begin",
+          body: "**Start:** completed 07. A working key and recent demo readings are required.\n**Completed code:** [solution 08](../solutions/08/).\n\n**Demo inputs:** Follow milestone 08 in the [demo prompt sequence](../demo-prompts.md)\nor this chapter’s Demo prompts in the Presenter desk. Use the three core examples\nin order; each replaces the previous generated view. The manager-card example\nrequires rehearsal: this worktree’s two live attempts rendered valid but incorrect\narrangements. Table-only and stored room-description examples passed.",
+        },
+        {
+          label: "EXPLAIN",
+          title: "Say",
+          body: "“Until now, the application chose the result layout. We will give the agent three\ncomponents and let it arrange them. SQL still selects real data. The model chooses\nthe layout and bindings; the application supplies every table value.”",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 1",
+          body: "In `apps/angular-host/src/app/app.config.ts`, import `facilityWebCatalog` from\n   `./a2ui/web-catalog` and add `a2ui: { catalog: facilityWebCatalog }` to\n   `provideCopilotKit`. The catalogue and Lit components are already inside Angular.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 2",
+          body: "In `apps/angular-host/src/app/chat/chat.component.ts`, import\n   `registerGeneratedViewNotice` from `../a2ui/chat-notice` and call it in the\n   constructor. It leaves a short chat notice while the prepared main-area slot\n   displays `CopilotA2UIActivityRenderer`. No renderer implementation is typed live.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 3",
+          body: "In `apps/agent-service/src/mastra/agents/main/agent.ts`, select the prepared\n   `main-08` prompt, change the workflow type import and factory export to\n   `../../workflows/historian-composition/workflow`, and change the tool import\n   to `./tools/query-composition-tool`. The public tool remains `query_historian`.\n   Use the exact solution diff; both occurrences of the workflow path must change.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 4",
+          body: "In `apps/facility-service/src/workshop.ts`, change the `HistorianQueryService`\n   export from `./historian-query-legacy.js` to `./historian-query.js`.\n   This explicitly replaces the complete-reading policy with the dataset policy.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 5",
+          body: "Open `workflows/historian-composition/workflow.ts` near the final chain:\n   generate SQL → deterministic check → model review → execute → select format\n   → data or UI. These steps are prepared. Show that the initial check only prepares\n   SQL, and that execution repeats the policy checks before reading any rows.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 6",
+          body: "Open the prepared format/composer agents under `historian-composition/agents`.\n   Show that the format agent decides inside the workflow. The composer receives\n   the question and column definitions, not row values. A requested table or card\n   selects UI; an ordinary factual question can select the plain-data branch.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 7",
+          body: "Open `apps/angular-host/src/app/a2ui/web-catalog.ts` and the shared\n   `packages/contracts/src/facility-catalog.ts`. Show Table, Card and Text, then\n   follow a Table’s `dataset` binding. The main agent does not emit arbitrary HTML,\n   JavaScript, URLs, or cell values. Grouped summaries run over the full snapshot\n   before table paging; mixed metric/unit values do not produce a combined number.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 8",
+          body: "Restart the facility service and Mastra, then reload the app and Studio.\n   Select 08 only as a recovery shortcut; the preceding four edits are the live work.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 1",
+          body: "Send the table-only prompt from Demo prompts. Confirm exactly the requested\n   Time, Temperature and Shift Manager columns. Page the table. There should be\n   no surrounding titled Card, explanatory Text, or manual column chooser.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 2",
+          body: "Rehearse the manager-card prompt first. If the output combines rooms or puts\n   manager names on Tables instead of Cards, use it to review the unmet request.\n   A passing result has manager Cards containing a short layout\n   introduction and separate room Tables. Inspect one table’s manager/room scope.\n   Page one table and verify the others keep their positions. Model-written\n   introductions describe the layout; they must not interpret unseen temperatures.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 3",
+          body: "Send the room-overview prompt. Show that two Cards containing stored descriptions\n   replace the temperature tables. Follow the native binding to the actual room\n   description. This proves the catalogue composes different kinds of views.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 4",
+          body: "Optionally request an average-temperature table per manager. Contrast this with\n   the rejected aggregate in 06. Inspect the SQL/dataset and calculated result;\n   do not treat a confident chat acknowledgement as numerical evidence.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 5",
+          body: "In Studio inspect the format and composition steps. In the transported result\n   show `createSurface`, `updateComponents`, and `updateDataModel`. Explain the\n   current-result receipt, browser-history filtering and `ToolCallFilter` together.",
+        },
+        {
+          label: "TRANSITION",
+          title: "Transition",
+          body: "“We can acquire data through a reviewed workflow and compose a bounded view from\nour own components. Next we can add specialist knowledge or external capabilities.”\n\nA2A and MCP/MCP Apps remain future chapters. They are not included in 08.",
+        },
+      ],
+      prompts: [
+        {
+          title: "Only a table",
+          prompt:
+            "Show the Cooling room air temperature readings from the last seven days. Include time, temperature and shift manager, in that order. Only show a table, with no cards or explanatory text.",
+          before:
+            "Complete 08, restart both backend services and reload the app. Ensure the local historian contains readings from the last seven days. If needed, stop services and deliberately reset the demo database before rehearsal.",
+          expected:
+            "The Generated view shows a standalone Table with Time, Temperature and Shift Manager in that order. Paging is local. No surrounding titled Card, explanatory Text or column chooser.",
+          inspect:
+            "Inspect the query and result-format decision, then the validated Table definition and real dataset binding. Relative dates stay in the original question until SQL resolves them using the database clock.",
+          optional: false,
+        },
+        {
+          title: "Manager cards containing room tables — rehearse first",
+          prompt:
+            "Show air temperature readings from both rooms over the last seven days. Create one card per shift manager, titled with the manager's name. Inside EACH manager card put one short layout introduction and TWO separate tables: one for the Cooling room and one for the Packaging hall. Title each table with its room name. Each table must contain only readings for its own room and that card's manager, with time and temperature columns. Do not combine both rooms into one table.",
+          before:
+            "Rehearse this complex example before teaching it. In the 15 September Workshop check, both the original and clarified prompts produced structurally valid layouts that missed the requested manager-card/room-table arrangement. Continue after the table demo and compare the result with the expected hierarchy; do not count rendering alone as success.",
+          expected:
+            "For complete seeded coverage, three titled manager Cards contain three Text introductions and six room Tables. Each table receives only its manager/room group. A new result replaces the previous view.",
+          inspect:
+            "Compare one table with its returned records, then page only that table and check the others stay put. Explain native repeated child templates and dataset bindings. The short introduction describes layout, not unseen measurements. A schema-valid composition can still miss the requested layout. Count the separate room tables and check their titles before calling the demo successful.",
+          optional: false,
+        },
+        {
+          title: "Room cards without tables",
+          prompt:
+            "Give me an overview of the rooms. Show one card per room, with its name as the title and one short explanation of what happens there. Use the stored room descriptions. No tables or temperature statistics.",
+          before:
+            "Continue after the manager-card demo. The historian view includes stored room descriptions and area types.",
+          expected:
+            "Two Cards with Text replace the previous tables. Room names and descriptions come from the dataset; no temperature table is generated.",
+          inspect:
+            "Follow Text and title bindings into stored metadata. Contrast this composition with the first two examples: the same catalogue supports a standalone table, nested tables and text-only cards.",
+          optional: false,
+        },
+        {
+          title: "Revisit the earlier aggregate limitation",
+          prompt:
+            "Show the average air temperature for each shift manager over the last seven days in a table.",
+          before:
+            "Optional after the three core demos. Explicitly request a table so the format agent selects UI.",
+          expected:
+            "A supported aggregate result is displayed in a Table, using data or calculations from the complete query snapshot. No model-invented averages.",
+          inspect:
+            "Contrast with 06. Inspect the generated SQL: it may return named aggregate columns or underlying readings with a Table aggregate configuration. Verify values against the dataset; paging must not change an average.",
+          optional: true,
+        },
+        {
+          title: "Expose the read-only boundary",
+          prompt:
+            "Delete all Cooling room readings from the historian, then show a table of the remaining readings.",
+          before:
+            "Optional boundary example. This is intentionally unsupported; the model has no deletion tool and SQL execution is read-only.",
+          expected:
+            "No readings are deleted. The main agent should refuse, or the workflow should reject any proposed write. If it instead performs only a read, explain that the requested deletion was not available.",
+          inspect:
+            "Inspect where the request stopped. A refusal alone tests instructions; the deterministic suite separately verifies blocked writes. Do not modify the policy to force a demo through.",
+          optional: true,
+        },
+      ],
+      recovery:
+        "Select 08, restart both backend services, and reload the browser. If the generated\nview is missing, inspect catalogue registration, the result-format decision,\n`a2ui_operations`, and the prepared main-area renderer in that order.\n\nIf SQL, layout validation, or composition times out, show the reported failure.\nThe previous successful view may remain; do not present it as the failed request’s\nanswer. Do not loosen the schema. A new user message starts a fresh workflow run.\n\nFor stale dates or existing demo alarms, stop the app first and deliberately run\n`pnpm reset:demo`. It reseeds the local seven-day readings and deletes demo alarms\nand approval records. Start services again and begin a fresh conversation. Never\nrun it merely to switch a code checkpoint.",
+      files: [
+        {
+          path: "apps/angular-host/src/app/chat/chat.component.ts",
+          after:
+            "import { registerGeneratedViewNotice } from '../a2ui/chat-notice';\nimport { Component } from '@angular/core';\nimport { CopilotChat } from '@copilotkit/angular';\nimport { StreamingAutoScrollDirective } from './streaming-auto-scroll.directive';\n\n@Component({\n  selector: 'app-chat',\n  imports: [CopilotChat, StreamingAutoScrollDirective],\n  templateUrl: './chat.component.html',\n  styleUrl: './chat.component.scss',\n})\nexport class ChatComponent {\n  constructor() {\n    registerGeneratedViewNotice();\n  }\n}\n",
+          diff: "@@ -1,3 +1,4 @@\n+import { registerGeneratedViewNotice } from '../a2ui/chat-notice';\n import { Component } from '@angular/core';\n import { CopilotChat } from '@copilotkit/angular';\n import { StreamingAutoScrollDirective } from './streaming-auto-scroll.directive';\n@@ -8,4 +9,8 @@ import { StreamingAutoScrollDirective } from './streaming-auto-scroll.directive'\n   templateUrl: './chat.component.html',\n   styleUrl: './chat.component.scss',\n })\n-export class ChatComponent {}\n+export class ChatComponent {\n+  constructor() {\n+    registerGeneratedViewNotice();\n+  }\n+}\n",
+        },
+        {
+          path: "apps/angular-host/src/app/app.config.ts",
+          after:
+            "import { facilityWebCatalog } from './a2ui/web-catalog';\nimport { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideHttpClient } from '@angular/common/http';\nimport { provideRouter } from '@angular/router';\nimport { provideCopilotChatLabels, provideCopilotKit } from '@copilotkit/angular';\n\nimport { routes } from './app.routes';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [\n    provideBrowserGlobalErrorListeners(),\n    provideHttpClient(),\n    provideRouter(routes),\n    provideCopilotKit({\n      runtimeUrl: '/api/copilotkit',\n      a2ui: { catalog: facilityWebCatalog },\n    }),\n    provideCopilotChatLabels({\n      chatInputPlaceholder: 'Ask about this view or its history…',\n      welcomeMessageText: 'How can I help?',\n      chatDisclaimerText:\n        'Check answers against facility evidence. Operational actions require operator control.',\n    }),\n  ],\n};\n",
+          diff: "@@ -1,3 +1,4 @@\n+import { facilityWebCatalog } from './a2ui/web-catalog';\n import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\n import { provideHttpClient } from '@angular/common/http';\n import { provideRouter } from '@angular/router';\n@@ -10,7 +11,10 @@ export const appConfig: ApplicationConfig = {\n     provideBrowserGlobalErrorListeners(),\n     provideHttpClient(),\n     provideRouter(routes),\n-    provideCopilotKit({ runtimeUrl: '/api/copilotkit' }),\n+    provideCopilotKit({\n+      runtimeUrl: '/api/copilotkit',\n+      a2ui: { catalog: facilityWebCatalog },\n+    }),\n     provideCopilotChatLabels({\n       chatInputPlaceholder: 'Ask about this view or its history…',\n       welcomeMessageText: 'How can I help?',\n",
+        },
+        {
+          path: "apps/facility-service/src/workshop.ts",
+          after:
+            'import type { WorkshopConnections, WorkshopOptions } from "./workshop-types.js";\nimport { createWorkshopCopilotRuntime } from "./copilot-runtime.js";\n\nexport function createWorkshopConnections(\n  options: WorkshopOptions,\n): WorkshopConnections {\n  return {\n    chat: undefined,\n    copilotRuntime: createWorkshopCopilotRuntime(options),\n  };\n}\n\nexport { HistorianQueryService } from "./historian-query.js";\n',
+          diff: '@@ -10,4 +10,4 @@ export function createWorkshopConnections(\n   };\n }\n \n-export { HistorianQueryService } from "./historian-query-legacy.js";\n+export { HistorianQueryService } from "./historian-query.js";\n',
+        },
+        {
+          path: "apps/agent-service/src/mastra/agents/main/agent.ts",
+          after:
+            'import { ToolCallFilter } from "@mastra/core/processors";\nimport { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport type { createHistorianQueryWorkflow } from "../../workflows/historian-composition/workflow";\nimport { createQueryHistorianTool } from "./tools/query-composition-tool";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/main-08";\n\nexport const historianEnabled = true;\nexport function createMainAgent(\n  apiKey: string,\n  model: string,\n  workflow: ReturnType\u003ctypeof createHistorianQueryWorkflow>,\n) {\n  const openrouter = createOpenAI({\n    apiKey,\n    baseURL: "https://openrouter.ai/api/v1",\n  });\n  return new Agent({\n    id: "default",\n    name: "Soverius Chocolate Factory Assistant",\n    instructions: CHAT_SYSTEM_PROMPT,\n    model: openrouter(model),\n    inputProcessors: [new ToolCallFilter({ exclude: ["query_historian"] })],\n    tools: { query_historian: createQueryHistorianTool(workflow) },\n  });\n}\n\nexport { createHistorianQueryWorkflow } from "../../workflows/historian-composition/workflow";\n',
+          diff: '@@ -1,9 +1,9 @@\n import { ToolCallFilter } from "@mastra/core/processors";\n import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n-import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n-import { createQueryHistorianTool } from "./tools/query-historian-tool";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-07";\n+import type { createHistorianQueryWorkflow } from "../../workflows/historian-composition/workflow";\n+import { createQueryHistorianTool } from "./tools/query-composition-tool";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/main-08";\n \n export const historianEnabled = true;\n export function createMainAgent(\n@@ -25,4 +25,4 @@ export function createMainAgent(\n   });\n }\n \n-export { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";\n+export { createHistorianQueryWorkflow } from "../../workflows/historian-composition/workflow";\n',
+        },
+      ],
+      flow: [
+        "Reviewed query",
+        "Format decision",
+        "Table / Card / Text",
+        "Generated view",
       ],
     },
   ],
