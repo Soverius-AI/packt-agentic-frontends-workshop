@@ -8,7 +8,8 @@
     "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {}
   },
   "include": ["src/**/*.ts"]
 }
