@@ -11,3 +11,5 @@ coverage/
 apps/facility-service/**/data/
 .mastra/
 apps/agent-service/**/data/
+
+.workshop-backups/

@@ -1,9 +1,11 @@
+import { ChatServiceError, type ChatService } from "./chat.js";
 import {
   createServer,
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
 import {
+  chatRequestSchema,
   alarmApprovalRequestSchema,
   alarmActionRequestSchema,
   historianExecutionRequestSchema,
@@ -55,8 +57,9 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
 export const createFacilityServer = (
   repository: FacilityRepository,
   telemetry: LiveTelemetry,
-  copilotRuntime: NodeCopilotListener,
+  copilotRuntime: NodeCopilotListener | undefined,
   historian?: HistorianQueryExecutor,
+  chat?: ChatService,
 ) =>
   createServer(async (request, response) => {
     try {
@@ -64,7 +67,23 @@ export const createFacilityServer = (
       const url = new URL(request.url ?? "/", "http://localhost");
 
       if (url.pathname.startsWith("/api/copilotkit")) {
+        if (!copilotRuntime) {
+          sendJson(response, 404, {
+            error: "CopilotKit is not connected yet.",
+          });
+          return;
+        }
         await copilotRuntime(request, response);
+        return;
+      }
+
+      if (method === "POST" && url.pathname === "/api/chat") {
+        if (!chat) {
+          sendJson(response, 404, { error: "Basic chat is not connected." });
+          return;
+        }
+        const input = chatRequestSchema.parse(await readBody(request));
+        sendJson(response, 200, await chat.reply(input.messages));
         return;
       }
 
@@ -195,7 +214,10 @@ export const createFacilityServer = (
 
       sendJson(response, 404, { error: "Not found" });
     } catch (error) {
-      if (error instanceof FacilityRepositoryError) {
+      if (
+        error instanceof FacilityRepositoryError ||
+        error instanceof ChatServiceError
+      ) {
         sendJson(response, error.statusCode, { error: error.message });
         return;
       }

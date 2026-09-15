@@ -383,9 +383,8 @@ export function executeHistorianSqlInWorker(
       new URL("./historian-query-worker.js", import.meta.url),
       {
         workerData: { databasePath, sql },
-        execArgv: process.execArgv.filter(
-          (argument) => !argument.startsWith("--input-type"),
-        ),
+        // The worker runs compiled JavaScript; parent CLI/test flags are not worker options.
+        execArgv: ["--enable-source-maps"],
       },
     );
     const timer = setTimeout(() => {

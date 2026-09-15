@@ -1,0 +1,53 @@
+# 05 — Connect model intent to existing UI operations
+
+**Start:** completed 04. **Completed code:** [solution 05](../solutions/05/).
+
+## Say
+
+“The model chooses a named operation with structured arguments. Angular applies
+that operation to its existing state. We expose a small view description and
+discovery tools, not the entire application or its database.”
+
+## Open and change
+
+1. `apps/angular-host/src/app/workshop/connect.ts`: add `connectViewContext(host)`
+   and `registerFacilityTools(host)` with their prepared imports.
+2. Open `workshop/prepared-tools.ts`: explain `connectAgentContext`, then one
+   discovery tool (`list_rooms`) and one action (`update_filters`). There are four
+   catalog tools and three view/filter tools; do not type all seven registrations.
+3. Point to the schema, description, `agentId`, validation, and handler. The
+   handler reaches the existing `configureFacilityView` operation through the
+   prepared host adapter. The call executes in Angular's injection context.
+4. In `apps/agent-service/src/mastra/agents/main/agent.ts`, change the prompt import
+   from `main-04` to `main-05`. Keep backend `tools: {}`: these tools come from the
+   browser, not the Mastra server tool list.
+5. Restart Mastra if needed and reload the browser. Keep `pnpm dev` running.
+
+## Demonstrate
+
+Ask: **Which rooms and shift managers can I filter by?** Inspect discovery calls.
+
+Then: **Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.**
+
+Expected: Reading log, room, condition and manager reflect the request.
+
+Then: **Change the start date to now.**
+
+Before sending, say which values should stay the same. Afterward, inspect all
+filters: only the start boundary changes. A temporarily empty log is reasonable
+because the range starts now. Clear the start date and show the prior filters remain.
+
+Explain omitted fields versus explicit clearing. For a code-level explanation,
+open `applyFacilityViewCommand` in `packages/contracts/src/index.ts`; that is the
+prepared patch behavior behind the visible controls.
+
+## Transition
+
+“These tools can operate existing filters. A question such as maximum temperature
+per manager needs a different data capability.”
+
+## Recovery
+
+Select 05 and restart/reload. If the model guesses an option, ask for discovery
+first and inspect the returned IDs. If filters unexpectedly disappear, inspect
+the patch arguments and handler before changing the model prompt.

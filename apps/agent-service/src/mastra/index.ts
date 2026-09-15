@@ -3,7 +3,7 @@ import { LibSQLStore } from "@mastra/libsql";
 import { MastraStorageExporter, Observability } from "@mastra/observability";
 import { existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { createMainAgent } from "./agents/main/agent";
+import { createMainAgent, historianEnabled } from "./agents/main/agent";
 import { createHistorianQueryWorkflow } from "./workflows/historian-query/workflow";
 
 const packageRoot = process.cwd();
@@ -21,7 +21,7 @@ if (!apiKey) throw new Error("OPENROUTER_API_KEY is required.");
 
 const model = process.env["OPENROUTER_MODEL"] || "google/gemma-4-31b-it";
 const facilityBaseUrl =
-  process.env["FACILITY_BASE_URL"] || "http://127.0.0.1:3001";
+  process.env["FACILITY_BASE_URL"] || "http://127.0.0.1:3101";
 
 export const historianQueryWorkflow = createHistorianQueryWorkflow(
   apiKey,
@@ -32,8 +32,9 @@ export const historianQueryWorkflow = createHistorianQueryWorkflow(
 export const mainAgent = createMainAgent(apiKey, model, historianQueryWorkflow);
 
 export const mastra = new Mastra({
+  server: { port: 4211 },
   agents: { default: mainAgent },
-  workflows: { historianQueryWorkflow },
+  workflows: historianEnabled ? { historianQueryWorkflow } : {},
   storage: new LibSQLStore({
     id: "packt-workshop-storage",
     url: `file:${storagePath}`,

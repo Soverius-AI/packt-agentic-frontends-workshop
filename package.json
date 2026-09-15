@@ -2,7 +2,7 @@
   "name": "packt-agentic-frontends-workshop",
   "version": "0.1.0",
   "private": true,
-  "description": "Checkpoint 07: approval-gated and audited alarm actions through CopilotKit, AG-UI, and Mastra.",
+  "description": "Presenter starter for completed milestones 1\u20137; Angular, CopilotKit, and Mastra.",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {
@@ -10,11 +10,15 @@
     "check": "pnpm build && pnpm format:check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "dev": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
-    "dev:backend": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service dev",
+    "dev": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter angular-host dev",
+    "dev:backend": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service dev",
     "dev:agent": "pnpm --filter @packt-workshop/agent-service dev",
-    "dev:angular": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
-    "dev:react": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter react-host dev"
+    "dev:angular": "pnpm dev",
+    "dev:all": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
+    "workshop:select": "node workshop/select.mjs",
+    "workshop:status": "node workshop/select.mjs status",
+    "check:types": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --filter @packt-workshop/agent-service exec tsc --noEmit && pnpm --filter angular-host build",
+    "workshop:test": "node --test workshop/server.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

@@ -19,7 +19,7 @@ export const createWorkshopCopilotRuntime = (
   options: CopilotRuntimeOptions = {},
 ) => {
   const mastraClient = new MastraClient({
-    baseUrl: options.mastraBaseUrl ?? "http://127.0.0.1:4111",
+    baseUrl: options.mastraBaseUrl ?? "http://127.0.0.1:4211",
   });
   const remoteAgent = mastraClient.getAgent("default");
   const runtime = new CopilotRuntime({

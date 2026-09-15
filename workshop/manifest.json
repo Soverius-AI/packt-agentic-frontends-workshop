@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "e2e5d14",
+  "files": [
+    "apps/angular-host/src/app/chat/chat.component.ts",
+    "apps/angular-host/src/app/chat/chat.component.html",
+    "apps/angular-host/src/app/chat/chat.component.scss",
+    "apps/angular-host/src/app/app.config.ts",
+    "apps/angular-host/src/app/workshop/connect.ts",
+    "apps/facility-service/src/workshop.ts",
+    "apps/agent-service/src/mastra/agents/main/agent.ts"
+  ],
+  "milestones": {
+    "01": "Conventional application",
+    "02": "Basic chat",
+    "03": "CopilotKit and AG-UI",
+    "04": "Mastra agent",
+    "05": "Frontend tools",
+    "06": "Reviewed historian workflow",
+    "07": "Human approval and audit"
+  }
+}
