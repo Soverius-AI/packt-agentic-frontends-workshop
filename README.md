@@ -90,7 +90,6 @@ pnpm webinar:test
 pnpm --filter angular-host build
 ```
 
-The tests use the actual completed webinar factory with a mocked OpenAI response,
-exercise the backend route and Angular response contract, preserve conventional
-facility checks, and verify the three-file selector and presenter data. They make
-no external model calls. Angular builds are also checked for both webinar states.
+The tests cover conventional facility behavior, Copilot listener forwarding,
+and presenter recovery. Basic Chat API tests have been removed from the webinar
+branches. The checks make no external model calls.
