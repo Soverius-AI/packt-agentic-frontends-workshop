@@ -17,8 +17,9 @@ During chapter 4:
 4. Restart the facility backend and demonstrate the app request and its Studio trace.
 
 Historian implementation files remain available for their later chapter. They
-are not connected by these two entry files. The completed chapter-4 code will
-be saved on webinar-04 once it has been implemented and verified.
+are not connected by these two entry files. The completed chapter-4 code is saved on webinar-04. See
+[speaker notes](speaker-notes/04-mastra.md) for the exact four-file implementation
+and the required Mastra Studio demonstration.
 
 ## Shared helpers
 

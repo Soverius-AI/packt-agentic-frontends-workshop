@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-03`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-04`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-03`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-04`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",
@@ -100,7 +100,7 @@ window.workshopPresenter = {
         {
           label: "TRANSITION",
           title: "Transition",
-          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` is prepared. Branches `webinar-04` through `webinar-08` will be created\nas we prepare those chapters. The selector currently supports 01, 02 and 03. Existing milestone\nbranches and their solutions remain separate.",
+          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` and `webinar-04` are prepared. Branches `webinar-05` through `webinar-08` will be created\nas we prepare those chapters. The selector currently supports 01, 02, 03 and 04. Existing milestone\nbranches and their solutions remain separate.",
         },
       ],
       prompts: [
@@ -159,12 +159,12 @@ window.workshopPresenter = {
       name: "CopilotKit and AG-UI",
       source: "webinar/speaker-notes/03-copilotkit.md",
       intro:
-        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-03` checked out.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-04` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-03` checked out.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-04` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
         },
         {
           label: "EXPLAIN",
@@ -262,7 +262,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.\nCheck http://localhost:3101/api/copilotkit/info for the `default` agent.\nA 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.\nMastra is not needed for this chapter. Keep credentials off screen.\nThe selector restores all nine checkpoint paths, including file creation and\nremoval. It backs up current files and records which paths were absent.\nTo rehearse the previous chapter in this worktree, select 02 and restart the backend;\nselect 03 to return. These commands change files, not the checked-out Git branch.",
+        "Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.\nCheck http://localhost:3101/api/copilotkit/info for the `default` agent.\nA 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.\nMastra is not needed for this chapter. Keep credentials off screen.\nThe selector restores all eleven checkpoint paths, including the empty Mastra starting state, including file creation and\nremoval. It backs up current files and records which paths were absent.\nTo rehearse the previous chapter in this worktree, select 02 and restart the backend;\nselect 03 to return. These commands change files, not the checked-out Git branch.",
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -327,6 +327,142 @@ window.workshopPresenter = {
         },
       ],
       flow: ["CopilotChat", "Copilot runtime", "BuiltInAgent", "Model"],
+    },
+    {
+      id: "04",
+      name: "Mastra agent and Studio",
+      source: "webinar/speaker-notes/04-mastra.md",
+      intro:
+        "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-04`.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+      actions: [
+        {
+          label: "PREPARE",
+          title: "Before you begin",
+          body: "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-04`.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+        },
+        {
+          label: "EXPLAIN",
+          title: "Say",
+          body: "“The Angular chat and AG-UI connection are already working. We now move the model\nand instructions into a dedicated Mastra agent. The facility backend connects\nCopilotKit to that agent. Studio lets us inspect and try the agent directly.”",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 1",
+          body: "Open `apps/agent-service/src/mastra/agents/main/agent.ts`. It is empty in\n   webinar-03. Write `createAgent(apiKey: string, model: string)`. Import `Agent`\n   from `@mastra/core/agent` and `createOpenAI` from `@ai-sdk/openai`.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 2",
+          body: "Create the OpenRouter provider with the API key and\n   `baseURL: 'https://openrouter.ai/api/v1'`. Return an `Agent` with `id: 'default'`,\n   `name: 'Soverius Chocolate Factory'`, `model: openRouterProvider(model)`,\n   `instructions: CHAT_SYSTEM_PROMPT` and `tools: {}`. Import the prepared prompt\n   from `../../prompts/main-04`. Read its limits aloud: no live readings or tools.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 3",
+          body: "Open `apps/agent-service/src/mastra/index.ts`. Import `createAgent`. After the\n   prepared environment loader, read `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`\n   with `getOrThrow` from `@packt-workshop/common/assert-defined` (no `.js` suffix).\n   Register `agents: { default: createAgent(OPENROUTER_API_KEY, OPENROUTER_MODEL) }`.\n   Keep the prepared server, CORS, storage and observability configuration.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 4",
+          body: "**Show Mastra Studio now at http://localhost:4212.** This is a required part\n   of the chapter. Select Soverius Chocolate Factory (`default`), show the model\n   and instructions, and send the general-knowledge prompt directly in its chat.\n   Explain that this reaches the Mastra agent without going through Angular.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 5",
+          body: "Open `apps/facility-service/src/create-copilot-runtime.ts`. Keep the existing\n   factory and listener. Replace the OpenRouter provider and BuiltInAgent with a\n   `MastraClient` from `@mastra/client-js`, using `baseUrl: 'http://localhost:4211'`.\n   Create a `MastraAgent` with `agent: mastraClient.getAgent('default')` and register\n   it as `agents.default` in `CopilotRuntime`. The factory takes no arguments now.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 6",
+          body: "Explain the installed adapter's compatibility workaround briefly. Its normal\n   ESM import fails on a named `compare` export from `fast-json-patch`. Import\n   `createRequire` from `node:module`, then use\n   `const require = createRequire(import.meta.url);` and\n   `const { MastraAgent } = require('@ag-ui/mastra') as typeof import('@ag-ui/mastra');`.\n   This is package compatibility code, not part of the agent architecture. The\n   saved implementation uses an `AbstractAgent` annotation and retains old unused\n   imports and ChatService declarations; these are not new Mastra requirements.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 7",
+          body: "In `apps/facility-service/src/main.ts`, pass `copilotRuntime: createChatClient()`.\n   Remove the old backend model/key assertions: Mastra now reads these values.\n   Keep the environment loader for the backend's own settings. Angular, its chat\n   component, and the facility server's route forwarding need no changes.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 8",
+          body: "Stop and rerun `pnpm dev:backend` (or the combined launcher you use). The backend\n   executes compiled JavaScript and does not rebuild when you save TypeScript.\n   Mastra watches its source and reloads automatically; wait for its ready message.\n   Reload Angular and begin a fresh conversation.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 1",
+          body: "In Angular at http://localhost:4200, ask: **Why does temperature control matter\n   when making chocolate?** Show the streamed answer. Trace the path: CopilotChat\n   → facility CopilotKit listener → Mastra agent → model. The visible chat is the\n   same as chapter 3, while the model call now lives in Mastra.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 2",
+          body: "**Return to Mastra Studio and show the trace for that Angular request.** Refresh\n   the trace list if necessary. Open the recent agent run and show its input,\n   model generation and output. The prepared observability exporter records these.\n   If no trace appears yet, check the Mastra terminal and refresh; do not claim\n   that an unrelated Studio-chat trace proves the Angular request worked.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 3",
+          body: "Ask: **What is the current air temperature in our Cooling room?** The agent\n   should explain that it cannot access current readings. Show `tools: {}` and\n   compare with the real snapshot. Mastra hosting alone does not grant access to\n   application data. Explain that frontend tools are the next chapter.",
+        },
+        {
+          label: "TRANSITION",
+          title: "Transition",
+          body: "“We have a separate agent service and can inspect it in Studio. Next we will give\nthat agent bounded tools to interact with the Angular application's view.”",
+        },
+      ],
+      prompts: [
+        {
+          title: "One agent, two entry points",
+          prompt: "Why does temperature control matter when making chocolate?",
+          before:
+            "Start Mastra API on 4211 and Studio on 4212. Show the default agent in Studio and try the prompt there. Restart the chapter-4 backend, then send the same prompt in a fresh Angular conversation on 4200.",
+          expected:
+            "Both entry points produce a general explanation. Angular streams through CopilotKit to the Mastra agent. Neither answer claims to inspect live factory data.",
+          inspect:
+            "Required: show Mastra Studio, its agent model and instructions, then the trace corresponding to the Angular request. Also show the unchanged CopilotChat and the new MastraClient adapter.",
+          optional: false,
+        },
+        {
+          title: "Hosting does not grant data access",
+          prompt: "What is the current air temperature in our Cooling room?",
+          before:
+            "Keep the actual facility snapshot visible. Do not paste readings into chat.",
+          expected:
+            "The assistant should explain that it cannot access current readings. An invented temperature fails this demonstration.",
+          inspect:
+            "Show tools: {} in the Mastra agent and the static prompt. Explain that frontend tools are introduced in chapter 5.",
+          optional: false,
+        },
+      ],
+      recovery:
+        "Run `pnpm webinar:select 04`, restart the backend launcher, wait for Mastra to\nreload, and reload Angular. Check http://localhost:3101/api/copilotkit/info and\nhttp://localhost:4211/api/agents for `default`. Open Studio on 4212, not the API\nport 4211. API CORS for Studio and common-library builds are already prepared.\nKeep `.env` values and credentials off screen.\nThe selector covers eleven paths, including the two Mastra source files. Selecting\n03 restores an empty agent file and `agents: {}`; selecting 04 restores this agent.\nIt backs up your current code but does not switch Git branches or reset databases.",
+      files: [
+        {
+          path: "apps/facility-service/src/create-copilot-runtime.ts",
+          after:
+            'import type { ChatMessage } from "@packt-workshop/contracts";\nimport { CHAT_SYSTEM_PROMPT } from "./prompts/basic-chat.js";\nimport OpenAI from "openai";\nimport { getOrThrow } from "@packt-workshop/common/assert-defined";\nimport { createOpenAI } from "@ai-sdk/openai";\nimport { BuiltInAgent, CopilotRuntime } from "@copilotkit/runtime/v2";\nimport { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";\nimport { MastraClient } from "@mastra/client-js";\nimport { AbstractAgent } from "@ag-ui/client";\nimport { createRequire } from "node:module";\n\nconst require = createRequire(import.meta.url);\nconst { MastraAgent } = require(\'@ag-ui/mastra\') as typeof import(\'@ag-ui/mastra\')\n\nexport interface ChatService {\n  reply: (messages: ChatMessage[]) => Promise\u003cChatMessage>;\n}\n\nexport class ChatServiceError extends Error {\n  constructor(\n    message: string,\n    public readonly statusCode: number,\n  ) {\n    super(message);\n  }\n}\n\nexport function createChatClient() {\n  const mastraClient = new MastraClient({\n    baseUrl: "http://localhost:4211"\n  })\n\n  const mastraAgent: AbstractAgent = new MastraAgent({\n    agent: mastraClient.getAgent(\'default\')\n  })\n\n  const runtime = new CopilotRuntime({\n    agents: {\n      default: mastraAgent\n    }\n  });\n\n  return createCopilotNodeListener({\n    runtime: runtime,\n    cors: false\n  })\n}\n',
+          deleted: false,
+          diff: '@@ -5,6 +5,12 @@ import { getOrThrow } from "@packt-workshop/common/assert-defined";\n import { createOpenAI } from "@ai-sdk/openai";\n import { BuiltInAgent, CopilotRuntime } from "@copilotkit/runtime/v2";\n import { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";\n+import { MastraClient } from "@mastra/client-js";\n+import { AbstractAgent } from "@ag-ui/client";\n+import { createRequire } from "node:module";\n+\n+const require = createRequire(import.meta.url);\n+const { MastraAgent } = require(\'@ag-ui/mastra\') as typeof import(\'@ag-ui/mastra\')\n \n export interface ChatService {\n   reply: (messages: ChatMessage[]) => Promise\u003cChatMessage>;\n@@ -19,17 +25,18 @@ export class ChatServiceError extends Error {\n   }\n }\n \n-export function createChatClient(apiKey: string, model: string) {\n-  const openRouterProvider = createOpenAI({\n-    apiKey, baseURL: \'https://openrouter.ai/api/v1\'\n+export function createChatClient() {\n+  const mastraClient = new MastraClient({\n+    baseUrl: "http://localhost:4211"\n+  })\n+\n+  const mastraAgent: AbstractAgent = new MastraAgent({\n+    agent: mastraClient.getAgent(\'default\')\n   })\n \n   const runtime = new CopilotRuntime({\n     agents: {\n-      default: new BuiltInAgent({\n-        model: openRouterProvider(model),\n-        prompt: CHAT_SYSTEM_PROMPT\n-      })\n+      default: mastraAgent\n     }\n   });\n \n',
+        },
+        {
+          path: "apps/facility-service/src/main.ts",
+          after:
+            'import { dirname, resolve } from "node:path";\nimport { fileURLToPath } from "node:url";\nimport dotenv from "dotenv";\nimport { createChatClient } from "./create-copilot-runtime.js";\nimport { LiveTelemetry } from "./live-telemetry.js";\nimport { FacilityRepository } from "./repository.js";\nimport { createFacilityServer } from "./server.js";\nimport { HistorianQueryService } from "./workshop.js";\nimport { getOrThrow } from "@packt-workshop/common/assert-defined";\n\nconst packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");\ndotenv.config({ path: resolve(packageRoot, "../../.env") });\n\nconst port = Number(process.env["FACILITY_PORT"] ?? "3101");\nconst databasePath = resolve(\n  process.env["FACILITY_DB_PATH"] ??\n  resolve(packageRoot, "data/facility.sqlite"),\n);\nconst repository = new FacilityRepository(databasePath);\nrepository.initialize();\nif (process.argv.includes("--reset-demo")) {\n  repository.resetDemoData();\n  repository.close();\n  console.log(\n    "Demo readings reset to the last seven days; alarms and approval records cleared.",\n  );\n  process.exit(0);\n}\nconst telemetry = new LiveTelemetry(repository);\nconst historian = new HistorianQueryService(databasePath);\nconst server = createFacilityServer({\n  repository,\n  telemetry,\n  historian,\n  copilotRuntime: createChatClient()\n});\n\nserver.listen(port, "127.0.0.1", () => {\n  telemetry.start();\n  console.log(`Facility service listening on http://127.0.0.1:${port}`);\n  console.log(`SQLite database: ${databasePath}`);\n});\n\nconst close = (): void => {\n  telemetry.stop();\n  server.close(() => {\n    repository.close();\n    process.exit(0);\n  });\n};\n\nprocess.on("SIGINT", close);\nprocess.on("SIGTERM", close);\n',
+          deleted: false,
+          diff: '@@ -11,15 +11,6 @@ import { getOrThrow } from "@packt-workshop/common/assert-defined";\n const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");\n dotenv.config({ path: resolve(packageRoot, "../../.env") });\n \n-export const OPENROUTER_API_KEY = getOrThrow(\n-  process.env["OPENROUTER_API_KEY"],\n-  "openRouterApiKey",\n-);\n-export const OPENROUTER_MODEL = getOrThrow(\n-  process.env["OPENROUTER_MODEL"],\n-  "openRouterModel",\n-);\n-\n const port = Number(process.env["FACILITY_PORT"] ?? "3101");\n const databasePath = resolve(\n   process.env["FACILITY_DB_PATH"] ??\n@@ -41,7 +32,7 @@ const server = createFacilityServer({\n   repository,\n   telemetry,\n   historian,\n-  copilotRuntime: createChatClient(OPENROUTER_API_KEY, OPENROUTER_MODEL)\n+  copilotRuntime: createChatClient()\n });\n \n server.listen(port, "127.0.0.1", () => {\n',
+        },
+        {
+          path: "apps/agent-service/src/mastra/agents/main/agent.ts",
+          after:
+            "import { createOpenAI } from \"@ai-sdk/openai\";\nimport { Agent } from \"@mastra/core/agent\";\nimport { CHAT_SYSTEM_PROMPT } from \"../../prompts/main-04\";\n\n\nexport function createAgent(apiKey: string, model: string) {\n  const openRouterProvider = createOpenAI({\n    apiKey,\n    baseURL: 'https://openrouter.ai/api/v1'\n  })\n\n  return new Agent({\n    id: 'default',\n    name: 'Soverius Chocolate Factory',\n    model: openRouterProvider(model),\n    instructions: CHAT_SYSTEM_PROMPT,\n    tools: {}\n  })\n}",
+          deleted: false,
+          diff: "@@ -0,0 +1,19 @@\n+import { createOpenAI } from \"@ai-sdk/openai\";\n+import { Agent } from \"@mastra/core/agent\";\n+import { CHAT_SYSTEM_PROMPT } from \"../../prompts/main-04\";\n+\n+\n+export function createAgent(apiKey: string, model: string) {\n+  const openRouterProvider = createOpenAI({\n+    apiKey,\n+    baseURL: 'https://openrouter.ai/api/v1'\n+  })\n+\n+  return new Agent({\n+    id: 'default',\n+    name: 'Soverius Chocolate Factory',\n+    model: openRouterProvider(model),\n+    instructions: CHAT_SYSTEM_PROMPT,\n+    tools: {}\n+  })\n+}\n\\ No newline at end of file\n",
+        },
+        {
+          path: "apps/agent-service/src/mastra/index.ts",
+          after:
+            'import { Mastra } from "@mastra/core/mastra";\nimport { LibSQLStore } from "@mastra/libsql";\nimport { MastraStorageExporter, Observability } from "@mastra/observability";\nimport { existsSync, mkdirSync } from "node:fs";\nimport { dirname, resolve } from "node:path";\nimport { createAgent } from "./agents/main/agent";\nimport { getOrThrow } from \'@packt-workshop/common/assert-defined\'\n\nconst packageRoot = process.cwd();\nconst environmentPath = resolve(packageRoot, "../../.env");\nif (existsSync(environmentPath)) process.loadEnvFile(environmentPath);\n\nexport const OPENROUTER_API_KEY = getOrThrow(\n  process.env["OPENROUTER_API_KEY"],\n  "openRouterApiKey",\n);\nexport const OPENROUTER_MODEL = getOrThrow(\n  process.env["OPENROUTER_MODEL"],\n  "openRouterModel",\n);\n\nconst storagePath = resolve(\n  process.env["MASTRA_STORAGE_PATH"] ??\n  resolve(packageRoot, "data/mastra.sqlite"),\n);\nmkdirSync(dirname(storagePath), { recursive: true });\n\nexport const mastra = new Mastra({\n  server: {\n    port: 4211,\n    cors: {\n      origin: "http://localhost:4212",\n      credentials: true,\n    },\n  },\n  agents: { default: createAgent(OPENROUTER_API_KEY, OPENROUTER_MODEL) },\n  storage: new LibSQLStore({\n    id: "packt-workshop-storage",\n    url: `file:${storagePath}`,\n  }),\n  observability: new Observability({\n    configs: {\n      default: {\n        serviceName: "packt-workshop-agent",\n        exporters: [new MastraStorageExporter()],\n      },\n    },\n  }),\n});\n',
+          deleted: false,
+          diff: '@@ -3,14 +3,25 @@ import { LibSQLStore } from "@mastra/libsql";\n import { MastraStorageExporter, Observability } from "@mastra/observability";\n import { existsSync, mkdirSync } from "node:fs";\n import { dirname, resolve } from "node:path";\n+import { createAgent } from "./agents/main/agent";\n+import { getOrThrow } from \'@packt-workshop/common/assert-defined\'\n \n const packageRoot = process.cwd();\n const environmentPath = resolve(packageRoot, "../../.env");\n if (existsSync(environmentPath)) process.loadEnvFile(environmentPath);\n \n+export const OPENROUTER_API_KEY = getOrThrow(\n+  process.env["OPENROUTER_API_KEY"],\n+  "openRouterApiKey",\n+);\n+export const OPENROUTER_MODEL = getOrThrow(\n+  process.env["OPENROUTER_MODEL"],\n+  "openRouterModel",\n+);\n+\n const storagePath = resolve(\n   process.env["MASTRA_STORAGE_PATH"] ??\n-    resolve(packageRoot, "data/mastra.sqlite"),\n+  resolve(packageRoot, "data/mastra.sqlite"),\n );\n mkdirSync(dirname(storagePath), { recursive: true });\n \n@@ -22,7 +33,7 @@ export const mastra = new Mastra({\n       credentials: true,\n     },\n   },\n-  agents: {},\n+  agents: { default: createAgent(OPENROUTER_API_KEY, OPENROUTER_MODEL) },\n   storage: new LibSQLStore({\n     id: "packt-workshop-storage",\n     url: `file:${storagePath}`,\n',
+        },
+      ],
+      flow: ["CopilotChat", "Copilot runtime", "Mastra agent", "Model"],
     },
   ],
 };

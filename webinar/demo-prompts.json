@@ -35,5 +35,23 @@
       "inspect": "Show that BuiltInAgent has a model and static prompt, with no tools connected. Mastra is introduced in chapter 04.",
       "optional": false
     }
+  ],
+  "04": [
+    {
+      "title": "One agent, two entry points",
+      "prompt": "Why does temperature control matter when making chocolate?",
+      "before": "Start Mastra API on 4211 and Studio on 4212. Show the default agent in Studio and try the prompt there. Restart the chapter-4 backend, then send the same prompt in a fresh Angular conversation on 4200.",
+      "expected": "Both entry points produce a general explanation. Angular streams through CopilotKit to the Mastra agent. Neither answer claims to inspect live factory data.",
+      "inspect": "Required: show Mastra Studio, its agent model and instructions, then the trace corresponding to the Angular request. Also show the unchanged CopilotChat and the new MastraClient adapter.",
+      "optional": false
+    },
+    {
+      "title": "Hosting does not grant data access",
+      "prompt": "What is the current air temperature in our Cooling room?",
+      "before": "Keep the actual facility snapshot visible. Do not paste readings into chat.",
+      "expected": "The assistant should explain that it cannot access current readings. An invented temperature fails this demonstration.",
+      "inspect": "Show tools: {} in the Mastra agent and the static prompt. Explain that frontend tools are introduced in chapter 5.",
+      "optional": false
+    }
   ]
 }

@@ -1,58 +1,54 @@
 # Webinar — chapter branches
 
-Chapter 2 connects the prepared Basic Chat component to a hand-written model call.
-Chapter 3 replaces that connection with CopilotChat, a BuiltInAgent and the
-CopilotKit runtime. The same system prompt is reused; no facility tools are connected.
-The `.chat-container` styles are prepared in webinar-01 and webinar-02. During
-chapter 3, only add its wrapper around the chat in app.html.
+The checkpoints preserve the presenter’s cumulative implementation. Chapter 2
+connects the prepared Basic Chat component to a hand-written model call. Chapter 3
+introduces CopilotChat and AG-UI. Chapter 4 moves the agent into Mastra and shows
+Mastra Studio. The agent still has no facility tools or live application data.
 
 ## Chapter checkpoints
 
-| Branch       | Completed state                                     | Local directory      |
-| ------------ | --------------------------------------------------- | -------------------- |
-| `webinar-01` | Prepared starting point                             | `packt-webinar-zero` |
-| `webinar-02` | End of chapter 2: Basic Chat and backend connection | Git checkpoint       |
-| `webinar-03` | End of chapter 3: CopilotKit and AG-UI              | `packt-webinar-02`   |
+| Branch       | Completed state                   | Local directory      |
+| ------------ | --------------------------------- | -------------------- |
+| `webinar-01` | Prepared starting point           | `packt-webinar-zero` |
+| `webinar-02` | Basic Chat and backend connection | Git checkpoint       |
+| `webinar-03` | CopilotKit and AG-UI              | Git checkpoint       |
+| `webinar-04` | Mastra agent and Studio           | `packt-webinar-02`   |
 
-`webinar-02` builds on `webinar-01`. The difference is exactly app.html, chat.ts and main.ts. Compare them with `git diff webinar-01..webinar-02`.
-Your original working implementation is also preserved at commit `1a9e25e`.
+The existing `packt-webinar-02` directory now has **webinar-04** checked out,
+so your editor and terminals keep their paths. Each branch includes the earlier
+chapters. Branches 05–08 will be created when those chapters are ready. The original
+milestone branches remain separate and unchanged.
 
-Continue with `webinar-04` through `webinar-08` as those chapters are prepared.
-Each future branch will include everything through its chapter; those branches
-have not been created yet. Commits within a chapter can record teaching steps.
-Existing milestone branches remain separate.
-
-The existing `packt-webinar-02` directory now has `webinar-03` checked out, so
-your editor and terminals keep their paths. The webinar-02 branch still points
-to the completed Basic Chat checkpoint. Use `pnpm webinar:select 02` to rehearse
-from that code in this worktree and `pnpm webinar:select 03` to restore chapter 3.
-Run application services from only one directory at a time because ports are shared.
+Chapter 4 changes four application files: Mastra’s `agent.ts` and `index.ts`, plus
+the facility backend’s `create-copilot-runtime.ts` and `main.ts`. Angular stays as
+it was in chapter 3. Commit `ed3982f` preserves the presenter’s code as written.
+The factory includes a CommonJS-loading workaround for the installed adapter’s
+`fast-json-patch` ESM incompatibility; see the chapter 4 notes.
 
 ## Start here
 
-For the completed chapter 3, use **packt-webinar-02**, branch **webinar-03**. Its `.env` is
-private and ignored; configure OPENROUTER_API_KEY and OPENROUTER_MODEL before
-starting the backend. Those settings are checked even in state 01.
+Use **packt-webinar-02**, branch **webinar-04**. Keep `OPENROUTER_API_KEY` and
+`OPENROUTER_MODEL` in the private, ignored `.env`; Mastra reads them in chapter 4.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm webinar:status
-pnpm dev
+pnpm dev:all
 ```
 
 | Command              | Service                  | Port  |
 | -------------------- | ------------------------ | ----- |
-| `pnpm dev:angular`   | Angular only             | 4200  |
+| `pnpm dev:angular`   | Angular                  | 4200  |
 | `pnpm dev:backend`   | Facility backend         | 3101  |
 | `pnpm dev:mastra`    | Mastra API               | 4211  |
 | `pnpm dev:studio`    | Standalone Mastra Studio | 4212  |
 | `pnpm dev:all`       | All four                 | Above |
 | `pnpm webinar:notes` | Presenter desk           | 4400  |
 
-Mastra is preinstalled; the Basic Chat exercise uses OpenAI directly from the
-facility backend. Angular and Mastra watch source edits. After backend edits,
-stop and rerun the command that launched it so TypeScript is rebuilt.
-Stop old worktree service terminals before starting this worktree on the same ports.
+Angular and Mastra watch source edits. After backend edits, stop and rerun its
+launcher so TypeScript is rebuilt. Run services from only one worktree at a time:
+the ports are shared. `pnpm dev` runs Angular and the backend only; chapter 4 also
+needs Mastra, so use `pnpm dev:all` or start `pnpm dev:mastra` separately.
 
 ## Presenter notes and recovery
 
@@ -61,34 +57,38 @@ pnpm webinar:notes
 pnpm webinar:select 01
 pnpm webinar:select 02
 pnpm webinar:select 03
+pnpm webinar:select 04
 ```
 
-Open http://localhost:4400. The presenter desk covers chapters 01, 02 and 03,
-with exact code differences, deletion markers, demo prompts and recovery commands.
-The selector restores nine checkpoint paths, including added and deleted files.
-It backs up current files and an `absent.json` list into ignored `.webinar-backups/`.
-Restart the backend and reload Angular after selecting a state. Git branches and
-the demo database are not changed.
+Open http://localhost:4400. The presenter desk covers chapters 01–04 with exact
+code differences, demo prompts and recovery commands. Chapter 3 explicitly reminds
+you to show the AG-UI Chrome extension again. Chapter 4 requires showing Mastra
+Studio, trying the agent there, and inspecting the trace from an Angular request.
+
+The selector restores eleven paths, including the two Mastra entry files, and
+backs up current files plus an absence list in ignored `.webinar-backups/`.
+Selecting 03 empties the agent and restores `agents: {}`; selecting 04 restores
+your implementation. It changes files, not Git branches or databases. Restart the
+backend, wait for Mastra to reload, then reload Angular after selecting a state.
 
 - [Starting-state speaker notes](webinar/speaker-notes/01-start.md)
 - [Basic Chat speaker notes](webinar/speaker-notes/02-basic-chat.md)
 - [CopilotKit speaker notes](webinar/speaker-notes/03-copilotkit.md)
+- [Mastra speaker notes](webinar/speaker-notes/04-mastra.md)
 - [Demo prompts](webinar/demo-prompts.md)
 - [Verification](webinar/verification.md)
 
-The familiar `workshop:notes`, `workshop:select`, `workshop:status`, and
-`workshop:test` commands are aliases for this branch's webinar commands.
-Existing milestone branches remain unchanged. The inherited workshop server test
-now delegates to the maintained webinar checks. The selector supports 01, 02 and 03;
-it does not apply the old milestone implementations over this backend.
+The `workshop:notes`, `workshop:select`, `workshop:status` and `workshop:test`
+commands alias the webinar commands. Basic Chat API tests remain removed.
 
 ## Verify
 
 ```sh
 pnpm webinar:test
-pnpm --filter angular-host build
+pnpm --filter @packt-workshop/agent-service exec tsc --noEmit
 ```
 
-The tests cover conventional facility behavior, Copilot listener forwarding and real chapter-3 agent discovery,
-and presenter recovery. Basic Chat API tests have been removed from the webinar
-branches. The checks make no external model calls.
+The suite checks conventional facility behavior, Copilot listener forwarding,
+real Mastra adapter discovery, presenter content and recovery between checkpoints.
+It makes no model calls. The separate live chapter-4 streaming check and Studio
+inspection are recorded in the verification notes.

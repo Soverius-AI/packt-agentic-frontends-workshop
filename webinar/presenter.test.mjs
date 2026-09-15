@@ -57,7 +57,17 @@ test("checkpoint recovery handles additions, deletions and backups without chang
     const sentinel = join(dir, "apps/angular-host/src/app/app.scss");
     await mkdir(join(sentinel, ".."), { recursive: true });
     await writeFile(sentinel, "Prepared chat-container styles");
-    for (const phase of ["01", "02", "03", "02", "01", "03"]) {
+    for (const phase of [
+      "01",
+      "02",
+      "03",
+      "04",
+      "03",
+      "02",
+      "01",
+      "04",
+      "03",
+    ]) {
       assert.equal(select(phase).status, 0);
       await matches(phase);
     }
@@ -86,7 +96,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
     const html = join(dir, chapterTwoFiles[0]);
     await writeFile(html, "Presenter live edit");
     assert.match(select("status").stdout, /Custom presenter edits/);
-    assert.equal(select("04").status, 1);
+    assert.equal(select("05").status, 1);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
     const missing = "apps/facility-service/src/create-copilot-runtime.ts";
     await unlink(join(dir, "webinar/solutions/03", missing));
@@ -104,7 +114,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
   }
 });
 
-test("presenter shows chapter 03 with exact code, file deletions and demo prompts", async () => {
+test("presenter shows chapters 03 and 04 with exact code and required demonstrations", async () => {
   const context = { window: {} };
   vm.runInNewContext(
     await readFile(new URL("./presenter-data.js", import.meta.url), "utf8"),
@@ -113,7 +123,7 @@ test("presenter shows chapter 03 with exact code, file deletions and demo prompt
   const data = JSON.parse(JSON.stringify(context.window.workshopPresenter));
   assert.deepEqual(
     data.milestones.map((m) => m.id),
-    ["01", "02", "03"],
+    ["01", "02", "03", "04"],
   );
   assert.equal(data.milestones[0].files.length, 0);
   assert.deepEqual(
@@ -122,7 +132,7 @@ test("presenter shows chapter 03 with exact code, file deletions and demo prompt
   );
   assert.deepEqual(
     data.milestones[2].files.map((f) => f.path),
-    manifest.files,
+    manifest.files.slice(0, 9),
   );
   for (const milestone of data.milestones.slice(1)) {
     for (const file of milestone.files) {
@@ -142,6 +152,27 @@ test("presenter shows chapter 03 with exact code, file deletions and demo prompt
     data.milestones[2].files.filter((f) => f.deleted).map((f) => f.path),
     manifest.absent["03"],
   );
+  assert.deepEqual(
+    data.milestones[3].files.map((f) => f.path),
+    [
+      "apps/facility-service/src/create-copilot-runtime.ts",
+      "apps/facility-service/src/main.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+      "apps/agent-service/src/mastra/index.ts",
+    ],
+  );
+  assert.match(
+    JSON.stringify(data.milestones[2].actions),
+    /Show the AG-UI Chrome extension again/,
+  );
+  assert.match(
+    JSON.stringify(data.milestones[3].actions),
+    /Show Mastra Studio now/,
+  );
+  assert.match(
+    JSON.stringify(data.milestones[3].actions),
+    /trace for that Angular request/,
+  );
   const html = await readFile(
     new URL("./presenter.html", import.meta.url),
     "utf8",
@@ -150,6 +181,7 @@ test("presenter shows chapter 03 with exact code, file deletions and demo prompt
     "01": "webinar-01",
     "02": "webinar-02",
     "03": "webinar-03",
+    "04": "webinar-04",
   });
   for (const branch of Object.values(manifest.branches))
     assert.ok(html.includes(branch));

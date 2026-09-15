@@ -62,6 +62,30 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Show that BuiltInAgent has a model and static prompt, with no tools connected. Mastra is introduced in chapter 04.
 
+## 04 — Mastra agent and Studio
+
+[Speaker notes](speaker-notes/04-mastra.md)
+
+### 1. One agent, two entry points
+
+**Before:** Start Mastra API on 4211 and Studio on 4212. Show the default agent in Studio and try the prompt there. Restart the chapter-4 backend, then send the same prompt in a fresh Angular conversation on 4200.
+
+> Why does temperature control matter when making chocolate?
+
+**Expected:** Both entry points produce a general explanation. Angular streams through CopilotKit to the Mastra agent. Neither answer claims to inspect live factory data.
+
+**Show and explain:** Required: show Mastra Studio, its agent model and instructions, then the trace corresponding to the Angular request. Also show the unchanged CopilotChat and the new MastraClient adapter.
+
+### 2. Hosting does not grant data access
+
+**Before:** Keep the actual facility snapshot visible. Do not paste readings into chat.
+
+> What is the current air temperature in our Cooling room?
+
+**Expected:** The assistant should explain that it cannot access current readings. An invented temperature fails this demonstration.
+
+**Show and explain:** Show tools: {} in the Mastra agent and the static prompt. Explain that frontend tools are introduced in chapter 5.
+
 ## Later milestones
 
 A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.

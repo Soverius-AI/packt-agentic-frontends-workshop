@@ -2,7 +2,8 @@
   "branches": {
     "01": "webinar-01",
     "02": "webinar-02",
-    "03": "webinar-03"
+    "03": "webinar-03",
+    "04": "webinar-04"
   },
   "files": [
     "apps/angular-host/src/app/app.html",
@@ -13,17 +14,24 @@
     "apps/facility-service/src/embedded-copilot-runtime.ts",
     "apps/facility-service/src/main.ts",
     "apps/facility-service/src/server.ts",
-    "apps/facility-service/src/workshop-types.ts"
+    "apps/facility-service/src/workshop-types.ts",
+    "apps/agent-service/src/mastra/agents/main/agent.ts",
+    "apps/agent-service/src/mastra/index.ts"
   ],
   "milestones": {
     "01": "Webinar starting state",
     "02": "Basic Chat \u2014 completed",
-    "03": "CopilotKit and AG-UI"
+    "03": "CopilotKit and AG-UI",
+    "04": "Mastra agent and Studio"
   },
   "absent": {
     "01": ["apps/facility-service/src/create-copilot-runtime.ts"],
     "02": ["apps/facility-service/src/create-copilot-runtime.ts"],
     "03": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts"
+    ],
+    "04": [
       "apps/facility-service/src/chat.ts",
       "apps/facility-service/src/embedded-copilot-runtime.ts"
     ]

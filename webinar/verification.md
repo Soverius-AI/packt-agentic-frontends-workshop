@@ -1,46 +1,60 @@
-# Webinar chapter 3 verification — 15 September 2026
+# Webinar chapter 4 verification — 15 September 2026
 
 ## Saved implementation
 
-Commit `5d9afdc` preserves the presenter's chapter-3 implementation as written.
-The current directory remains `packt-webinar-02`, with branch `webinar-03` checked out.
-The original webinar-02 branch remains the Basic Chat checkpoint. Shared container
-CSS is committed in webinar-01 and webinar-02. No application code was rewritten
-while preparing chapter 3 notes or tests.
+Commit `ed3982f` preserves the presenter’s four changed application files exactly
+as written: Mastra’s agent and index, the facility Copilot runtime factory and
+main. The active directory remains `packt-webinar-02`, now on `webinar-04`.
+No application cleanup was applied while preparing notes and tests. Unused imports
+and legacy ChatService declarations remain; they are not additional teaching steps.
 
-## Current checks
+The chapter-3 AG-UI Chrome extension reminder is committed on `webinar-03` as
+`8a4c52c` and inherited by `webinar-04`. Earlier original milestone branches were
+not modified. Nothing was pushed.
 
-The suite covers conventional facility data, forwarding to the Copilot listener,
-discovery of the real BuiltInAgent named default, filter preservation, historian
-policy and approval/replay behavior. Recovery tests exercise 01 → 02 → 03 → 02 →
-01 → 03, creation and deletion of files, backups including absent paths, and
-validation before any writes. Presenter checks compare all completed code and
-file-deletion markers with the saved snapshots.
+## Automated checks
 
-Basic Chat API tests and their model-response helper were removed from webinar-01,
-webinar-02 and webinar-03 at the presenter's request. The inherited workshop server
-test delegates to the same maintained suite. No model call is made by these tests.
-The chapter-3 discovery check uses the real runtime and a placeholder key locally.
+- Facility backend, common and contracts builds passed.
+- Mastra TypeScript check passed.
+- All nine webinar tests passed, including real Mastra adapter discovery through
+  the facility listener without a model call.
+- Recovery exercised 01 → 02 → 03 → 04 → 03 → 02 → 01 → 04 → 03 in a temporary
+  directory, including file additions/deletions, backups and validation before writes.
+- Recovery includes the two Mastra files. The older checkpoints restore the empty
+  agent file and unregistered index; chapter 4 restores the completed integration.
+- Presenter checks cover exact snapshots, four chapter-4 changed files, and the
+  required chapter-3 Chrome extension and chapter-4 Studio reminders.
+- Recovery status identifies `04: Mastra agent and Studio`.
+- Generated presenter data contains four chapters, 45 action cards and six prompts.
 
-## Results
+Basic Chat API tests remain removed. The Angular source is unchanged from chapter
+3, so its production build was not repeated for this backend/documentation change.
 
-- webinar-01: eight remaining tests passed after removing Basic Chat API tests.
-- webinar-02: the same test-removal commit is included; no application changes.
-- webinar-03: nine tests passed, including real CopilotKit agent discovery.
-- The facility TypeScript build and Angular production build passed on webinar-03.
-- Recovery status identifies 03 and presenter data contains three chapters,
-  30 action cards, four demo prompts, and all nine chapter-3 file changes.
+## Live verification
 
-The running presenter desk at localhost:4400 was refreshed and inspected. It
-shows chapters 01–03, the chapter-3 sequence, two prompts and nine file changes
-with explicit deletion labels.
+A single general-knowledge request was sent through the running facility backend’s
+`/api/copilotkit/agent/default/run` endpoint to the configured Mastra agent.
+The response was HTTP 200 and included RUN_STARTED, TEXT_MESSAGE_START,
+TEXT_MESSAGE_CONTENT, TEXT_MESSAGE_END and RUN_FINISHED, with no RUN_ERROR.
+The answer explained temperature control in chocolate production.
+This verifies the backend → adapter → Mastra → model stream. It was an HTTP check,
+not a new Angular browser chat test or a model-quality evaluation.
+
+Mastra Studio on localhost:4212 loaded successfully, listed Soverius Chocolate
+Factory, and showed the matching one-sentence chocolate question in Traces with
+status OK. The required Studio demonstration is supported by the prepared tracing
+configuration. Credentials were not displayed or committed.
+
+The running presenter desk on localhost:4400 was refreshed and inspected: it shows
+chapter 4, both demo prompts and exactly four changed files.
 
 ## Rehearsal
 
-Run the two chapter-3 demo prompts with your configured model. Streaming was
-observed during the presenter's earlier manual run; discovery checks do not
-verify model generation or the quality of an answer. The private .env stays ignored.
-Ports: Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.
-Mastra is not needed for chapter 3. Restart the backend launcher after source edits.
+Start a fresh Angular conversation and follow both chapter-4 prompts. First show
+the agent in Studio and try the general-knowledge question; then send the question
+from Angular and identify its corresponding trace. Finally ask for a current
+Cooling-room temperature and explain why an agent with no tools cannot access it.
+That second model-behavior demonstration was not run as part of the live check.
 
-Chapter 4 is the next preparation step. Existing milestone branches were not changed.
+Ports: Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.
+Restart the backend launcher after source edits; Mastra watches its source.

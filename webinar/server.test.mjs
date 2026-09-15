@@ -68,20 +68,23 @@ test("prepared server preserves facility data, Copilot routing and approval beha
       },
     );
     await t.test(
-      "03 exposes the real runtime's default agent without calling a model",
+      "04 exposes the real Mastra adapter without calling a model",
       async () => {
         process.env.COPILOTKIT_TELEMETRY_DISABLED = "true";
         const { createChatClient } =
           await import("../apps/facility-service/dist/create-copilot-runtime.js");
-        const copilot = await start(
-          createChatClient("local-test-key", "test-model"),
-        );
+        const copilot = await start(createChatClient());
         const response = await fetch(copilot + "/api/copilotkit/info");
         assert.equal(response.status, 200);
         const info = await response.json();
         assert.deepEqual(Object.keys(info.agents), ["default"]);
         assert.equal(info.agents.default.name, "default");
-        assert.equal(info.agents.default.className, "BuiltInAgent");
+        const { createRequire } = await import("node:module");
+        const require = createRequire(
+          new URL("../apps/facility-service/package.json", import.meta.url),
+        );
+        const { MastraAgent } = require("@ag-ui/mastra");
+        assert.equal(info.agents.default.className, MastraAgent.name);
       },
     );
     await t.test(
