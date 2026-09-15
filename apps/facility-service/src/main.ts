@@ -11,15 +11,6 @@ import { getOrThrow } from "@packt-workshop/common/assert-defined";
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 dotenv.config({ path: resolve(packageRoot, "../../.env") });
 
-export const OPENROUTER_API_KEY = getOrThrow(
-  process.env["OPENROUTER_API_KEY"],
-  "openRouterApiKey",
-);
-export const OPENROUTER_MODEL = getOrThrow(
-  process.env["OPENROUTER_MODEL"],
-  "openRouterModel",
-);
-
 const port = Number(process.env["FACILITY_PORT"] ?? "3101");
 const databasePath = resolve(
   process.env["FACILITY_DB_PATH"] ??
@@ -41,7 +32,7 @@ const server = createFacilityServer({
   repository,
   telemetry,
   historian,
-  copilotRuntime: createChatClient(OPENROUTER_API_KEY, OPENROUTER_MODEL)
+  copilotRuntime: createChatClient()
 });
 
 server.listen(port, "127.0.0.1", () => {
