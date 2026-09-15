@@ -16,7 +16,7 @@ const promptCatalog = JSON.parse(
 const noteFiles = await readdir(join(directory, "speaker-notes"));
 const milestones = [];
 const flows = {
-  "00": ["Angular controls", "Facility API", "SQLite"],
+  "01": ["Angular controls", "Facility API", "SQLite"],
   "02": ["Native chat", "Facility /api/chat", "Model"],
   "03": ["CopilotChat", "Copilot runtime", "BuiltInAgent", "Model"],
   "04": ["CopilotChat", "Copilot runtime", "Mastra agent", "Model"],

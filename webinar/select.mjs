@@ -37,7 +37,7 @@ if (argument === "status") {
 }
 const phase = argument.padStart(2, "0");
 if (!Object.hasOwn(manifest.milestones, phase)) {
-  console.error("Usage: pnpm webinar:select <00|02> | pnpm webinar:status");
+  console.error("Usage: pnpm webinar:select <01|02> | pnpm webinar:status");
   process.exit(1);
 }
 // Read and validate every solution before touching the active files.

@@ -8,9 +8,9 @@ Follow the numbered order within each milestone; optional entries can be skipped
 
 Rehearse against your configured model before the workshop. The expected results below are acceptance criteria checked against the code, not a record of successful live model runs. If a request fails, inspect the tool call or trace rather than treating a confident chat reply as evidence.
 
-## 00 — Webinar starting state
+## 01 — Webinar starting state
 
-[Speaker notes](speaker-notes/00-start.md)
+[Speaker notes](speaker-notes/01-start.md)
 
 There is no chat in this milestone. Tour the snapshot, reading log, filters and conventional alarm controls. Establish which state the application already owns before connecting an assistant.
 

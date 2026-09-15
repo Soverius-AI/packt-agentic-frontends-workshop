@@ -1,8 +1,8 @@
-# 00 — Webinar starting state
+# 01 — Webinar starting state
 
-**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.
+**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.
 **Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.
-**Start:** `pnpm webinar:select 00`, then `pnpm dev`.
+**Start:** `pnpm webinar:select 01`, then `pnpm dev`.
 Open the Angular app at http://localhost:4200. Backend: http://localhost:3101.
 This branch has its own private `.env`; keep it off screen. Its environment checks
 require the configured key and model even before chat is connected.
@@ -30,6 +30,6 @@ an existing Angular component to a model through our backend.”
 
 ## Recovery
 
-Run `pnpm webinar:select 00`, restart the backend launcher and reload the app.
+Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.
 The selector backs up and replaces only the three webinar files. It never resets
 readings or alarms. Existing milestone branches and `workshop/solutions` are separate.

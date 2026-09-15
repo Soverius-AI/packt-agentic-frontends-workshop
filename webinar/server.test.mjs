@@ -44,7 +44,7 @@ test("prepared server preserves chat modes, read-only historian and approval beh
   try {
     const base = await start();
     await t.test(
-      "00 server exposes conventional data with chat disconnected",
+      "01 server exposes conventional data with chat disconnected",
       async () => {
         assert.equal((await fetch(base + "/api/health")).status, 200);
         const dashboard = await (await fetch(base + "/api/dashboard")).json();

@@ -38,7 +38,7 @@ test("webinar selector restores exactly the three live files and keeps backups",
     }
     for (const file of expectedFiles) {
       await mkdir(join(dir, file, ".."), { recursive: true });
-      await cp(join(dir, "webinar/solutions/00", file), join(dir, file));
+      await cp(join(dir, "webinar/solutions/01", file), join(dir, file));
     }
     const sentinel = join(dir, "apps/angular-host/src/app/app.ts");
     await writeFile(sentinel, "Prepared imports must stay unchanged.");
@@ -46,7 +46,7 @@ test("webinar selector restores exactly the three live files and keeps backups",
       spawnSync(process.execPath, [join(dir, "webinar/select.mjs"), state], {
         encoding: "utf8",
       });
-    assert.match(select("status").stdout, /^00:/);
+    assert.match(select("status").stdout, /^01:/);
     assert.equal(select("02").status, 0);
     assert.match(select("status").stdout, /^02:/);
     for (const file of expectedFiles) {
@@ -63,7 +63,7 @@ test("webinar selector restores exactly the three live files and keeps backups",
     for (const file of expectedFiles) {
       assert.equal(
         await readFile(join(dir, ".webinar-backups", backup, file), "utf8"),
-        await readFile(join(dir, "webinar/solutions/00", file), "utf8"),
+        await readFile(join(dir, "webinar/solutions/01", file), "utf8"),
       );
     }
     const html = join(dir, expectedFiles[0]);
@@ -75,8 +75,8 @@ test("webinar selector restores exactly the three live files and keeps backups",
     await unlink(join(dir, "webinar/solutions/02", expectedFiles[2]));
     assert.notEqual(select("02").status, 0);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
-    assert.equal(select("00").status, 0);
-    assert.match(select("status").stdout, /^00:/);
+    assert.equal(select("01").status, 0);
+    assert.match(select("status").stdout, /^01:/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -91,7 +91,7 @@ test("presenter data shows the new branch sequence and exact completed code", as
   const data = JSON.parse(JSON.stringify(context.window.workshopPresenter));
   assert.deepEqual(
     data.milestones.map((m) => m.id),
-    ["00", "02"],
+    ["01", "02"],
   );
   assert.equal(data.milestones[0].files.length, 0);
   assert.deepEqual(
@@ -111,10 +111,10 @@ test("presenter data shows the new branch sequence and exact completed code", as
     "utf8",
   );
   assert.deepEqual(manifest.branches, {
-    "00": "webinar-00",
+    "01": "webinar-01",
     "02": "webinar-02",
   });
-  assert.match(html, /webinar-00 · Prepared starting state/);
+  assert.match(html, /webinar-01 · Prepared starting state/);
   assert.match(html, /webinar-02 · End of chapter 2/);
   assert.match(html, /pnpm webinar:select/);
   for (const match of html.matchAll(

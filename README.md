@@ -15,11 +15,11 @@ prepared. The starter has a typed factory placeholder and disconnected chat.
 
 | Branch       | Completed state                                     | Local directory      |
 | ------------ | --------------------------------------------------- | -------------------- |
-| `webinar-00` | Prepared starting point                             | `packt-webinar-zero` |
+| `webinar-01` | Prepared starting point                             | `packt-webinar-zero` |
 | `webinar-02` | End of chapter 2: Basic Chat and backend connection | `packt-webinar-02`   |
 
-`webinar-02` builds on `webinar-00`. The difference is exactly the three live
-files listed above. Compare them with `git diff webinar-00..webinar-02`.
+`webinar-02` builds on `webinar-01`. The difference is exactly the three live
+files listed above. Compare them with `git diff webinar-01..webinar-02`.
 Your original working implementation is also preserved at commit `1a9e25e`.
 
 Continue with `webinar-03` through `webinar-08` as those chapters are prepared.
@@ -33,9 +33,9 @@ Run application services from only one directory at a time because ports are sha
 
 ## Start here
 
-Use the **packt-webinar-zero** directory and branch **webinar-00**. Its `.env` is
+Use the **packt-webinar-zero** directory and branch **webinar-01**. Its `.env` is
 private and ignored; configure OPENROUTER_API_KEY and OPENROUTER_MODEL before
-starting the backend. Those settings are checked even in state 00.
+starting the backend. Those settings are checked even in state 01.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -61,18 +61,18 @@ Stop old worktree service terminals before starting this worktree on the same po
 
 ```sh
 pnpm webinar:notes
-pnpm webinar:select 00
+pnpm webinar:select 01
 pnpm webinar:select 02
 ```
 
-Open http://localhost:4400. The sidebar identifies the chapter branches `webinar-00` and `webinar-02`. The
+Open http://localhost:4400. The sidebar identifies the chapter branches `webinar-01` and `webinar-02`. The
 presenter desk includes the three exact code changes, demo prompts and recovery.
-`00` is the starting state; `02` is the completed Basic Chat exercise. Selection
+`01` is the starting state; `02` is the completed Basic Chat exercise. Selection
 backs up only the three live files into ignored `.webinar-backups/` and applies
 the chosen version. Restart the backend and refresh the app after selection.
 It does not reset the database or change Git branches.
 
-- [Starting-state speaker notes](webinar/speaker-notes/00-start.md)
+- [Starting-state speaker notes](webinar/speaker-notes/01-start.md)
 - [Basic Chat speaker notes](webinar/speaker-notes/02-basic-chat.md)
 - [Demo prompts](webinar/demo-prompts.md)
 - [Verification](webinar/verification.md)
@@ -80,7 +80,7 @@ It does not reset the database or change Git branches.
 The familiar `workshop:notes`, `workshop:select`, `workshop:status`, and
 `workshop:test` commands are aliases for this branch's webinar commands.
 The inherited `workshop/` files and existing milestone branches are unchanged
-reference material. The webinar selector currently supports 00 and 02 only;
+reference material. The webinar selector currently supports 01 and 02 only;
 it does not apply the old milestone implementations over this backend.
 
 ## Verify

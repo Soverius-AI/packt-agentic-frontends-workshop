@@ -2,7 +2,7 @@
 
 ## Preserved working reference
 
-Commit `1a9e25e` on `webinar-00` records the presenter's working milestone-02
+Commit `1a9e25e` on `webinar-01` records the presenter's working milestone-02
 implementation, including the common package, environment setup, server options
 object and frontend response adapter. Preparation is a later commit on this new
 branch. The original Workshop branch and its uncommitted changes were compared
@@ -17,15 +17,15 @@ against saved hashes after preparation and are unchanged. The inherited
   static system prompt, conversation, raw assistant response and Angular wrapper.
 - The prepared server supports disabled chat, the existing Copilot listener,
   filter preservation, historian read-only rules and approval/replay behavior.
-- Selector tests exercise `00 → 02 → 00`, backups of all three files, rejection of
+- Selector tests exercise `01 → 02 → 01`, backups of all three files, rejection of
   unsupported states, preservation of other files, and failure before writes when
   a solution file is missing.
-- Generated presenter data has states 00 and 02, 16 actions, two demo prompts and
+- Generated presenter data has states 01 and 02, 16 actions, two demo prompts and
   exactly three completed-code diffs. The inline browser script parses.
-- State 00 passed the full `check:types` command: common/contracts, facility
+- State 01 passed the full `check:types` command: common/contracts, facility
   backend, Mastra TypeScript and Angular production build.
 - State 02 passed the facility build and Angular production build. The new
-  worktree was then restored to 00 and its backend rebuilt.
+  worktree was then restored to 01 and its backend rebuilt.
 - The browser presenter desk at port 4400 was refreshed and inspected: it shows
   the new branch, correct states, three files and the actual OpenAI factory diff.
 
@@ -46,7 +46,7 @@ copied to this worktree and remains ignored and permission-restricted.
 
 ## Scope
 
-Only webinar states 00 and 02 are prepared in this branch's selector. Later
+Only webinar states 01 and 02 are prepared in this branch's selector. Later
 milestone implementations remain available in the original branches and their
 unchanged reference files. Do not use the inherited selector to overwrite this
 new backend; the root workshop commands point to the webinar equivalents.
