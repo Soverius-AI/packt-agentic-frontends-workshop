@@ -18,9 +18,8 @@ Soverius Chocolate has two adjacent production areas: a climate-controlled **Coo
 A person on night duty can inspect seven days of stored telemetry, use the continuously updated snapshot, raise an alarm for any metric, and acknowledge or resolve it. In snapshot mode, individual devices report at randomized intervals and every new reading is persisted. The application cannot interpret the combined evidence and recommend checking the connecting door before calling maintenance.
 
 The assistant can now select stored historian readings that were not anticipated
-by the fixed filters. In Angular, a successful reviewed query is passed to the
-`show_historian_readings` frontend tool, which opens a dedicated Historian result
-view backed by the existing fixed reading grid. The result remains available
+by the fixed filters. Both hosts display a successful reviewed query directly
+in the Historian result view, backed by the existing fixed reading grid. The result remains available
 while the operator moves between all three views. Computed result shapes such as
 averages and counts remain out of scope until the later A2UI checkpoint.
 
@@ -39,7 +38,7 @@ averages and counts remain out of scope until the later A2UI checkpoint.
 - one internal facility endpoint that owns historian execution;
 - a fixed result contract containing complete stored reading records over the
   existing AG-UI run; and
-- an Angular frontend tool that explicitly populates a third Historian result
+- direct display of the completed query in the Historian result
   view while reusing the existing reading table.
 
 The reviewer is deliberately not a security boundary. Even an approved query
@@ -124,3 +123,10 @@ pnpm check
 Checkpoint 07 adds the authority boundary for consequential alarm actions:
 the model may propose an operation, but an operator must approve or reject it.
 The overall route is documented in [docs/checkpoints.md](./docs/checkpoints.md).
+
+## Reset the demo data
+
+Normal startup preserves the stored readings and alarms. Before a fresh demonstration,
+stop the applications and run `pnpm reset:demo`. This recreates the last seven days
+of sample readings and clears alarms and approval records where available. It exits
+without starting the applications. Old development database layouts are not migrated.

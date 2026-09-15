@@ -1,5 +1,5 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { connectAgentContext, registerFrontendTool } from '@copilotkit/angular';
+import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import { connectAgentContext, registerFrontendTool, injectAgentStore } from '@copilotkit/angular';
 import type {
   ConfigureFacilityView,
   FacilityDashboard,
@@ -10,7 +10,6 @@ import type {
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
-  ShowHistorianReadingsToolInput,
 } from '@packt-workshop/contracts';
 import {
   applyFacilityViewCommand,
@@ -24,7 +23,7 @@ import {
   resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
   setViewToolSchema,
-  showHistorianReadingsToolSchema,
+  historianToolResultSchema,
   updateFiltersToolSchema,
 } from '@packt-workshop/contracts';
 import { ChatComponent } from './chat/chat.component';
@@ -52,7 +51,11 @@ export class App {
   protected readonly selectedHistory = signal<MetricHistory | undefined>(undefined);
   protected readonly selectedMetricId = signal<string | undefined>(undefined);
   protected readonly continuousUpdates = signal(false);
-  protected readonly displayMode = signal<DisplayMode>('snapshot');
+  private readonly agentStore = injectAgentStore('default');
+  private readonly historianResultId = computed(() => this.historianResult()?.id);
+  protected readonly displayMode = linkedSignal<DisplayMode>(() =>
+    this.historianResultId() ? 'historian-result' : 'snapshot',
+  );
   protected readonly latestUpdatedMetricId = signal<string | undefined>(undefined);
   protected readonly status = signal('Connecting to the facility database…');
   protected readonly readingPage = signal<FacilityReadingPage | undefined>(undefined);
@@ -64,9 +67,30 @@ export class App {
   protected readonly roomFilter = signal('');
   protected readonly metricFilter = signal('');
   protected readonly conditionFilter = signal('');
-  protected readonly historianResult = signal<ShowHistorianReadingsToolInput | undefined>(
-    undefined,
-  );
+  protected readonly historianResult = computed(() => {
+    const messages = this.agentStore().messages();
+    const queryIds = new Set(
+      messages.flatMap((message) =>
+        message.role === 'assistant'
+          ? (message.toolCalls ?? [])
+              .filter((call) => call.function.name === 'query_historian')
+              .map((call) => call.id)
+          : [],
+      ),
+    );
+    for (const message of [...messages].reverse()) {
+      if (message.role !== 'tool' || !queryIds.has(message.toolCallId)) continue;
+      try {
+        const result = historianToolResultSchema.safeParse(JSON.parse(message.content));
+        if (result.success && result.data.status === 'executed') {
+          return { ...result.data, id: message.id };
+        }
+      } catch {
+        // An incomplete tool message has no result to display yet.
+      }
+    }
+    return undefined;
+  });
   protected readonly rooms = computed(() => this.dashboard()?.rooms ?? []);
   protected readonly activeAlarmCount = computed(() => this.dashboard()?.activeAlarmCount ?? 0);
   protected readonly shiftManagerOptions = computed(() => this.dashboard()?.shiftManagers ?? []);
@@ -170,27 +194,6 @@ export class App {
         if (!validation.success)
           return this.#invalidToolPayload(validation.error.issues[0]?.message);
         return { conditions: ['normal', 'warning', 'critical', 'unavailable'] };
-      },
-    });
-    registerFrontendTool({
-      name: 'show_historian_readings',
-      description:
-        'Display complete reading records returned by query_historian in the dedicated Historian result view. Copy question, entries, and truncated exactly from the successful backend tool result.',
-      parameters: showHistorianReadingsToolSchema,
-      agentId: 'default',
-      followUp: true,
-      handler: async (input) => {
-        const validation = showHistorianReadingsToolSchema.safeParse(input);
-        if (!validation.success)
-          return this.#invalidToolPayload(validation.error.issues[0]?.message);
-        this.historianResult.set(validation.data);
-        this.displayMode.set('historian-result');
-        this.closeHistory();
-        this.#stopContinuousUpdates();
-        this.status.set(
-          `Showing ${validation.data.entries.length} readings selected by the reviewed historian query.`,
-        );
-        return { ok: true, displayedRows: validation.data.entries.length };
       },
     });
     registerFrontendTool({

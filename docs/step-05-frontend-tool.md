@@ -70,8 +70,7 @@ preserves the filters.
 
 Each model-facing JSON Schema is a root object containing only the parameters
 for that tool. The read tools return structured catalogs from the already-loaded
-frontend data. The browser validates every payload, resolves bounded room/metric
-labels or token-equivalent aliases to their canonical IDs, and returns a
+frontend data. The browser validates every payload, requires exact room/metric IDs returned by the discovery tools, and returns a
 structured error for unknown options without changing the current state.
 
 The agent receives this bounded frontend context on every run:

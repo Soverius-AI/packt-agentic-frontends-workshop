@@ -18,6 +18,14 @@ const databasePath = resolve(
 );
 const repository = new FacilityRepository(databasePath);
 repository.initialize();
+if (process.argv.includes("--reset-demo")) {
+  repository.resetDemoData();
+  repository.close();
+  console.log(
+    "Demo readings reset to the last seven days; alarms and approval records cleared.",
+  );
+  process.exit(0);
+}
 const telemetry = new LiveTelemetry(repository);
 const copilotRuntime = createWorkshopCopilotRuntime({
   mastraBaseUrl: process.env["MASTRA_BASE_URL"],

@@ -1,3 +1,4 @@
+import type { Message, RunAgentInput } from "@ag-ui/core";
 import type { AbstractAgent } from "@ag-ui/client";
 import { CopilotRuntime } from "@copilotkit/runtime/v2";
 import { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";
@@ -15,6 +16,48 @@ export type CopilotRuntimeOptions = {
   mastraBaseUrl?: string | undefined;
 };
 
+// Keep rendered data in the browser, out of the next request to Mastra.
+export function withoutHistorianPayloads(messages: Message[]): Message[] {
+  const calls = new Set(
+    messages.flatMap((message) =>
+      message.role === "assistant"
+        ? (message.toolCalls ?? [])
+            .filter((call) => call.function.name === "query_historian")
+            .map((call) => call.id)
+        : [],
+    ),
+  );
+  return messages.map((message) =>
+    message.role === "tool" && calls.has(message.toolCallId)
+      ? {
+          ...message,
+          content:
+            "The previous query result was delivered to the application.",
+        }
+      : message,
+  );
+}
+
+// MastraAgent.clone() drops attached middleware; keep this boundary on every clone.
+export class HistorianBridge extends MastraAgent {
+  constructor(
+    private readonly options: ConstructorParameters<typeof MastraAgent>[0],
+  ) {
+    super(options);
+  }
+
+  override clone() {
+    return new HistorianBridge(this.options);
+  }
+
+  override run(input: RunAgentInput): ReturnType<AbstractAgent["run"]> {
+    return super.run({
+      ...input,
+      messages: withoutHistorianPayloads(input.messages),
+    });
+  }
+}
+
 export const createWorkshopCopilotRuntime = (
   options: CopilotRuntimeOptions = {},
 ) => {
@@ -27,7 +70,7 @@ export const createWorkshopCopilotRuntime = (
       // The bridge and runtime share AG-UI 0.0.57 at runtime, but pnpm's
       // peer-isolated declarations give AbstractAgent's private fields
       // separate TypeScript identities.
-      default: new MastraAgent({
+      default: new HistorianBridge({
         agent: remoteAgent,
         resourceId: "workshop-chat",
       }) as unknown as AbstractAgent,

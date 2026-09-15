@@ -276,17 +276,6 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
 ]);
 export type HistorianToolResult = z.infer<typeof historianToolResultSchema>;
 
-export const showHistorianReadingsToolSchema = z
-  .object({
-    question: z.string().trim().min(1).max(4_000),
-    entries: z.array(facilityReadingEntrySchema).max(200),
-    truncated: z.boolean(),
-  })
-  .strict();
-export type ShowHistorianReadingsToolInput = z.infer<
-  typeof showHistorianReadingsToolSchema
->;
-
 export const historianExecutionRequestSchema = z
   .object({
     question: z.string().trim().min(1).max(4_000),
@@ -327,34 +316,14 @@ export type FacilityViewAvailableOptions = {
   shiftManagers: readonly string[];
 };
 
-function optionKey(value: string): string {
-  return value
-    .toLocaleLowerCase("en")
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean)
-    .sort()
-    .join("-");
-}
-
 function resolveOptionId(
   name: "roomId" | "metricId",
   value: string,
-  options: readonly { id: string; label: string }[],
+  options: readonly { id: string }[],
 ): string {
-  const exact = options.find(
-    (option) =>
-      option.id.toLocaleLowerCase("en") === value.toLocaleLowerCase("en") ||
-      option.label.toLocaleLowerCase("en") === value.toLocaleLowerCase("en"),
-  );
-  if (exact) return exact.id;
-
-  const key = optionKey(value);
-  const equivalent = options.filter(
-    (option) => optionKey(option.id) === key || optionKey(option.label) === key,
-  );
-  if (equivalent.length === 1) return equivalent[0]!.id;
+  if (options.some((option) => option.id === value)) return value;
   throw new Error(
-    `Unknown ${name} "${value}". Use one of: ${options.map((option) => option.id).join(", ")}.`,
+    `Unknown ${name} "${value}". Use an ID returned by the list tools.`,
   );
 }
 
@@ -366,11 +335,7 @@ export function resolveFacilityViewAvailableOptions(
 
   const filters = { ...command.filters };
   if (filters.roomId) {
-    filters.roomId = resolveOptionId(
-      "roomId",
-      filters.roomId,
-      options.rooms.map(({ id, name }) => ({ id, label: name })),
-    );
+    filters.roomId = resolveOptionId("roomId", filters.roomId, options.rooms);
   }
   if (filters.metricId) {
     filters.metricId = resolveOptionId(
@@ -381,9 +346,7 @@ export function resolveFacilityViewAvailableOptions(
   }
   if (filters.shiftManager) {
     const manager = options.shiftManagers.find(
-      (candidate) =>
-        candidate.toLocaleLowerCase("en") ===
-        filters.shiftManager?.toLocaleLowerCase("en"),
+      (candidate) => candidate === filters.shiftManager,
     );
     if (!manager) {
       throw new Error(

@@ -40,9 +40,10 @@ directly from this checkpoint.
   reading-log grid. Maximum and minimum questions select the underlying stored
   readings; computed summaries such as averages and counts are rejected until
   the later A2UI checkpoint.
-- In Angular, register `show_historian_readings` as a frontend tool. After a
-  successful backend query, it receives the validated complete readings, sets
-  the historian-result signal, and opens the dedicated Historian result view.
+- Both hosts consume the completed `query_historian` result directly and display
+  the readings in the Historian result view. There is no second frontend display
+  tool. Rows stay out of the model's completion input and subsequent conversation
+  history; it receives only a completion or error message.
 - Treat Snapshot, Reading log, and Historian result as three explicit views.
   Reading log and Historian result reuse the same fixed reading table. Preserve
   the latest historian result when switching views so its tab remains available
@@ -63,8 +64,8 @@ Angular :4200 or React :5173
   -> facility-owned deterministic policy validates and authorizes the exact statement
   -> worker opens facility SQLite read-only and executes with a deadline
   -> fixed-shape reading entries plus SQL, review, and policy metadata stream back
-  -> default agent calls show_historian_readings with the validated entries
-  -> Angular frontend tool opens the Historian result view and populates the shared grid
+  -> frontend reads the completed tool result and opens the Historian result view
+  -> main agent receives only a completion or error message
 ```
 
 No additional process or port is introduced. Mastra's local LibSQL file still
@@ -100,9 +101,8 @@ validator, or execution layer. The primary agent cannot override any rejection.
    days and when each warning ended.**
 2. Open the `historian-query` workflow in Mastra Studio and inspect the three
    typed steps and generated SQL.
-3. Confirm that the agent calls `show_historian_readings` and the selected
-   complete readings appear in the dedicated Historian result view rather than
-   as a chat card.
+3. Confirm that the selected readings appear directly in the Historian result
+   view, without another model tool call or a result card in chat.
 4. Ask: **Show me the maximum air temperature for each shift manager.**
 5. Confirm that one complete stored reading per manager appears in the fixed grid.
 6. Ask for the average temperature and the number of readings; confirm both are
@@ -130,9 +130,8 @@ validator, or execution layer. The primary agent cannot override any rejection.
   oversized results, and overlong execution are rejected.
 - Maximum-reading questions return complete stored records through the same workflow.
 - Average, count, and other computed result shapes fail with a clear error.
-- In Angular, successful results cause an explicit `show_historian_readings`
-  frontend call that switches to the Historian result view and populates the
-  shared fixed grid without a tool card in chat.
+- Successful results populate the fixed Historian result grid directly in both
+  hosts, without a second display tool or sending row values to the model.
 - Service, agent, Angular, and React production builds and the complete
   workspace check pass.
-- The rendered Angular frontend-tool and grid-update flow is visually verified.
+- The rendered Angular direct-result and grid-update flow is visually verified.
