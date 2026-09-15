@@ -2,18 +2,17 @@ import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
 import {
   alarmActionRequestSchema,
   alarmApprovalRequestSchema,
-  chatRequestSchema,
   historianExecutionRequestSchema,
   historianValidationRequestSchema,
   metricConditionSchema,
-  raiseAlarmRequestSchema,
+  raiseAlarmRequestSchema
 } from "@packt-workshop/contracts";
 import {
   createServer,
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
-import { ChatServiceError, type ChatService } from "./chat.js";
+import { ChatServiceError } from "./create-copilot-runtime.js";
 import type { HistorianQueryExecutor as ReadingExecutor } from "./historian-query-legacy.js";
 import type { HistorianQueryExecutor as DatasetExecutor } from "./historian-query.js";
 import { LiveTelemetry } from "./live-telemetry.js";
@@ -62,17 +61,15 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
 export interface FacilityServiceOptions {
   repository: FacilityRepository;
   telemetry: LiveTelemetry;
-  copilotRuntime?: NodeCopilotListener;
   historian?: HistorianQueryExecutor;
-  chat?: ChatService | undefined;
+  copilotRuntime: NodeCopilotListener
 }
 
 export const createFacilityServer = ({
   repository,
   telemetry,
-  copilotRuntime,
   historian,
-  chat,
+  copilotRuntime,
 }: FacilityServiceOptions) =>
   createServer(async (request, response) => {
     try {
@@ -80,23 +77,7 @@ export const createFacilityServer = ({
       const url = new URL(request.url ?? "/", "http://localhost");
 
       if (url.pathname.startsWith("/api/copilotkit")) {
-        if (!copilotRuntime) {
-          sendJson(response, 404, {
-            error: "CopilotKit is not connected yet.",
-          });
-          return;
-        }
         await copilotRuntime(request, response);
-        return;
-      }
-
-      if (method === "POST" && url.pathname === "/api/chat") {
-        if (!chat) {
-          sendJson(response, 404, { error: "Basic chat is not connected." });
-          return;
-        }
-        const input = chatRequestSchema.parse(await readBody(request));
-        sendJson(response, 200, await chat.reply(input.messages));
         return;
       }
 

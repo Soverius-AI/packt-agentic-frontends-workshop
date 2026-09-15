@@ -1,5 +1,5 @@
-import { CopilotA2UIActivityRenderer, type injectAgentStore } from '@copilotkit/angular';
 import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import { CopilotA2UIActivityRenderer, CopilotChat, type injectAgentStore } from '@copilotkit/angular';
 import type {
   AlarmApprovalAuditEntry,
   ConfigureFacilityView,
@@ -17,21 +17,19 @@ import {
   historianToolResultSchema,
   listMetricsToolSchema,
   metricConditionSchema,
-  resolveFacilityViewDates,
   resolveFacilityViewAvailableOptions,
+  resolveFacilityViewDates,
 } from '@packt-workshop/contracts';
-import { connectWorkshop } from './workshop/connect';
 import { AlarmApprovalEvents } from './alarm-approval-events';
-import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
-import { BasicChatComponent } from './basic-chat/basic-chat.component';
+import { connectWorkshop } from './workshop/connect';
 
 type DisplayMode = 'snapshot' | 'reading-log' | 'historian-result' | 'a2ui-result';
 const READING_PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-root',
-  imports: [ChatComponent, CopilotA2UIActivityRenderer, BasicChatComponent],
+  imports: [CopilotA2UIActivityRenderer, CopilotChat],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -98,8 +96,8 @@ export class App {
       messages.flatMap((message) =>
         message.role === 'assistant'
           ? (message.toolCalls ?? [])
-              .filter((call) => call.function.name === 'query_historian')
-              .map((call) => call.id)
+            .filter((call) => call.function.name === 'query_historian')
+            .map((call) => call.id)
           : [],
       ),
     );

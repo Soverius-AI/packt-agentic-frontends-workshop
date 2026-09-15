@@ -1,7 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
-import { createChatClient } from "./chat.js";
+import { createChatClient } from "./create-copilot-runtime.js";
 import { LiveTelemetry } from "./live-telemetry.js";
 import { FacilityRepository } from "./repository.js";
 import { createFacilityServer } from "./server.js";
@@ -23,7 +23,7 @@ export const OPENROUTER_MODEL = getOrThrow(
 const port = Number(process.env["FACILITY_PORT"] ?? "3101");
 const databasePath = resolve(
   process.env["FACILITY_DB_PATH"] ??
-    resolve(packageRoot, "data/facility.sqlite"),
+  resolve(packageRoot, "data/facility.sqlite"),
 );
 const repository = new FacilityRepository(databasePath);
 repository.initialize();
@@ -41,7 +41,7 @@ const server = createFacilityServer({
   repository,
   telemetry,
   historian,
-  chat: createChatClient(OPENROUTER_API_KEY, OPENROUTER_MODEL),
+  copilotRuntime: createChatClient(OPENROUTER_API_KEY, OPENROUTER_MODEL)
 });
 
 server.listen(port, "127.0.0.1", () => {
