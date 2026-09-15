@@ -2,10 +2,10 @@
 
 ## Subsequent Basic Chat teaching adjustment
 
-BasicChatComponent now lives in Angular as prepared code. Milestone 02 activates
-it, implements the OpenAI connection in `basic-chat-model.ts`, and enables the
-chat endpoint: **3 presenter files, +21/−9 lines** relative to 01.
-The manifest now tracks eight files. The measurements below describe the earlier
+BasicChatComponent lives in its own `basic-chat/` folder with its API service.
+Milestone 02 activates it directly in `app.html`, switches the `app.ts` import, implements the OpenAI connection in `basic-chat-model.ts`, and enables the
+chat endpoint: **4 presenter files, +19/−10 lines** relative to 01.
+The manifest now tracks ten files, including the app template and imports. The measurements below describe the earlier
 milestone refresh, before this presenter-requested adjustment.
 
 ## Findings and source

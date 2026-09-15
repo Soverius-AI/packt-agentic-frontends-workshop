@@ -14,15 +14,17 @@ description, but no live readings, current filters, database tools, or actions.�
 
 ## Open and change, in this order
 
-1. Open `apps/angular-host/src/app/chat/basic-chat.component.ts`: this is the
+1. Open `apps/angular-host/src/app/basic-chat/basic-chat.component.ts`: this is the
    prepared `BasicChatComponent`. Its template, styles, message list, form and
    loading/error states are already part of Angular. Show `send()` calling
    `ChatApi.send(messages)`; do not copy or rewrite the component.
-2. Activate it in `apps/angular-host/src/app/chat/chat.component.ts`: import
-   `BasicChatComponent`, add `imports: [BasicChatComponent]`, replace `templateUrl`
-   with `template: '<app-basic-chat />'`, and replace `styleUrl` with
-   `styles: ':host { display: contents; }'`. The wrapper gives the prepared
-   component the existing chat slot. [Exact activation file](../solutions/02/apps/angular-host/src/app/chat/chat.component.ts).
+2. Activate it directly in `apps/angular-host/src/app/app.html`: replace
+   `<app-chat />` with `<app-basic-chat />`. In `app.ts`, replace the `ChatComponent`
+   import with `BasicChatComponent` from `./basic-chat/basic-chat.component`,
+   and replace `ChatComponent` in the component's `imports` array. The prepared
+   basic chat occupies the same app slot, with its own styles.
+   [Completed app template](../solutions/02/apps/angular-host/src/app/app.html) ·
+   [Completed app import](../solutions/02/apps/angular-host/src/app/app.ts).
 3. Open `apps/facility-service/src/prompts/basic-chat.ts`: read the static context
    and the limitation on access to live data. The prompt is prepared.
 4. **Write the OpenAI connection live** in
@@ -41,7 +43,7 @@ description, but no live readings, current filters, database tools, or actions.�
    `createChatService` and replace `chat: undefined` with
    `chat: createChatService(options)`. Leave the Copilot runtime disconnected.
    [Exact file](../solutions/02/apps/facility-service/src/workshop.ts).
-7. Open `apps/angular-host/src/app/chat/chat-api.ts`: point to `POST /api/chat`.
+7. Open `apps/angular-host/src/app/basic-chat/chat-api.ts`: point to `POST /api/chat`.
    Trace the whole request: BasicChatComponent → ChatApi → backend chat service
    → the OpenAI SDK call you just wrote → assistant response.
 8. Restart the backend launcher (`pnpm dev:backend`, `pnpm dev`, or `pnpm dev:all`,
