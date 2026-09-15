@@ -1,6 +1,8 @@
 # 02 — Implement and connect Basic Chat
 
-**Start:** webinar state 00. **Completed version:** `pnpm webinar:select 02`.
+**Start branch:** `webinar-00` in `packt-webinar-zero`.
+**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).
+**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.
 The component, Angular imports, API response adapter, environment setup, types,
 assertion helpers and system prompt are prepared. The live work is three files.
 
@@ -49,9 +51,10 @@ connection to current facility readings, filters or actions.”
 ## Transition
 
 “The model can converse. Its next capabilities will need explicit connections.”
-This webinar branch currently prepares only states 00 and 02. Later milestone
-branches and their existing solutions remain unchanged; they are not switched by
-this branch's webinar selector.
+The next chapter will start from `webinar-02` and end at `webinar-03`.
+Branches `webinar-03` through `webinar-08` will be created as we prepare those
+chapters. The selector currently supports only 00 and 02. Existing milestone
+branches and their solutions remain separate.
 
 ## Recovery
 

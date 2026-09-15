@@ -1,5 +1,8 @@
 {
-  "branch": "webinar-00",
+  "branches": {
+    "00": "webinar-00",
+    "02": "webinar-02"
+  },
   "files": [
     "apps/angular-host/src/app/app.html",
     "apps/facility-service/src/chat.ts",
@@ -7,6 +10,6 @@
   ],
   "milestones": {
     "00": "Webinar starting state",
-    "02": "Basic Chat — completed"
+    "02": "Basic Chat \u2014 completed"
   }
 }

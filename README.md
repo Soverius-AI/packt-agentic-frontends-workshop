@@ -1,7 +1,7 @@
-# Webinar starting state — webinar-00
+# Webinar — chapter branches
 
-This separate branch preserves Rainer's working Basic Chat implementation and
-prepares the supporting code before the webinar. The live exercise changes only:
+The webinar branches preserve Rainer's working Basic Chat implementation and
+prepare the supporting code before the webinar. The live exercise changes only:
 
 1. `apps/angular-host/src/app/app.html`: activate `<app-basic-chat />`.
 2. `apps/facility-service/src/chat.ts`: implement `createChatClient` with the OpenAI SDK.
@@ -10,6 +10,26 @@ prepares the supporting code before the webinar. The live exercise changes only:
 The BasicChatComponent, both Angular imports, frontend response adapter, system
 prompt, environment loading, assertion helpers, dependencies and server route are
 prepared. The starter has a typed factory placeholder and disconnected chat.
+
+## Chapter checkpoints
+
+| Branch       | Completed state                                     | Local directory      |
+| ------------ | --------------------------------------------------- | -------------------- |
+| `webinar-00` | Prepared starting point                             | `packt-webinar-zero` |
+| `webinar-02` | End of chapter 2: Basic Chat and backend connection | `packt-webinar-02`   |
+
+`webinar-02` builds on `webinar-00`. The difference is exactly the three live
+files listed above. Compare them with `git diff webinar-00..webinar-02`.
+Your original working implementation is also preserved at commit `1a9e25e`.
+
+Continue with `webinar-03` through `webinar-08` as those chapters are prepared.
+Each future branch will include everything through its chapter; those branches
+have not been created yet. Commits within a chapter can record teaching steps.
+Existing milestone branches remain separate.
+
+For chapter 2, present from `packt-webinar-zero` and keep `packt-webinar-02`
+open as the completed reference. You can inspect both without switching branches.
+Run application services from only one directory at a time because ports are shared.
 
 ## Start here
 
@@ -45,7 +65,7 @@ pnpm webinar:select 00
 pnpm webinar:select 02
 ```
 
-Open http://localhost:4400. The sidebar identifies branch `webinar-00`. The
+Open http://localhost:4400. The sidebar identifies the chapter branches `webinar-00` and `webinar-02`. The
 presenter desk includes the three exact code changes, demo prompts and recovery.
 `00` is the starting state; `02` is the completed Basic Chat exercise. Selection
 backs up only the three live files into ignored `.webinar-backups/` and applies

@@ -1,6 +1,7 @@
 # 00 — Webinar starting state
 
 **Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.
+**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.
 **Start:** `pnpm webinar:select 00`, then `pnpm dev`.
 Open the Angular app at http://localhost:4200. Backend: http://localhost:3101.
 This branch has its own private `.env`; keep it off screen. Its environment checks

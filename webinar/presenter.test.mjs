@@ -110,7 +110,12 @@ test("presenter data shows the new branch sequence and exact completed code", as
     new URL("./presenter.html", import.meta.url),
     "utf8",
   );
-  assert.match(html, /Branch: webinar-00/);
+  assert.deepEqual(manifest.branches, {
+    "00": "webinar-00",
+    "02": "webinar-02",
+  });
+  assert.match(html, /webinar-00 · Prepared starting state/);
+  assert.match(html, /webinar-02 · End of chapter 2/);
   assert.match(html, /pnpm webinar:select/);
   for (const match of html.matchAll(
     /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g,

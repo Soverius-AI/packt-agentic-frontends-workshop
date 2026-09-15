@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Webinar starting state",
       source: "webinar/speaker-notes/00-start.md",
       intro:
-        "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+        "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+          body: "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
         },
         {
           label: "EXPLAIN",
@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start:** webinar state 00. **Completed version:** `pnpm webinar:select 02`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-00` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start:** webinar state 00. **Completed version:** `pnpm webinar:select 02`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-00` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",
@@ -100,7 +100,7 @@ window.workshopPresenter = {
         {
           label: "TRANSITION",
           title: "Transition",
-          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThis webinar branch currently prepares only states 00 and 02. Later milestone\nbranches and their existing solutions remain unchanged; they are not switched by\nthis branch's webinar selector.",
+          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\nBranches `webinar-03` through `webinar-08` will be created as we prepare those\nchapters. The selector currently supports only 00 and 02. Existing milestone\nbranches and their solutions remain separate.",
         },
       ],
       prompts: [
