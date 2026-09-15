@@ -31,7 +31,7 @@ const READING_PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-root',
-  imports: [CopilotA2UIActivityRenderer, BasicChatComponent],
+  imports: [ChatComponent, CopilotA2UIActivityRenderer, BasicChatComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -98,8 +98,8 @@ export class App {
       messages.flatMap((message) =>
         message.role === 'assistant'
           ? (message.toolCalls ?? [])
-            .filter((call) => call.function.name === 'query_historian')
-            .map((call) => call.id)
+              .filter((call) => call.function.name === 'query_historian')
+              .map((call) => call.id)
           : [],
       ),
     );

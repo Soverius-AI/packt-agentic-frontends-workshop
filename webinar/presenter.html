@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Presenter desk · Agentic frontends</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f5f2ec;
+        --white: #fffefa;
+        --ink: #233d3a;
+        --muted: #596d67;
+        --line: #d8ddd4;
+        --accent: #135e51;
+        --soft: #e7efe8;
+        --gold: #9c6121;
+        --code: #172b29;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font:
+          16px/1.55 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      button,
+      a {
+        touch-action: manipulation;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        color: inherit;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #ce842a;
+        outline-offset: 4px;
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      a {
+        color: var(--accent);
+      }
+      .skip {
+        position: absolute;
+        left: 12px;
+        top: -100px;
+        background: white;
+        padding: 12px;
+        z-index: 5;
+      }
+      .skip:focus {
+        top: 10px;
+      }
+      .shell {
+        max-width: 1680px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      .sidebar {
+        padding: 30px 20px;
+        border-right: 1px solid var(--line);
+        background: #eeeae1;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+      }
+      .brand {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        font-weight: 750;
+        color: var(--accent);
+      }
+      .sidebar h1 {
+        font-size: 26px;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        margin: 13px 0;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .sidebar > p {
+        font-size: 13px;
+        margin: 10px 0 25px;
+      }
+      .milestone {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        text-align: left;
+        border: 0;
+        background: none;
+        border-radius: 10px;
+        padding: 13px 10px;
+        margin: 3px 0;
+        font-size: 14px;
+        line-height: 1.3;
+      }
+      .milestone[aria-current="true"] {
+        background: var(--accent);
+        color: white;
+      }
+      .number {
+        font-size: 12px;
+        opacity: 0.8;
+        font-variant-numeric: tabular-nums;
+      }
+      .later {
+        border-top: 1px solid var(--line);
+        margin-top: 22px;
+        padding: 18px 10px;
+        font-size: 13px;
+      }
+      .later p {
+        margin: 5px 0;
+        color: var(--muted);
+      }
+      main {
+        min-width: 0;
+        padding: 32px 38px 24px;
+      }
+      .topline {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: center;
+        font-size: 13px;
+      }
+      .pill {
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: 5px 12px;
+      }
+      .title {
+        font-size: clamp(26px, 3vw, 42px);
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+        margin: 15px 0 14px;
+      }
+      .flow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin: 0 0 24px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .flow span {
+        padding: 5px 9px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #faf8f3;
+      }
+      .flow i {
+        font-style: normal;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--white);
+        box-shadow: 0 7px 24px #20352c05;
+      }
+      .current {
+        padding: 28px;
+        min-height: 260px;
+        border-top: 5px solid var(--accent);
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        font-weight: 750;
+        color: var(--accent);
+        margin: 0;
+      }
+      .current h2 {
+        font-size: 23px;
+        margin: 12px 0 20px;
+        letter-spacing: -0.02em;
+      }
+      .body p {
+        margin: 0 0 15px;
+      }
+      .body p:last-child {
+        margin-bottom: 0;
+      }
+      .body {
+        font-size: 18px;
+        line-height: 1.65;
+      }
+      .body code,
+      code.path {
+        font:
+          13px/1.6 ui-monospace,
+          SFMono-Regular,
+          Consolas,
+          monospace;
+        background: #edf0e9;
+        padding: 2px 5px;
+        border-radius: 4px;
+        overflow-wrap: anywhere;
+      }
+      .body ul,
+      .body ol {
+        padding-left: 24px;
+      }
+      .body a {
+        word-break: break-word;
+      }
+      .next {
+        padding: 17px 22px;
+        border-top: 1px solid var(--line);
+        font-size: 14px;
+      }
+      .next p {
+        margin: 5px 0 0;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        margin: 18px 0 16px;
+      }
+      .btn {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 14px;
+        background: var(--white);
+        font-size: 14px;
+      }
+      .primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .small {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+      .progress {
+        height: 4px;
+        background: #dfe5dc;
+        border-radius: 3px;
+        margin-bottom: 22px;
+        overflow: hidden;
+      }
+      .progress span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.12s;
+      }
+      .section {
+        padding: 20px;
+        margin-bottom: 18px;
+      }
+      .section h2 {
+        font-size: 16px;
+        margin: 0 0 13px;
+      }
+      .empty {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .source {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 14px;
+        overflow-wrap: anywhere;
+      }
+      .step-list {
+        list-style: none;
+        margin: 12px 0 0;
+        padding: 0;
+      }
+      .step-list button {
+        border: 0;
+        background: none;
+        display: flex;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        font-size: 13px;
+        padding: 9px 5px;
+        border-radius: 5px;
+      }
+      .step-list button[aria-current="step"] {
+        background: var(--soft);
+        font-weight: 650;
+      }
+      .step-list span {
+        font-variant-numeric: tabular-nums;
+        color: var(--muted);
+        min-width: 18px;
+      }
+      .step-list b {
+        font-weight: 500;
+      }
+      details > summary {
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 650;
+        padding: 3px 0;
+      }
+      .prompt {
+        font-size: 14px;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .prompt:last-child {
+        border: 0;
+        padding-bottom: 0;
+      }
+      .prompt p {
+        margin: 0 0 9px;
+      }
+      .prompt h3 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+      .prompt .prompt-text {
+        border-left: 3px solid var(--line);
+        padding-left: 12px;
+      }
+      .prompt .prompt-help {
+        margin-top: 12px;
+      }
+      .prompt .prompt-help p {
+        margin-top: 10px;
+      }
+      .file {
+        border-top: 1px solid var(--line);
+        padding: 12px 0;
+      }
+      .file:first-of-type {
+        border-top: 0;
+      }
+      .file summary {
+        overflow-wrap: anywhere;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 12px;
+      }
+      .file-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .file pre {
+        margin: 10px 0 0;
+        background: var(--code);
+        color: #edf5ed;
+        border-radius: 8px;
+        padding: 12px;
+        font:
+          12px/1.65 ui-monospace,
+          SFMono-Regular,
+          monospace;
+        overflow: auto;
+        max-height: 440px;
+        tab-size: 2;
+      }
+      .file .path {
+        display: block;
+        background: none;
+        font-size: 11px;
+        padding: 0;
+        margin: 9px 0;
+      }
+      .add {
+        color: #b2e6b3;
+      }
+      .remove {
+        color: #ffc7bd;
+      }
+      .hunk {
+        color: #acd5f5;
+      }
+      .recovery {
+        background: #fbf5e8;
+        border-color: #e3d2ae;
+      }
+      .recovery .body {
+        font-size: 14px;
+      }
+      .recovery pre {
+        white-space: pre-wrap;
+        font-size: 12px;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 24px;
+      }
+      #status {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 9px 15px;
+        border-radius: 7px;
+        background: var(--ink);
+        color: white;
+        font-size: 13px;
+        z-index: 10;
+      }
+      #status:empty {
+        display: none;
+      }
+      .overview {
+        margin-top: 8px;
+      }
+      .full-notes .body {
+        font-size: 15px;
+      }
+      .full-notes h3 {
+        font-size: 16px;
+        margin-top: 25px;
+      }
+      .copy-fallback {
+        width: 100%;
+        min-height: 130px;
+        font: 13px monospace;
+      }
+      .close-fallback {
+        margin-top: 8px;
+      }
+      @media (min-width: 1450px) {
+        .body {
+          font-size: 20px;
+        }
+        .current {
+          padding: 34px;
+        }
+      }
+      @media (max-width: 1100px) {
+        main {
+          padding: 26px 24px;
+        }
+        .shell {
+          grid-template-columns: 215px minmax(0, 1fr);
+        }
+        .sidebar {
+          padding: 26px 14px;
+        }
+        .layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .right {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .right .section {
+          margin: 0;
+        }
+        .right .code-section {
+          grid-column: 1/-1;
+        }
+      }
+      @media (max-width: 700px) {
+        .shell {
+          display: block;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+          padding: 18px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .sidebar h1 {
+          font-size: 22px;
+        }
+        .sidebar > p {
+          margin-bottom: 12px;
+        }
+        #milestones {
+          display: flex;
+          gap: 6px;
+          overflow: auto;
+        }
+        .milestone {
+          min-width: 160px;
+          margin: 0;
+        }
+        .later {
+          display: none;
+        }
+        main {
+          padding: 20px 16px;
+        }
+        .right {
+          display: block;
+        }
+        .right .section {
+          margin-bottom: 16px;
+        }
+        .current {
+          padding: 21px;
+          min-height: 0;
+        }
+        .body {
+          font-size: 17px;
+        }
+        .topline {
+          font-size: 12px;
+        }
+        .footer {
+          display: block;
+        }
+      }
+      @media print {
+        .sidebar,
+        .controls,
+        .progress,
+        .next,
+        .right,
+        .overview,
+        .footer,
+        .topline,
+        #status {
+          display: none;
+        }
+        .shell,
+        .layout {
+          display: block;
+        }
+        main {
+          padding: 0;
+        }
+        .current {
+          border: 0;
+          box-shadow: none;
+        }
+        .flow {
+          margin-top: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to current action</a>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">SOVERIUS · WEBINAR</div>
+        <h1>Presenter desk</h1>
+        <p class="muted">Your notes, code connections,<br />and next move.</p>
+        <nav id="milestones" aria-label="Milestones"></nav>
+        <div class="later">
+          <strong>Webinar ports</strong>
+          <p>Angular app: 4200</p>
+          <p>Branch: webinar-00</p>
+          <p>Backend: 3101</p>
+          <p>Mastra API: 4211 · Studio: 4212</p>
+          <p>Presenter notes: 4400</p>
+        </div>
+        <div class="later">
+          <strong>This branch</strong>
+          <p>00 · Prepared starting state</p>
+          <p>02 · Your completed Basic Chat</p>
+        </div>
+      </aside>
+      <main id="main" tabindex="-1">
+        <header>
+          <div class="topline">
+            <span id="chapter" class="eyebrow"></span
+            ><span class="pill">Presenter-led · webinar</span>
+          </div>
+          <h1 class="title" id="title"></h1>
+          <div class="flow" id="flow" aria-label="Request flow"></div>
+        </header>
+        <div class="layout">
+          <div class="left">
+            <div class="card">
+              <section class="current" aria-labelledby="action-title">
+                <p class="eyebrow" id="action-label"></p>
+                <h2 id="action-title"></h2>
+                <div class="body" id="action-body"></div>
+              </section>
+              <section class="next">
+                <span class="eyebrow">Up next</span>
+                <p id="next-label"></p>
+              </section>
+            </div>
+            <div class="controls">
+              <button class="btn" id="previous">← Previous</button
+              ><span id="position" class="muted" style="font-size: 13px"></span
+              ><button class="btn primary" id="next">Next action →</button>
+            </div>
+            <div
+              class="progress"
+              role="progressbar"
+              aria-label="Position in milestone"
+              aria-valuemin="1"
+              id="progress"
+            >
+              <span id="progress-fill"></span>
+            </div>
+            <details class="card section overview">
+              <summary>All actions in this milestone</summary>
+              <ol class="step-list" id="steps"></ol>
+            </details>
+            <details class="card section full-notes">
+              <summary>Full speaker notes</summary>
+              <div id="full-notes" class="body"></div>
+              <p class="source" id="source"></p>
+            </details>
+          </div>
+          <aside class="right" aria-label="Presenter reference">
+            <section class="card section">
+              <h2>Demo prompts</h2>
+              <p class="empty">
+                Run in order after connecting this milestone. Open each prompt’s
+                setup before sending it. Expected results are rehearsal
+                criteria.
+              </p>
+              <div id="prompts"></div>
+            </section>
+            <section class="card section code-section">
+              <h2>Code changes <span class="muted" id="file-count"></span></h2>
+              <p class="empty" id="code-hint"></p>
+              <div id="files"></div>
+            </section>
+            <details class="card section recovery">
+              <summary>Recovery & restart</summary>
+              <div class="body" id="recovery"></div>
+              <div class="file-actions">
+                <button class="btn small" id="copy-recovery">
+                  Copy checkpoint command
+                </button>
+              </div>
+              <p class="empty">
+                Run it in your terminal. Saves the seven presenter files before
+                replacing them; data and conversations are separate.
+              </p>
+            </details>
+          </aside>
+        </div>
+        <footer class="footer">
+          <span
+            >← / → move between actions · Your place is remembered in this
+            browser.</span
+          ><button class="btn small" id="restart">Back to the beginning</button>
+        </footer>
+      </main>
+    </div>
+    <div role="status" id="status" aria-live="polite"></div>
+    <script src="./presenter-data.js"></script>
+    <script>
+      const data = window.workshopPresenter;
+      const $ = (id) => document.getElementById(id);
+      const esc = (value) =>
+        String(value).replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[char],
+        );
+      function inline(text) {
+        let html = esc(text);
+        const codes = [];
+        html = html.replace(/`([^`]+)`/g, (_, code) => {
+          codes.push("<code>" + code + "</code>");
+          return "\u0001" + (codes.length - 1) + "\u0001";
+        });
+        html = html
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        return html.replace(/\u0001(\d+)\u0001/g, (_, i) => codes[Number(i)]);
+      }
+      function markdown(text) {
+        return text
+          .split(/\n\s*\n/)
+          .map((block) => {
+            if (/^(?:- |\d+\. )/.test(block)) {
+              const items = block
+                .split(/\n(?=(?:- |\d+\. ))/)
+                .map(
+                  (item) =>
+                    "<li>" +
+                    inline(
+                      item.replace(/^(?:- |\d+\. )/, "").replace(/\n/g, " "),
+                    ) +
+                    "</li>",
+                )
+                .join("");
+              return "<ul>" + items + "</ul>";
+            }
+            return "<p>" + inline(block.replace(/\n/g, " ")) + "</p>";
+          })
+          .join("");
+      }
+      let saved = {};
+      try {
+        saved = JSON.parse(
+          localStorage.getItem("packt-webinar-zero-position") || "{}",
+        );
+      } catch {}
+      const hash = location.hash.match(/^#(\d\d)\/(\d+)$/);
+      let chapter = Math.max(
+        0,
+        data.milestones.findIndex((m) => m.id === (hash?.[1] || saved.id)),
+      );
+      let action = Number(hash?.[2] ?? saved.action ?? 0);
+      if (!Number.isInteger(action)) action = 0;
+      let statusTimer;
+      function message(text) {
+        $("status").textContent = text;
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(() => ($("status").textContent = ""), 2600);
+      }
+      async function copy(text, button) {
+        try {
+          await navigator.clipboard.writeText(text);
+          message("Copied");
+        } catch {
+          const box = document.createElement("textarea");
+          box.className = "copy-fallback";
+          box.readOnly = true;
+          box.value = text;
+          box.setAttribute("aria-label", "Select and copy this text");
+          button.after(box);
+          box.focus();
+          box.select();
+          message("Copy the selected text with Ctrl+C or ⌘C");
+          box.addEventListener("blur", () => box.remove(), { once: true });
+        }
+      }
+      function button(label, fn, kind = "btn small") {
+        const el = document.createElement("button");
+        el.className = kind;
+        el.textContent = label;
+        el.addEventListener("click", () => fn(el));
+        return el;
+      }
+      function render() {
+        const m = data.milestones[chapter];
+        action = Math.max(0, Math.min(action, m.actions.length - 1));
+        const item = m.actions[action];
+        try {
+          localStorage.setItem(
+            "packt-webinar-zero-position",
+            JSON.stringify({ id: m.id, action }),
+          );
+        } catch {}
+        history.replaceState(null, "", `#${m.id}/${action}`);
+        $("milestones").replaceChildren(
+          ...data.milestones.map((entry, index) => {
+            const el = button(
+              "",
+              () => {
+                chapter = index;
+                action = 0;
+                render();
+                focusAction();
+              },
+              "milestone",
+            );
+            el.innerHTML =
+              '<span class="number">' +
+              entry.id +
+              "</span><span>" +
+              esc(entry.name) +
+              "</span>";
+            el.setAttribute("aria-current", String(index === chapter));
+            return el;
+          }),
+        );
+        $("chapter").textContent =
+          "Milestone " +
+          m.id +
+          " / " +
+          String(data.milestones.length).padStart(2, "0");
+        $("title").textContent = m.name;
+        $("flow").innerHTML = m.flow
+          .map((phrase) => "<span>" + esc(phrase) + "</span>")
+          .join('<i aria-hidden="true">→</i>');
+        $("action-label").textContent = item.label + " · NOW";
+        $("action-title").textContent = item.title;
+        $("action-body").innerHTML = markdown(item.body);
+        $("next-label").textContent = m.actions[action + 1]
+          ? m.actions[action + 1].label + " · " + m.actions[action + 1].title
+          : chapter < data.milestones.length - 1
+            ? "Next milestone · " + data.milestones[chapter + 1].name
+            : "End of prepared milestones · A2A and MCP follow when ready";
+        $("position").textContent =
+          `Action ${action + 1} of ${m.actions.length}`;
+        $("previous").disabled = chapter === 0 && action === 0;
+        $("next").disabled =
+          chapter === data.milestones.length - 1 &&
+          action === m.actions.length - 1;
+        $("progress-fill").style.width =
+          ((action + 1) / m.actions.length) * 100 + "%";
+        $("progress").setAttribute("aria-valuemax", String(m.actions.length));
+        $("progress").setAttribute("aria-valuenow", String(action + 1));
+        $("steps").replaceChildren(
+          ...m.actions.map((step, index) => {
+            const li = document.createElement("li");
+            const el = button(
+              "",
+              () => {
+                action = index;
+                render();
+                focusAction();
+              },
+              "",
+            );
+            el.innerHTML =
+              "<span>" +
+              String(index + 1).padStart(2, "0") +
+              "</span><b>" +
+              esc(step.label + " · " + step.title) +
+              "</b>";
+            if (index === action) el.setAttribute("aria-current", "step");
+            li.append(el);
+            return li;
+          }),
+        );
+        $("prompts").replaceChildren();
+        if (!m.prompts.length)
+          $("prompts").innerHTML =
+            '<p class="empty">No model prompt here. Demonstrate the prepared application.</p>';
+        for (const [index, prompt] of m.prompts.entries()) {
+          const el = document.createElement("div");
+          el.className = "prompt";
+          const title = document.createElement("h3");
+          title.textContent = `${index + 1}. ${prompt.title}${prompt.optional ? " · optional" : ""}`;
+          const p = document.createElement("p");
+          p.className = "prompt-text";
+          p.textContent = prompt.prompt;
+          const help = document.createElement("details");
+          help.className = "prompt-help";
+          const summary = document.createElement("summary");
+          summary.textContent = "Setup, expected result & what to show";
+          help.append(summary);
+          for (const [label, value] of [
+            ["Before", prompt.before],
+            ["Expected", prompt.expected],
+            ["Show and explain", prompt.inspect],
+          ]) {
+            const paragraph = document.createElement("p");
+            const strong = document.createElement("strong");
+            strong.textContent = label + ": ";
+            paragraph.append(strong, document.createTextNode(value));
+            help.append(paragraph);
+          }
+          el.append(
+            title,
+            p,
+            button("Copy prompt", (b) => copy(prompt.prompt, b)),
+            help,
+          );
+          $("prompts").append(el);
+        }
+        const reference = document.querySelector(".right");
+        const codeFirst = item.label === "DO" || item.label === "OPEN";
+        reference.prepend(
+          codeFirst
+            ? document.querySelector(".code-section")
+            : $("prompts").parentElement,
+        );
+        $("files").replaceChildren();
+        $("file-count").textContent = m.files.length
+          ? "· " + m.files.length + " files"
+          : "";
+        $("code-hint").textContent = m.files.length
+          ? "Exact changes from the previous completed milestone. Open a file for its diff or completed code."
+          : "No code changes. Tour the conventional app first.";
+        for (const file of m.files) {
+          const details = document.createElement("details");
+          details.className = "file";
+          details.open = codeFirst && item.body.includes(file.path);
+          const summary = document.createElement("summary");
+          summary.textContent = file.path.split("/").slice(-2).join("/");
+          const path = document.createElement("code");
+          path.className = "path";
+          path.textContent = file.path;
+          const pre = document.createElement("pre");
+          pre.tabIndex = 0;
+          pre.setAttribute("aria-label", "Code for " + file.path);
+          let full = false;
+          const paint = () => {
+            pre.innerHTML = full
+              ? esc(file.after)
+              : file.diff
+                  .split("\n")
+                  .map(
+                    (line) =>
+                      '<span class="' +
+                      (line.startsWith("+")
+                        ? "add"
+                        : line.startsWith("-")
+                          ? "remove"
+                          : line.startsWith("@@")
+                            ? "hunk"
+                            : "") +
+                      '">' +
+                      esc(line) +
+                      "</span>",
+                  )
+                  .join("\n");
+          };
+          paint();
+          const controls = document.createElement("div");
+          controls.className = "file-actions";
+          controls.append(
+            button("Show completed code", (b) => {
+              full = !full;
+              b.textContent = full ? "Show diff" : "Show completed code";
+              paint();
+            }),
+            button("Copy completed file", (b) => copy(file.after, b)),
+            button("Copy path", (b) => copy(file.path, b)),
+          );
+          details.append(summary, path, controls, pre);
+          $("files").append(details);
+        }
+        $("recovery").innerHTML = markdown(m.recovery);
+        $("full-notes").innerHTML =
+          m.actions
+            .map(
+              (step) =>
+                "<h3>" + esc(step.title) + "</h3>" + markdown(step.body),
+            )
+            .join("") +
+          "<h3>Recovery</h3>" +
+          markdown(m.recovery);
+        $("source").textContent = "Source: " + m.source;
+      }
+      function focusAction() {
+        const heading = $("action-title");
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+      function move(direction) {
+        const m = data.milestones[chapter];
+        if (direction > 0) {
+          if (action < m.actions.length - 1) action++;
+          else if (chapter < data.milestones.length - 1) {
+            chapter++;
+            action = 0;
+          }
+        } else {
+          if (action > 0) action--;
+          else if (chapter > 0) {
+            chapter--;
+            action = data.milestones[chapter].actions.length - 1;
+          }
+        }
+        render();
+        focusAction();
+      }
+      $("previous").onclick = () => move(-1);
+      $("next").onclick = () => move(1);
+      $("restart").onclick = () => {
+        chapter = 0;
+        action = 0;
+        render();
+        focusAction();
+      };
+      $("copy-recovery").onclick = () =>
+        copy(
+          "pnpm webinar:select " + data.milestones[chapter].id,
+          $("copy-recovery"),
+        );
+      document.addEventListener("keydown", (event) => {
+        if (
+          event.target.closest("input,textarea,select,button,summary,pre,a") ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey
+        )
+          return;
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          move(1);
+        }
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          move(-1);
+        }
+      });
+      window.addEventListener("hashchange", () => {
+        const match = location.hash.match(/^#(\d\d)\/(\d+)$/);
+        if (match) {
+          const index = data.milestones.findIndex((m) => m.id === match[1]);
+          if (index >= 0) {
+            chapter = index;
+            action = Number(match[2]);
+            render();
+            focusAction();
+          }
+        }
+      });
+      render();
+    </script>
+  </body>
+</html>

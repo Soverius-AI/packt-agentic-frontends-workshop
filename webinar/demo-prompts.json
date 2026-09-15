@@ -1,0 +1,21 @@
+{
+  "00": [],
+  "02": [
+    {
+      "title": "General knowledge",
+      "prompt": "Why does temperature control matter when making chocolate?",
+      "before": "Complete milestone 02: activate the prepared BasicChatComponent, implement createChatClient in chat.ts and enable the backend chat service. Restart the backend launcher, reload the app and start a fresh conversation.",
+      "expected": "An ordinary explanation based on general knowledge, without claiming to have inspected this factory.",
+      "inspect": "Trace POST /api/chat to the OpenAI client and completion call written live in basic-chat-model.ts. Explain that conversation works before facility access exists.",
+      "optional": false
+    },
+    {
+      "title": "Expose the missing data connection",
+      "prompt": "What is the current air temperature in our Cooling room?",
+      "before": "Keep the same conversation. Do not paste readings into the chat.",
+      "expected": "The assistant should explain that it cannot access current facility readings. Any invented temperature is a failed demonstration, not evidence of access.",
+      "inspect": "Compare with the real snapshot. The backend route supplies no facility tools or live readings.",
+      "optional": false
+    }
+  ]
+}

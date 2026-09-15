@@ -64,7 +64,7 @@ export interface FacilityServiceOptions {
   telemetry: LiveTelemetry;
   copilotRuntime?: NodeCopilotListener;
   historian?: HistorianQueryExecutor;
-  chat: ChatService;
+  chat?: ChatService | undefined;
 }
 
 export const createFacilityServer = ({
@@ -91,6 +91,10 @@ export const createFacilityServer = ({
       }
 
       if (method === "POST" && url.pathname === "/api/chat") {
+        if (!chat) {
+          sendJson(response, 404, { error: "Basic chat is not connected." });
+          return;
+        }
         const input = chatRequestSchema.parse(await readBody(request));
         sendJson(response, 200, await chat.reply(input.messages));
         return;

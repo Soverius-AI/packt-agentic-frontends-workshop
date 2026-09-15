@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "files": "solutions/*/apps/angular-host/**/*.html",
+      "options": {
+        "parser": "angular",
+        "printWidth": 100,
+        "singleQuote": true
+      }
+    }
+  ]
+}

@@ -13,3 +13,5 @@ apps/facility-service/**/data/
 apps/agent-service/**/data/
 
 .workshop-backups/
+
+.webinar-backups/
