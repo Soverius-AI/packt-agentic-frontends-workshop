@@ -219,11 +219,16 @@ window.workshopPresenter = {
         {
           label: "DEMONSTRATE",
           title: "Demonstrate · 1",
-          body: "Ask: **Why does temperature control matter when making chocolate?**\n   Show incremental text and inspect the `/api/copilotkit` streaming response.\n   Explain run-start, text-message and run-finish events. Streaming is observable\n   protocol activity, not a view into hidden reasoning.",
+          body: "**Show the AG-UI Chrome extension again.** Open its panel in Chrome DevTools\n   before sending the first prompt. Keep the event stream visible and explain\n   run-start, text-message content and run-finish events as the answer arrives.\n   This is a required demonstration, not an optional debugging step.",
         },
         {
           label: "DEMONSTRATE",
           title: "Demonstrate · 2",
+          body: "Ask: **Why does temperature control matter when making chocolate?**\n   Show incremental text and inspect the `/api/copilotkit` streaming response.\n   Explain run-start, text-message and run-finish events. Streaming is observable\n   protocol activity, not a view into hidden reasoning.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 3",
           body: "Ask: **Show only warnings from the Cooling room.**\n   The filters should remain unchanged. The assistant has no tools and does not\n   receive current application data. Compare its words with the actual view.",
         },
         {
@@ -237,11 +242,11 @@ window.workshopPresenter = {
           title: "Streaming conversation",
           prompt: "Why does temperature control matter when making chocolate?",
           before:
-            "Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200.",
+            "Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200. Open the AG-UI Chrome extension panel again before sending the prompt.",
           expected:
             "The answer arrives progressively and uses general knowledge, without claiming access to this factory.",
           inspect:
-            "Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.",
+            "Show the AG-UI Chrome extension again: run-start, text-delta and run-finish events. Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.",
           optional: false,
         },
         {

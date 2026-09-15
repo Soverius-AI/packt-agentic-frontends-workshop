@@ -22,9 +22,9 @@
     {
       "title": "Streaming conversation",
       "prompt": "Why does temperature control matter when making chocolate?",
-      "before": "Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200.",
+      "before": "Complete chapter 03, restart the backend launcher, and reload Angular at localhost:4200. Open the AG-UI Chrome extension panel again before sending the prompt.",
       "expected": "The answer arrives progressively and uses general knowledge, without claiming access to this factory.",
-      "inspect": "Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.",
+      "inspect": "Show the AG-UI Chrome extension again: run-start, text-delta and run-finish events. Inspect /api/copilotkit requests and the AG-UI run-start, text-delta, and run-finish events. Compare with the single JSON response in chapter 02.",
       "optional": false
     },
     {
