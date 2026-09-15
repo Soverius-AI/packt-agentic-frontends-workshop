@@ -770,3 +770,17 @@ button:disabled {
   gap: 16px;
   min-width: 0;
 }
+
+.chat-container {
+  align-self: start;
+  height: clamp(520px, calc(100vh - 48px), 900px);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #ded6cd;
+  border-radius: 12px;
+
+  copilot-chat {
+    display: block;
+    height: 100%;
+  }
+}
