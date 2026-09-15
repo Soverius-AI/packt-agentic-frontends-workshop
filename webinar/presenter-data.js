@@ -2,16 +2,16 @@
 window.workshopPresenter = {
   milestones: [
     {
-      id: "00",
+      id: "01",
       name: "Webinar starting state",
-      source: "webinar/speaker-notes/00-start.md",
+      source: "webinar/speaker-notes/01-start.md",
       intro:
-        "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Branch:** `webinar-00`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 00`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2, in `packt-webinar-02`.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
         },
         {
           label: "EXPLAIN",
@@ -41,7 +41,7 @@ window.workshopPresenter = {
       ],
       prompts: [],
       recovery:
-        "Run `pnpm webinar:select 00`, restart the backend launcher and reload the app.\nThe selector backs up and replaces only the three webinar files. It never resets\nreadings or alarms. Existing milestone branches and `workshop/solutions` are separate.",
+        "Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.\nThe selector backs up and replaces only the three webinar files. It never resets\nreadings or alarms. Existing milestone branches and `workshop/solutions` are separate.",
       files: [],
       flow: ["Angular controls", "Facility API", "SQLite"],
     },
@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start branch:** `webinar-00` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-00` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",
@@ -100,7 +100,7 @@ window.workshopPresenter = {
         {
           label: "TRANSITION",
           title: "Transition",
-          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\nBranches `webinar-03` through `webinar-08` will be created as we prepare those\nchapters. The selector currently supports only 00 and 02. Existing milestone\nbranches and their solutions remain separate.",
+          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\nBranches `webinar-03` through `webinar-08` will be created as we prepare those\nchapters. The selector currently supports only 01 and 02. Existing milestone\nbranches and their solutions remain separate.",
         },
       ],
       prompts: [
@@ -128,7 +128,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.\nIt restores exactly app.html, chat.ts and main.ts. Before another rehearsal,\n`pnpm webinar:select 00` restores the starting state. No database reset is involved.\nFor an error, first check the terminal build result and `/api/chat` response. A\nworking dashboard does not prove that the model call succeeded.",
+        "Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.\nIt restores exactly app.html, chat.ts and main.ts. Before another rehearsal,\n`pnpm webinar:select 01` restores the starting state. No database reset is involved.\nFor an error, first check the terminal build result and `/api/chat` response. A\nworking dashboard does not prove that the model call succeeded.",
       files: [
         {
           path: "apps/angular-host/src/app/app.html",

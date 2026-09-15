@@ -1,6 +1,6 @@
 # 02 — Implement and connect Basic Chat
 
-**Start branch:** `webinar-00` in `packt-webinar-zero`.
+**Start branch:** `webinar-01` in `packt-webinar-zero`.
 **Completed branch:** `webinar-02` in `packt-webinar-02` (end of chapter 2).
 **In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.
 The component, Angular imports, API response adapter, environment setup, types,
@@ -53,13 +53,13 @@ connection to current facility readings, filters or actions.”
 “The model can converse. Its next capabilities will need explicit connections.”
 The next chapter will start from `webinar-02` and end at `webinar-03`.
 Branches `webinar-03` through `webinar-08` will be created as we prepare those
-chapters. The selector currently supports only 00 and 02. Existing milestone
+chapters. The selector currently supports only 01 and 02. Existing milestone
 branches and their solutions remain separate.
 
 ## Recovery
 
 Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.
 It restores exactly app.html, chat.ts and main.ts. Before another rehearsal,
-`pnpm webinar:select 00` restores the starting state. No database reset is involved.
+`pnpm webinar:select 01` restores the starting state. No database reset is involved.
 For an error, first check the terminal build result and `/api/chat` response. A
 working dashboard does not prove that the model call succeeded.

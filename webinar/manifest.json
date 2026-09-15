@@ -1,6 +1,6 @@
 {
   "branches": {
-    "00": "webinar-00",
+    "01": "webinar-01",
     "02": "webinar-02"
   },
   "files": [
@@ -9,7 +9,7 @@
     "apps/facility-service/src/main.ts"
   ],
   "milestones": {
-    "00": "Webinar starting state",
+    "01": "Webinar starting state",
     "02": "Basic Chat \u2014 completed"
   }
 }
