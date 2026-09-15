@@ -1,5 +1,9 @@
 # Webinar chapter 3 verification — 15 September 2026
 
+The results below record the original checkpoint. The shared UI baseline and its
+recovery snapshots have since been simplified; see [baseline verification](baseline-verification.md).
+
+
 ## Saved implementation
 
 Commit `5d9afdc` preserves the presenter's chapter-3 implementation as written.
