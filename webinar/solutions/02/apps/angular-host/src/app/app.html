@@ -171,14 +171,15 @@
                       <input
                         type="datetime-local"
                         [value]="updatedFrom()"
-                        (input)="setFilter('from', $event)"
+                        #fromInput
+                        (input)="updateFilters({ from: fromInput.value })"
                       />
                       <button
                         class="date-clear-button"
                         type="button"
                         [disabled]="!updatedFrom()"
                         aria-label="Clear updated from"
-                        (click)="clearDateFilter('from')"
+                        (click)="updateFilters({ from: null })"
                       >
                         Clear
                       </button>
@@ -190,14 +191,15 @@
                       <input
                         type="datetime-local"
                         [value]="updatedTo()"
-                        (input)="setFilter('to', $event)"
+                        #toInput
+                        (input)="updateFilters({ to: toInput.value })"
                       />
                       <button
                         class="date-clear-button"
                         type="button"
                         [disabled]="!updatedTo()"
                         aria-label="Clear updated to"
-                        (click)="clearDateFilter('to')"
+                        (click)="updateFilters({ to: null })"
                       >
                         Clear
                       </button>
@@ -207,7 +209,8 @@
                     <span>Shift manager</span>
                     <select
                       [value]="shiftManagerFilter()"
-                      (change)="setFilter('shiftManager', $event)"
+                      #shiftManagerInput
+                      (change)="updateFilters({ shiftManager: shiftManagerInput.value })"
                     >
                       <option value="" [selected]="!shiftManagerFilter()">
                         All shift managers
@@ -221,7 +224,11 @@
                   </label>
                   <label>
                     <span>Room</span>
-                    <select [value]="roomFilter()" (change)="setFilter('room', $event)">
+                    <select
+                      [value]="roomFilter()"
+                      #roomIdInput
+                      (change)="updateFilters({ roomId: roomIdInput.value })"
+                    >
                       <option value="" [selected]="!roomFilter()">All rooms</option>
                       @for (room of rooms(); track room.id) {
                         <option [value]="room.id" [selected]="roomFilter() === room.id">
@@ -232,7 +239,11 @@
                   </label>
                   <label>
                     <span>Metric</span>
-                    <select [value]="metricFilter()" (change)="setFilter('metric', $event)">
+                    <select
+                      [value]="metricFilter()"
+                      #metricIdInput
+                      (change)="updateFilters({ metricId: metricIdInput.value })"
+                    >
                       <option value="" [selected]="!metricFilter()">All metrics</option>
                       @for (metric of metricOptions(); track metric.id) {
                         <option [value]="metric.id" [selected]="metricFilter() === metric.id">
@@ -243,7 +254,11 @@
                   </label>
                   <label>
                     <span>Condition</span>
-                    <select [value]="conditionFilter()" (change)="setFilter('condition', $event)">
+                    <select
+                      [value]="conditionFilter()"
+                      #conditionInput
+                      (change)="updateFilters({ condition: conditionInput.value })"
+                    >
                       <option value="" [selected]="!conditionFilter()">All conditions</option>
                       <option value="normal" [selected]="conditionFilter() === 'normal'">
                         Normal
