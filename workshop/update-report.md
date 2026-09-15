@@ -1,5 +1,13 @@
 # Workshop refresh — 15 September 2026
 
+## Subsequent Basic Chat teaching adjustment
+
+BasicChatComponent now lives in Angular as prepared code. Milestone 02 activates
+it, implements the OpenAI connection in `basic-chat-model.ts`, and enables the
+chat endpoint: **3 presenter files, +21/−9 lines** relative to 01.
+The manifest now tracks eight files. The measurements below describe the earlier
+milestone refresh, before this presenter-requested adjustment.
+
 ## Findings and source
 
 The local milestone branches contain the new work. A fresh GitHub PR listing and

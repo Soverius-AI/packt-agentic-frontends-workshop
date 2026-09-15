@@ -4,9 +4,9 @@
     {
       "title": "General knowledge",
       "prompt": "Why does temperature control matter when making chocolate?",
-      "before": "Complete milestone 02. Open the native chat and start a fresh conversation.",
+      "before": "Complete milestone 02: activate the prepared BasicChatComponent, implement basic-chat-model.ts and enable the backend chat service. Restart the backend launcher, reload the app and start a fresh conversation.",
       "expected": "An ordinary explanation based on general knowledge, without claiming to have inspected this factory.",
-      "inspect": "Point to the chat request and response. Explain that conversation works before facility access exists.",
+      "inspect": "Trace POST /api/chat to the OpenAI client and completion call written live in basic-chat-model.ts. Explain that conversation works before facility access exists.",
       "optional": false
     },
     {

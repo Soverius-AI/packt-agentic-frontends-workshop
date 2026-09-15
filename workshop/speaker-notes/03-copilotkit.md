@@ -17,7 +17,9 @@ the run lifecycle, streamed text, and later tool activity.”
 1. `apps/angular-host/src/app/app.config.ts`: add the `provideCopilotKit` and label
    providers from [solution 03](../solutions/03/apps/angular-host/src/app/app.config.ts).
    Point to `runtimeUrl: '/api/copilotkit'` and the Angular development proxy.
-2. Replace the three `chat.component.*` files with solution 03. Open the template
+2. Replace the three `chat.component.*` wrapper files with solution 03. This replaces
+   the active BasicChatComponent with CopilotChat; the prepared basic component
+   remains available in Angular. Open the template
    and focus on `<copilot-chat agentId="default" appStreamingAutoScroll />`.
    The scrolling directive and surrounding layout are prepared support.
 3. `apps/facility-service/src/workshop.ts`: connect

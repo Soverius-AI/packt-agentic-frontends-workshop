@@ -83,18 +83,31 @@ reason for a change before scrolling through implementation details.
 
 ## The editable files
 
-| File                                                 | When you teach it                                     |
-| ---------------------------------------------------- | ----------------------------------------------------- |
-| `apps/angular-host/src/app/chat/chat.component.*`    | 02: native chat; 03: CopilotChat replacement          |
-| `apps/angular-host/src/app/app.config.ts`            | 03: CopilotKit provider and endpoint                  |
-| `apps/facility-service/src/workshop.ts`              | 02: basic chat; 03: embedded agent; 04: Mastra bridge |
-| `apps/agent-service/src/mastra/agents/main/agent.ts` | 04: agent; 05–07: instructions and capabilities       |
-| `apps/angular-host/src/app/workshop/connect.ts`      | 05: UI tools; 06: results; 07: approval               |
+| File                                                 | When you teach it                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------ |
+| `apps/angular-host/src/app/chat/chat.component.*`    | 02: activate BasicChatComponent; 03: CopilotChat replacement |
+| `apps/facility-service/src/basic-chat-model.ts`      | 02: write the OpenAI client and completion call              |
+| `apps/angular-host/src/app/app.config.ts`            | 03: CopilotKit provider and endpoint                         |
+| `apps/facility-service/src/workshop.ts`              | 02: basic chat; 03: embedded agent; 04: Mastra bridge        |
+| `apps/agent-service/src/mastra/agents/main/agent.ts` | 04: agent; 05–07: instructions and capabilities              |
+| `apps/angular-host/src/app/workshop/connect.ts`      | 05: UI tools; 06: results; 07: approval                      |
 
-The seven manifest entries include three chat files. Other files are prepared
+The eight manifest entries include three chat wrapper files and the live
+`apps/facility-service/src/basic-chat-model.ts` connection. Other files are prepared
 supporting code; you can open them to explain the implementation. If you edit
 those during a demonstration, save them yourself: checkpoint selection only backs
 up and replaces the manifest files.
+
+## Basic chat: prepared UI, live model connection
+
+`apps/angular-host/src/app/chat/basic-chat.component.ts` and its HTML/SCSS are
+already prepared. In milestone 02, activate `<app-basic-chat />` through the small
+`chat.component.ts` wrapper. No form, styling or message-list code needs copying.
+Write the OpenAI client and completion call live in
+`apps/facility-service/src/basic-chat-model.ts`, then connect the chat service in
+`apps/facility-service/src/workshop.ts`. Solution 01 contains a compilable model
+placeholder; solutions 02–08 contain the completed connection for recovery.
+The existing prompt in `prompts/basic-chat.ts` remains prepared and editable.
 
 ## See exactly what changes
 

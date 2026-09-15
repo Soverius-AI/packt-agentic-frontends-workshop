@@ -5,14 +5,31 @@
 - Angular-only presenter workshop with completed code selections 01–08.
 - Exact local reference commits are recorded in [manifest.json](manifest.json).
 - Default selection is 01: conventional app without model setup.
-- Seven presenter file paths; milestone 08 changes four of them.
-- Eight speaker-note chapters, 85 action cards, 24 demo prompt entries, and exact
+- Eight presenter file paths; milestone 08 changes four of them.
+- Eight speaker-note chapters, 87 action cards, 24 demo prompt entries, and exact
   completed-code diffs in the Presenter desk at http://localhost:4400.
 - A2UI components live in Angular; shared schemas remain in the contract package.
 - A2A (09) and MCP/MCP Apps (10) remain future additions.
 
 Current ports: Angular **4200**, backend **3101**, Mastra API **4211**, Studio **4212**,
 presenter notes **4400**.
+
+## Basic Chat preparation update — 2026-09-15
+
+- BasicChatComponent is prepared in Angular with the existing Solution 02 form,
+  template and styles. Its activation is a small chat-wrapper change.
+- The live OpenAI exercise is isolated in `basic-chat-model.ts`: Solution 01 has
+  a compilable placeholder, and solutions 02–08 include the completed connection.
+  Checkpoint selection backs up and restores this eighth presenter file too.
+- Starter and completed Solution 02 Angular/backend builds passed. Solution 02
+  was checked in an isolated temporary copy; the working selection remains 01.
+- The completed OpenAI SDK call passed a mocked-fetch check for endpoint, model,
+  system prompt, conversation and assistant-response mapping. Empty-response
+  handling passed too. No external model call was made for this change.
+- Existing server checks (7 including parent) and historian display checks (3)
+  passed. Speaker notes and generated presenter data contain 87 actions.
+- The app root, facility API and the presenter's latest basic-chat prompt edit
+  were preserved.
 
 ## Startup and reload check — 2026-09-15
 

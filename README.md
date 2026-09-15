@@ -84,7 +84,7 @@ pnpm workshop:select 05
 pnpm workshop:status
 ```
 
-The selector copies the seven files listed in `workshop/manifest.json`. It first
+The selector copies the eight files listed in `workshop/manifest.json`. It first
 saves the previous contents under `.workshop-backups/`. It never changes Git
 branches or deletes database records. Stop/restart `pnpm dev` after changing the
 backend (or restart `pnpm dev:backend` / `pnpm dev:all` if used); Mastra automatically

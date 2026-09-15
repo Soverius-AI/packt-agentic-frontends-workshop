@@ -1,11 +1,9 @@
 import type { ChatMessage, ChatResponse } from "@packt-workshop/contracts";
-import OpenAI from "openai";
+import { completeBasicChat, type ModelMessage } from "./basic-chat-model.js";
 
 export const DEFAULT_OPENROUTER_MODEL = "google/gemma-4-31b-it";
 
 import { CHAT_SYSTEM_PROMPT } from "./prompts/basic-chat.js";
-
-type ModelMessage = ChatMessage | { role: "system"; content: string };
 
 type CompleteChat = (
   messages: readonly ModelMessage[],
@@ -32,33 +30,16 @@ export const createChatService = (options?: {
 }): ChatService => {
   const apiKey = options?.apiKey;
   const model = options?.model || DEFAULT_OPENROUTER_MODEL;
-  const client = apiKey
-    ? new OpenAI({
-        apiKey,
-        baseURL: "https://openrouter.ai/api/v1",
-      })
-    : undefined;
   const complete =
     options?.complete ??
     (async (messages: readonly ModelMessage[], selectedModel: string) => {
-      if (!client) {
+      if (!apiKey) {
         throw new ChatServiceError(
           "Chat is not configured. Set OPENROUTER_API_KEY on the backend.",
           503,
         );
       }
-      const completion = await client.chat.completions.create({
-        model: selectedModel,
-        messages: [...messages],
-      });
-      const content = completion.choices[0]?.message.content?.trim();
-      if (!content) {
-        throw new ChatServiceError(
-          "The model returned an empty response. Please try again.",
-          502,
-        );
-      }
-      return content;
+      return completeBasicChat(messages, selectedModel, apiKey);
     });
 
   return {
@@ -68,6 +49,12 @@ export const createChatService = (options?: {
           [{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages],
           model,
         );
+        if (!content) {
+          throw new ChatServiceError(
+            "The model returned an empty response. Please try again.",
+            502,
+          );
+        }
         return { message: { role: "assistant", content } };
       } catch (error) {
         if (error instanceof ChatServiceError) throw error;

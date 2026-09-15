@@ -20,13 +20,13 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 ### 1. General knowledge
 
-**Before:** Complete milestone 02. Open the native chat and start a fresh conversation.
+**Before:** Complete milestone 02: activate the prepared BasicChatComponent, implement basic-chat-model.ts and enable the backend chat service. Restart the backend launcher, reload the app and start a fresh conversation.
 
 > Why does temperature control matter when making chocolate?
 
 **Expected:** An ordinary explanation based on general knowledge, without claiming to have inspected this factory.
 
-**Show and explain:** Point to the chat request and response. Explain that conversation works before facility access exists.
+**Show and explain:** Trace POST /api/chat to the OpenAI client and completion call written live in basic-chat-model.ts. Explain that conversation works before facility access exists.
 
 ### 2. Expose the missing data connection
 
