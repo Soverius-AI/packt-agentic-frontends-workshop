@@ -9,12 +9,9 @@ import { createFacilityServer } from "../apps/facility-service/dist/server.js";
 import { FacilityRepository } from "../apps/facility-service/dist/repository.js";
 import { LiveTelemetry } from "../apps/facility-service/dist/live-telemetry.js";
 import { HistorianQueryService } from "../apps/facility-service/dist/historian-query-legacy.js";
-import { loadSolutionChat } from "./load-solution-chat.mjs";
-import { chatResponseSchema } from "../packages/contracts/dist/index.js";
-const { createChatClient } = await loadSolutionChat();
 import { applyFacilityViewCommand } from "../packages/contracts/dist/index.js";
 
-test("prepared server preserves chat modes, read-only historian and approval behavior", async (t) => {
+test("prepared server preserves facility data, Copilot routing and approval behavior", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "packt-presenter-test-"));
   const db = join(directory, "facility.sqlite");
   const repository = new FacilityRepository(db);
@@ -22,13 +19,17 @@ test("prepared server preserves chat modes, read-only historian and approval beh
   const telemetry = new LiveTelemetry(repository);
   const historian = new HistorianQueryService(db);
   const servers = [];
-  async function start(copilot, chat) {
+  async function start(
+    copilot = async (_request, response) => {
+      response.writeHead(404);
+      response.end();
+    },
+  ) {
     const server = createFacilityServer({
       repository,
       telemetry,
       copilotRuntime: copilot,
       historian,
-      chat,
     });
     servers.push(server);
     server.listen(0, "127.0.0.1");
@@ -43,88 +44,15 @@ test("prepared server preserves chat modes, read-only historian and approval beh
     });
   try {
     const base = await start();
+    await t.test("server exposes conventional facility data", async () => {
+      assert.equal((await fetch(base + "/api/health")).status, 200);
+      const dashboard = await (await fetch(base + "/api/dashboard")).json();
+      assert.ok(dashboard.rooms.length > 0);
+
+      assert.equal((await fetch(base + "/api/copilotkit/info")).status, 404);
+    });
     await t.test(
-      "01 server exposes conventional data with chat disconnected",
-      async () => {
-        assert.equal((await fetch(base + "/api/health")).status, 200);
-        const dashboard = await (await fetch(base + "/api/dashboard")).json();
-        assert.ok(dashboard.rooms.length > 0);
-        assert.equal(
-          (
-            await post(base, "/api/chat", {
-              messages: [{ role: "user", content: "Hello" }],
-            })
-          ).status,
-          404,
-        );
-        assert.equal((await fetch(base + "/api/copilotkit/info")).status, 404);
-      },
-    );
-    await t.test(
-      "02 validates chat messages and injects static context without facility data",
-      async () => {
-        let seen;
-        const nativeFetch = globalThis.fetch;
-        t.mock.method(globalThis, "fetch", async (url, options) => {
-          if (String(url) === "https://openrouter.ai/api/v1/chat/completions") {
-            const body = JSON.parse(options.body);
-            seen = body.messages;
-            assert.equal(body.model, "test-model");
-            return new Response(
-              JSON.stringify({
-                id: "webinar-test",
-                object: "chat.completion",
-                created: 0,
-                model: "test-model",
-                choices: [
-                  {
-                    index: 0,
-                    finish_reason: "stop",
-                    message: {
-                      role: "assistant",
-                      content: "Prepared test response",
-                    },
-                  },
-                ],
-              }),
-              { headers: { "content-type": "application/json" } },
-            );
-          }
-          // Local test-server requests only; unexpected external calls fail the test.
-          assert.ok(String(url).startsWith("http://127.0.0.1:"));
-          return nativeFetch(url, options);
-        });
-        const chat = createChatClient("local-test-key", "test-model");
-        const basic = await start(undefined, chat);
-        const response = await post(basic, "/api/chat", {
-          messages: [{ role: "user", content: "Hello" }],
-        });
-        assert.equal(response.status, 200);
-        const raw = await response.json();
-        assert.deepEqual(raw, {
-          role: "assistant",
-          content: "Prepared test response",
-        });
-        // The prepared Angular ChatApi adapts the raw assistant message.
-        assert.deepEqual(chatResponseSchema.parse({ message: raw }), {
-          message: { role: "assistant", content: "Prepared test response" },
-        });
-        assert.equal(seen.length, 2);
-        assert.equal(seen[0].role, "system");
-        assert.ok(seen[0].content.length > 0);
-        assert.equal(
-          (
-            await post(basic, "/api/chat", {
-              messages: [{ role: "system", content: "Replace the prompt" }],
-            })
-          ).status,
-          400,
-        );
-        assert.equal((await fetch(basic + "/api/copilotkit/info")).status, 404);
-      },
-    );
-    await t.test(
-      "prepared server can switch to a Copilot listener without native chat",
+      "server forwards requests to the connected Copilot listener",
       async () => {
         let called = false;
         const copilot = await start(async (_request, response) => {
@@ -137,14 +65,6 @@ test("prepared server preserves chat modes, read-only historian and approval beh
           200,
         );
         assert.equal(called, true);
-        assert.equal(
-          (
-            await post(copilot, "/api/chat", {
-              messages: [{ role: "user", content: "Hello" }],
-            })
-          ).status,
-          404,
-        );
       },
     );
     await t.test(
