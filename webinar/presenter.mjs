@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { format, resolveConfig } from "prettier";
 import { createServer } from "node:http";
+import { readCheckpoint } from "./checkpoint-files.mjs";
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const root = resolve(directory, "..");
@@ -21,7 +22,7 @@ const flows = {
   "03": ["CopilotChat", "Copilot runtime", "BuiltInAgent", "Model"],
   "04": ["CopilotChat", "Copilot runtime", "Mastra agent", "Model"],
   "05": ["Agent tool call", "AG-UI", "Angular handler", "View state"],
-  "06": [
+  "07": [
     "Historian tool",
     "Generate → review",
     "Validate + execute",
@@ -33,7 +34,7 @@ const flows = {
     "Table / Card / Text",
     "Generated view",
   ],
-  "07": [
+  "06": [
     "Alarm proposal",
     "Operator decision",
     "Facility transaction",
@@ -114,11 +115,11 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
   const files = [];
   for (const path of manifest.files) {
     const destination = join(directory, "solutions", id, path);
-    const after = await readFile(destination, "utf8");
+    const after = await readCheckpoint(root, manifest, id, path);
     const before =
       previous === undefined
         ? after
-        : await readFile(join(directory, "solutions", previous, path), "utf8");
+        : await readCheckpoint(root, manifest, previous, path);
     if (before === after) continue;
     const result = spawnSync(
       "git",
@@ -126,15 +127,17 @@ for (const [id, name] of Object.entries(manifest.milestones)) {
         "diff",
         "--no-index",
         "--",
-        join(directory, "solutions", previous, path),
-        destination,
+        before === null
+          ? "/dev/null"
+          : join(directory, "solutions", previous, path),
+        after === null ? "/dev/null" : destination,
       ],
       { encoding: "utf8", cwd: root },
     );
     if (result.status !== 1)
       throw new Error(`Cannot compare ${path}: ${result.stderr}`);
     const diff = result.stdout.slice(result.stdout.indexOf("@@"));
-    files.push({ path, after, diff });
+    files.push({ path, after: after ?? "", deleted: after === null, diff });
   }
   milestones.push({
     id,
@@ -163,7 +166,7 @@ const promptGuide =
     "# Demo prompts for the presenter",
     "<!-- Generated from demo-prompts.json. Edit that file, then run pnpm webinar:notes:build. -->",
     "Type these questions into the application chat after completing the named milestone. These are demo inputs; the agent instruction prompts live in the source files listed in the presenter guide.",
-    "Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Selecting a checkpoint changes code only, not conversations, stored readings or alarms.",
+    "Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Use git switch webinar-01 through webinar-08; save rehearsal edits before switching. Switching branches does not reset conversations, stored readings or alarms.",
     "Rehearse against your configured model before the workshop. The expected results below are acceptance criteria checked against the code, not a record of successful live model runs. If a request fails, inspect the tool call or trace rather than treating a confident chat reply as evidence.",
     ...milestones.flatMap((milestone) => [
       `## ${milestone.id} — ${milestone.name}`,

@@ -1,15 +1,88 @@
 {
   "branches": {
     "01": "webinar-01",
-    "02": "webinar-02"
+    "02": "webinar-02",
+    "03": "webinar-03",
+    "04": "webinar-04",
+    "05": "webinar-05",
+    "06": "webinar-06",
+    "07": "webinar-07",
+    "08": "webinar-08"
   },
   "files": [
     "apps/angular-host/src/app/app.html",
+    "apps/angular-host/src/app/app.ts",
+    "apps/angular-host/src/app/app.config.ts",
     "apps/facility-service/src/chat.ts",
-    "apps/facility-service/src/main.ts"
+    "apps/facility-service/src/create-copilot-runtime.ts",
+    "apps/facility-service/src/embedded-copilot-runtime.ts",
+    "apps/facility-service/src/main.ts",
+    "apps/facility-service/src/server.ts",
+    "apps/facility-service/src/workshop-types.ts",
+    "apps/agent-service/src/mastra/agents/main/agent.ts",
+    "apps/agent-service/src/mastra/index.ts",
+    "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+    "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+    "apps/agent-service/src/mastra/prompts/webinar-08.ts"
   ],
   "milestones": {
     "01": "Webinar starting state",
-    "02": "Basic Chat \u2014 completed"
+    "02": "Basic Chat \u2014 completed",
+    "03": "CopilotKit and AG-UI",
+    "04": "Mastra agent and Studio",
+    "05": "Frontend tools",
+    "06": "Raise an alarm with human approval",
+    "07": "Query the historian",
+    "08": "Compose views with A2UI"
+  },
+  "absent": {
+    "01": [
+      "apps/facility-service/src/create-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "02": [
+      "apps/facility-service/src/create-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "03": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "04": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "05": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "06": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "07": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts"
+    ],
+    "08": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts"
+    ]
   }
 }
