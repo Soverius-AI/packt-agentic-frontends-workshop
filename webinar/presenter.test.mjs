@@ -64,6 +64,9 @@ test("checkpoint recovery handles additions, deletions and backups without chang
       "04",
       "05",
       "06",
+      "07",
+      "06",
+      "07",
       "05",
       "06",
       "04",
@@ -101,7 +104,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
     const html = join(dir, chapterTwoFiles[0]);
     await writeFile(html, "Presenter live edit");
     assert.match(select("status").stdout, /Custom presenter edits/);
-    assert.equal(select("07").status, 1);
+    assert.equal(select("08").status, 1);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
     const missing = "apps/facility-service/src/create-copilot-runtime.ts";
     await unlink(join(dir, "webinar/solutions/03", missing));
@@ -119,7 +122,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
   }
 });
 
-test("presenter shows chapters 03 through 06 with exact code and required demonstrations", async () => {
+test("presenter shows chapters 03 through 07 with exact code and required demonstrations", async () => {
   const context = { window: {} };
   vm.runInNewContext(
     await readFile(new URL("./presenter-data.js", import.meta.url), "utf8"),
@@ -128,7 +131,7 @@ test("presenter shows chapters 03 through 06 with exact code and required demons
   const data = JSON.parse(JSON.stringify(context.window.workshopPresenter));
   assert.deepEqual(
     data.milestones.map((m) => m.id),
-    ["01", "02", "03", "04", "05", "06"],
+    ["01", "02", "03", "04", "05", "06", "07"],
   );
   assert.equal(data.milestones[0].files.length, 0);
   assert.deepEqual(
@@ -153,14 +156,12 @@ test("presenter shows chapters 03 through 06 with exact code and required demons
     }
     assert.equal(
       milestone.prompts.length,
-      milestone.id === "05" ? 5 : milestone.id === "06" ? 3 : 2,
+      milestone.id === "05" ? 5 : ["06", "07"].includes(milestone.id) ? 3 : 2,
     );
   }
   assert.deepEqual(
     data.milestones[2].files.filter((f) => f.deleted).map((f) => f.path),
-    manifest.absent["03"].filter(
-      (path) => !path.endsWith("prompts/webinar-06.ts"),
-    ),
+    manifest.absent["03"].filter((path) => !path.includes("/prompts/webinar-")),
   );
   assert.deepEqual(
     data.milestones[3].files.map((f) => f.path),
@@ -232,6 +233,38 @@ test("presenter shows chapters 03 through 06 with exact code and required demons
     assert.ok(chapterSixActions.includes(term), term);
   assert.match(chapterSix.prompts[1].expected, /rejected and not-executed/);
   assert.match(chapterSix.prompts[2].expected, /approved, executed/);
+  const chapterSeven = data.milestones[6];
+  assert.deepEqual(
+    chapterSeven.files.map((file) => file.path),
+    [
+      "apps/angular-host/src/app/app.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+      "apps/agent-service/src/mastra/index.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+    ],
+  );
+  assert.deepEqual(chapterSeven.flow, [
+    "Historian tool",
+    "Generate → review",
+    "Validate + execute",
+    "Result view",
+  ]);
+  const chapterSevenActions = JSON.stringify(chapterSeven.actions);
+  for (const term of [
+    "queryHistorianTool",
+    "historianTool",
+    "query_historian",
+    "http://127.0.0.1:3101",
+    "toModelOutput",
+    "ToolCallFilter",
+    "injectAgentStore",
+    "Show the AG-UI Chrome extension",
+    "Show Mastra Studio",
+    "raise_alarm",
+  ])
+    assert.ok(chapterSevenActions.includes(term), term);
+  assert.match(chapterSeven.recovery, /pnpm webinar:select 07/);
+  assert.match(chapterSeven.prompts[2].expected, /without calling a tool/);
   const html = await readFile(
     new URL("./presenter.html", import.meta.url),
     "utf8",
@@ -243,6 +276,7 @@ test("presenter shows chapters 03 through 06 with exact code and required demons
     "04": "webinar-04",
     "05": "webinar-05",
     "06": "webinar-06",
+    "07": "webinar-07",
   });
   for (const branch of Object.values(manifest.branches))
     assert.ok(html.includes(branch));

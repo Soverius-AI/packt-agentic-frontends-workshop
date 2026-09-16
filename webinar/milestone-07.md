@@ -1,7 +1,7 @@
 # Webinar 07 — Historian connections to write live
 
-**Working branch:** webinar-07, based on completed webinar-06.
-**Status:** Preparation only; completed recovery snapshot pending.
+**Start:** webinar-06. **Completed:** webinar-07.
+**Recovery:** `pnpm webinar:select 07`; use 06 to rehearse.
 **Worktree:** /Users/rainerh/programming/packt-webinar-02.
 
 The workflow, generator/reviewer agents, tool adapter, backend SQL validation,
@@ -14,16 +14,18 @@ File: apps/agent-service/src/mastra/index.ts. Add:
 
 ```ts
 import { createHistorianQueryWorkflow } from "./workflows/historian-query/workflow";
+import { createQueryHistorianTool } from "./agents/main/tools/query-historian-tool";
 ```
 
 Before new Mastra(...):
 
 ```ts
-const historianQueryWorkflow = createHistorianQueryWorkflow(
+const queryHistorian = createHistorianQueryWorkflow(
   OPENROUTER_API_KEY,
   OPENROUTER_MODEL,
   "http://127.0.0.1:3101",
 );
+const queryHistorianTool = createQueryHistorianTool(queryHistorian);
 ```
 
 Replace the agents property and add workflows; retain server, storage and observability:
@@ -33,13 +35,14 @@ agents: {
   default: createAgent(
     OPENROUTER_API_KEY,
     OPENROUTER_MODEL,
-    historianQueryWorkflow,
+    queryHistorianTool,
   ),
 },
-workflows: { historianQueryWorkflow },
+workflows: { queryHistorian },
 ```
 
-The same instance is registered in Studio and passed to the agent's tool.
+The workflow is registered in Studio. Its tool is created here and passed into
+the agent. The third workflow argument is the facility URL, not the model provider.
 The index and agent edits belong together: an intermediate type error while only
 one has been updated is expected.
 
@@ -49,8 +52,7 @@ File: apps/agent-service/src/mastra/agents/main/agent.ts. Add:
 
 ```ts
 import { ToolCallFilter } from "@mastra/core/processors";
-import type { createHistorianQueryWorkflow } from "../../workflows/historian-query/workflow";
-import { createQueryHistorianTool } from "./tools/query-historian-tool";
+import { createTool } from "@mastra/core/tools";
 ```
 
 Extend the existing function signature:
@@ -59,7 +61,7 @@ Extend the existing function signature:
 export function createAgent(
   apiKey: string,
   model: string,
-  historianQueryWorkflow: ReturnType<typeof createHistorianQueryWorkflow>,
+  historianTool: ReturnType<typeof createTool>,
 ) {
 ```
 
@@ -70,7 +72,7 @@ inputProcessors: [
   new ToolCallFilter({ exclude: ['query_historian'] }),
 ],
 tools: {
-  query_historian: createQueryHistorianTool(historianQueryWorkflow),
+  query_historian: historianTool,
 },
 ```
 
@@ -88,7 +90,8 @@ In the same agent.ts, replace the prompt import:
 import { CHAT_SYSTEM_PROMPT } from "../../prompts/webinar-07";
 ```
 
-webinar-07.ts is already prepared. It preserves human approval and adds historian
+Copy the prepared webinar-07.ts contents from the presenter Code changes section
+when rehearsing from checkpoint 06. It preserves human approval and adds historian
 instructions without claiming access to reactive frontend context. Original
 main-06 and main-07 prompts are not the webinar prompts.
 
@@ -122,5 +125,8 @@ Do not reset the demo database just to connect this chapter.
 
 [Speaker walkthrough](speaker-notes/07-historian.md).
 
-Once the connections work, save the completed chapter and add recovery/presenter
-snapshots. The branch currently contains preparation, not the completed chapter.
+The completed checkpoint includes the three application files and chapter-seven
+prompt. Recover with `pnpm webinar:select 07`, or use 06 to rehearse. The selector
+changes thirteen paths and preserves database state and Git branches.
+
+[Verification record](verification-07.md).

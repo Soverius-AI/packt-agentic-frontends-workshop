@@ -174,6 +174,40 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.
 
+## 07 — Query the historian
+
+[Speaker notes](speaker-notes/07-historian.md)
+
+### 1. Read historical measurements
+
+**Before:** Complete chapter 07, wait for Mastra and Angular to reload and start a fresh Angular conversation on 4200. Keep backend 3101 running and open the AG-UI Chrome extension.
+
+> Show the latest ten air-temperature readings from the Cooling room.
+
+**Expected:** Calls query_historian once with the whole question. Successful stored readings open in the Historian result grid. The assistant receives a completion receipt, not the row values.
+
+**Show and explain:** Show the question-only tool input and the full tool result in AG-UI. In Studio on 4212, inspect the registered workflow and the Angular request trace: generate SQL, semantic review, deterministic validation/execution.
+
+### 2. Select the stored maximum rows
+
+**Before:** Keep the same conversation and the historian grid visible. Use existing stored readings; selecting a checkpoint does not reset them.
+
+> Show the highest air-temperature reading for each shift manager.
+
+**Expected:** Returns complete stored reading rows for the maxima, including manager and timestamp, using the same fixed table. The previous historian result is filtered out of later model input.
+
+**Show and explain:** Compare SQL, returned rows and the grid. Show toModelOutput and ToolCallFilter: Angular retains full results while the main model gets only the receipt. Switch to Snapshot and back to Historian result to show result retention.
+
+### 3. Expose the fixed-table limit
+
+**Before:** Keep the fixed result grid visible. This checkpoint does not support aggregate result shapes.
+
+> What is the average air temperature in the Cooling room?
+
+**Expected:** Explains that averages are unsupported in this chapter. The assistant may decline without calling a tool; if it calls the workflow, an unsupported aggregate must not be executed as a successful grid result.
+
+**Show and explain:** Explain that model refusal alone does not prove SQL validation. Show the prepared backend policy or local tests for that boundary. Use this limitation to introduce A2UI in webinar 08.
+
 ## Later milestones
 
 A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.
