@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Webinar starting state",
       source: "webinar/speaker-notes/01-start.md",
       intro:
-        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-02`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `git switch webinar-01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-02`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `git switch webinar-01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
         },
         {
           label: "EXPLAIN",
@@ -41,7 +41,7 @@ window.workshopPresenter = {
       ],
       prompts: [],
       recovery:
-        "Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.\nThe selector backs up and replaces the checkpoint files. It never resets\nreadings or alarms. Existing milestone branches and `workshop/solutions` are separate.",
+        'Run `git switch webinar-01` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and reload\nthe application. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [],
       flow: ["Angular controls", "Facility API", "SQLite"],
     },
@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-08`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-01` in `packt-webinar-02`.\n**Completed branch:** `webinar-02` (end of chapter 2).\n**Completed checkpoint:** `git switch webinar-02`. Rehearse from `webinar-01`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-08`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-01` in `packt-webinar-02`.\n**Completed branch:** `webinar-02` (end of chapter 2).\n**Completed checkpoint:** `git switch webinar-02`. Rehearse from `webinar-01`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",
@@ -100,7 +100,7 @@ window.workshopPresenter = {
         {
           label: "TRANSITION",
           title: "Transition",
-          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` through `webinar-08` are prepared. The selector supports 01–08. Existing milestone\nbranches and their solutions remain separate.",
+          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` through `webinar-08` are prepared. Switch between the eight webinar branches in the same directory. Existing milestone\nbranches and their solutions remain separate.",
         },
       ],
       prompts: [
@@ -128,7 +128,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.\nIt restores the complete chapter 2 checkpoint, including its native chat endpoint. Before another rehearsal,\n`pnpm webinar:select 01` restores the starting state. No database reset is involved.\nFor an error, first check the terminal build result and `/api/chat` response. A\nworking dashboard does not prove that the model call succeeded.",
+        'Run `git switch webinar-02` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -159,12 +159,12 @@ window.workshopPresenter = {
       name: "CopilotKit and AG-UI",
       source: "webinar/speaker-notes/03-copilotkit.md",
       intro:
-        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-08` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-03`. Rehearse from `webinar-02`.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-08` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-03`. Rehearse from `webinar-02`.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
         },
         {
           label: "EXPLAIN",
@@ -262,7 +262,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.\nCheck http://localhost:3101/api/copilotkit/info for the `default` agent.\nA 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.\nMastra is not needed for this chapter. Keep credentials off screen.\nThe selector restores all fourteen checkpoint paths, including the empty Mastra starting state, including file creation and\nremoval. It backs up current files and records which paths were absent.\nTo rehearse the previous chapter in this worktree, select 02 and restart the backend;\nselect 03 to return. These commands change files, not the checked-out Git branch.",
+        'Run `git switch webinar-03` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-02`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -333,12 +333,12 @@ window.workshopPresenter = {
       name: "Mastra agent and Studio",
       source: "webinar/speaker-notes/04-mastra.md",
       intro:
-        "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`; select 04 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+        "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-04`. Rehearse from `webinar-03`.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`; select 04 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+          body: "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-04`. Rehearse from `webinar-03`.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
         },
         {
           label: "EXPLAIN",
@@ -431,7 +431,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 04`, restart the backend launcher, wait for Mastra to\nreload, and reload Angular. Check http://localhost:3101/api/copilotkit/info and\nhttp://localhost:4211/api/agents for `default`. Open Studio on 4212, not the API\nport 4211. API CORS for Studio and common-library builds are already prepared.\nKeep `.env` values and credentials off screen.\nThe selector covers fourteen paths, including the two Mastra source files. Selecting\n03 restores an empty agent file and `agents: {}`; selecting 04 restores this agent.\nIt backs up your current code but does not switch Git branches or reset databases.",
+        'Run `git switch webinar-04` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-03`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.\n\nCheck http://localhost:3101/api/copilotkit/info and http://localhost:4211/api/agents\nfor default. Show Studio on 4212. API CORS and common-library builds are prepared.',
       files: [
         {
           path: "apps/facility-service/src/create-copilot-runtime.ts",
@@ -469,12 +469,12 @@ window.workshopPresenter = {
       name: "Frontend tools",
       source: "webinar/speaker-notes/05-frontend-tools.md",
       intro:
-        "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`.\n**Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,\nthen start a fresh conversation. If selecting from an earlier backend chapter,\nrestart `pnpm dev:backend` too.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
+        "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-05`. Rehearse from `webinar-04`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`.\n**Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,\nthen start a fresh conversation. If selecting from an earlier backend chapter,\nrestart `pnpm dev:backend` too.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
+          body: "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-05`. Rehearse from `webinar-04`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
         },
         {
           label: "EXPLAIN",
@@ -610,7 +610,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 05` in this worktree and reload Angular after its build\nand Mastra's reload finish. The selector restores fourteen implementation paths,\nincluding the completed frontend registrations and Mastra prompt import. Shared\nschemas, prompt text and layout support remain prepared. It backs up current files\nand does not switch branches or reset data. Use `pnpm webinar:select 04` to rehearse\nadding the tools again. Keep API keys off screen.",
+        'Run `git switch webinar-05` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-04`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -641,12 +641,12 @@ window.workshopPresenter = {
       name: "Raise an alarm with human approval",
       source: "webinar/speaker-notes/06-alarm-approval.md",
       intro:
-        "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`.\n**Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
+        "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-06`. Rehearse from `webinar-05`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-08`.\n**Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
+          body: "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-06`. Rehearse from `webinar-05`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
         },
         {
           label: "EXPLAIN",
@@ -757,7 +757,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 06` to restore the completed fourteen implementation paths,\nincluding the chapter-specific prompt. Use `pnpm webinar:select 05` to rehearse;\nthat removes webinar-06.ts and restores the main-05 import and the four tools.\nThe selector backs up current files in .webinar-backups and changes neither Git\nbranches nor stored alarms, audit records or conversations. Angular and Mastra\nwatch source changes. Restart the backend launcher when recovering from an earlier\nchapter that changes backend code, then reload Angular and start a fresh chat.",
+        'Run `git switch webinar-06` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-05`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.ts",
@@ -793,12 +793,12 @@ window.workshopPresenter = {
       name: "Query the historian",
       source: "webinar/speaker-notes/07-historian.md",
       intro:
-        "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Recovery:** `pnpm webinar:select 07`; select 06 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
+        "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Completed checkpoint:** `git switch webinar-07`. Rehearse from `webinar-06`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Recovery:** `pnpm webinar:select 07`; select 06 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
+          body: "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Completed checkpoint:** `git switch webinar-07`. Rehearse from `webinar-06`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
         },
         {
           label: "EXPLAIN",
@@ -904,7 +904,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 07` to restore the completed fourteen implementation paths.\nUse `pnpm webinar:select 06` to rehearse: it restores alarm approval without the\nhistorian connections and removes webinar-07.ts. The chapter-seven prompt can be\ncopied from the presenter Code changes section when you reconnect it.\nThe selector backs up edited files and changes neither Git branches nor stored\nreadings, alarms, audit entries or conversations. Wait for Angular and Mastra to\nreload, then start a fresh conversation. Restart the backend launcher only when\nrecovering from an earlier chapter with different backend code. Keep keys off screen.",
+        'Run `git switch webinar-07` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-06`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.ts",
@@ -947,12 +947,12 @@ window.workshopPresenter = {
       name: "Compose views with A2UI",
       source: "webinar/speaker-notes/08-a2ui.md",
       intro:
-        "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Recovery:** `pnpm webinar:select 08`; select 07 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
+        "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Completed checkpoint:** `git switch webinar-08`. Rehearse from `webinar-07`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Recovery:** `pnpm webinar:select 08`; select 07 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
+          body: "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Completed checkpoint:** `git switch webinar-08`. Rehearse from `webinar-07`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
         },
         {
           label: "EXPLAIN",
@@ -1069,7 +1069,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 08` to restore the completed fourteen implementation paths,\nincluding the chapter-eight prompt. Use `pnpm webinar:select 07` to rehearse; it\nrestores the fixed-reading backend, historian workflow/tool and runtime configuration,\nand removes webinar-08.ts. Copy the prompt from the presenter Code changes section\nwhen reconnecting the chapter. Always restart `pnpm dev:backend` after switching\nbetween 07 and 08; it rebuilds the selected backend implementation. Wait for Angular\nand Mastra to reload, then start a fresh chat. The selector backs up current files\nand changes neither Git branches nor stored readings, alarms or audit records.",
+        'Run `git switch webinar-08` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-07`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.\n\nChapter 07 uses the fixed-reading backend; chapter 08 uses the dataset backend.\nAlways restart the backend when switching between them. Copy webinar-08.ts from\nthe presenter Code changes section when reconnecting this chapter.',
       files: [
         {
           path: "apps/angular-host/src/app/app.config.ts",

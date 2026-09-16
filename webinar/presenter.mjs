@@ -166,7 +166,7 @@ const promptGuide =
     "# Demo prompts for the presenter",
     "<!-- Generated from demo-prompts.json. Edit that file, then run pnpm webinar:notes:build. -->",
     "Type these questions into the application chat after completing the named milestone. These are demo inputs; the agent instruction prompts live in the source files listed in the presenter guide.",
-    "Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Selecting a checkpoint changes code only, not conversations, stored readings or alarms.",
+    "Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Use git switch webinar-01 through webinar-08; save rehearsal edits before switching. Switching branches does not reset conversations, stored readings or alarms.",
     "Rehearse against your configured model before the workshop. The expected results below are acceptance criteria checked against the code, not a record of successful live model runs. If a request fails, inspect the tool call or trace rather than treating a confident chat reply as evidence.",
     ...milestones.flatMap((milestone) => [
       `## ${milestone.id} — ${milestone.name}`,

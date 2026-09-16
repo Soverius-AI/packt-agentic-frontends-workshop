@@ -1,7 +1,7 @@
 # Webinar 08 — Connect A2UI
 
 **Start:** webinar-07. **Completed:** webinar-08.
-**Recovery:** `pnpm webinar:select 08`; use 07 to rehearse.
+**Recovery:** `git switch webinar-08`; use 07 to rehearse.
 **Worktree:** /Users/rainerh/programming/packt-webinar-02.
 
 Chapter 7 selected records for a fixed grid. Chapter 8 can query aggregate datasets
@@ -137,9 +137,9 @@ registerGeneratedViewNotice helper. Suppressing the chat widget is deferred.
 
 ## Recovery and verification
 
-The completed presenter and selector cover chapters 01–08. Use
-`pnpm webinar:select 08` to restore this implementation or 07 to rehearse.
-Restart `pnpm dev:backend` after either selection so the correct historian service
-and runtime are rebuilt. Stored facility data and Git branches are unchanged.
+The complete presenter is available on all eight webinar branches. Use
+`git switch webinar-08` to restore this implementation or 07 to rehearse.
+Restart `pnpm dev:backend` after switching branches so the correct historian service
+and runtime are rebuilt. Save rehearsal edits before switching branches. Stored facility data is preserved.
 
 [Verification record](verification-08.md).

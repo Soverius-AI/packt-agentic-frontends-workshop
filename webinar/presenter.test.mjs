@@ -270,7 +270,7 @@ test("presenter shows chapters 03 through 08 with exact code and required demons
     "raise_alarm",
   ])
     assert.ok(chapterSevenActions.includes(term), term);
-  assert.match(chapterSeven.recovery, /pnpm webinar:select 07/);
+  assert.match(chapterSeven.recovery, /git switch webinar-07/);
   assert.match(chapterSeven.prompts[2].expected, /without calling a tool/);
   const chapterEight = data.milestones[7];
   assert.deepEqual(
@@ -304,7 +304,7 @@ test("presenter shows chapters 03 through 08 with exact code and required demons
     "Do not add registerGeneratedViewNotice",
   ])
     assert.ok(chapterEightActions.includes(term), term);
-  assert.match(chapterEight.recovery, /pnpm webinar:select 08/);
+  assert.match(chapterEight.recovery, /git switch webinar-08/);
   assert.match(chapterEight.recovery, /pnpm dev:backend/);
   assert.match(chapterEight.prompts[0].expected, /also appears in chat/);
   const html = await readFile(
@@ -323,7 +323,7 @@ test("presenter shows chapters 03 through 08 with exact code and required demons
   });
   for (const branch of Object.values(manifest.branches))
     assert.ok(html.includes(branch));
-  assert.match(html, /pnpm webinar:select/);
+  assert.match(html, /git switch webinar-/);
   for (const match of html.matchAll(
     /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g,
   ))
