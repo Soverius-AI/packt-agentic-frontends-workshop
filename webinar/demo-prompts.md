@@ -86,6 +86,60 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Show tools: {} in the Mastra agent and the static prompt. Explain that frontend tools are introduced in chapter 5.
 
+## 05 — Frontend tools
+
+[Speaker notes](speaker-notes/05-frontend-tools.md)
+
+### 1. Discover options through Angular
+
+**Before:** Open a fresh Angular conversation on 4200 after completing chapter 5. Show the AG-UI Chrome extension.
+
+> Which rooms and shift managers are available?
+
+**Expected:** Calls list_rooms and list_shift_managers and reports only the names returned by Angular.
+
+**Show and explain:** Show empty input objects, array results and the matching manual filter options. This uses tool results, not reactive agent context.
+
+### 2. Operate the existing controls
+
+**Before:** Keep the previous conversation so discovered IDs are available. Keep the view buttons and filters visible.
+
+> Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.
+
+**Expected:** The reading log is selected and room, manager and warning filters match the request. Existing unrelated filters are preserved.
+
+**Show and explain:** Inspect set_view and set_filter_values, their returned results, and the actual controls. Compare handlers with the methods used by the template.
+
+### 3. Change one date without losing other filters
+
+**Before:** Keep the room, manager and warning filters from the previous demo.
+
+> Change only the start date to now.
+
+**Expected:** Only the start boundary changes to the browser current time. No matching readings is a valid result.
+
+**Show and explain:** The tool arguments omit unrelated fields. Angular preserves them and resolves the now convention.
+
+### 4. Clear exactly one field
+
+**Before:** Keep the other filters selected.
+
+> Clear only the start date.
+
+**Expected:** The start date clears; room, manager and condition remain selected.
+
+**Show and explain:** Show from: null and explain that null clears that field while omission preserves the others.
+
+### 5. Tools still have a data boundary
+
+**Before:** Keep actual readings visible but do not paste them into chat. Open Mastra Studio on 4212 to inspect an Angular trace.
+
+> What is the current air temperature in our Cooling room?
+
+**Expected:** The assistant explains that it cannot read measurements with these tools.
+
+**Show and explain:** Show the Angular request trace in Studio. Room and manager discovery plus UI control do not grant historian access; Studio standalone chat has no Angular handlers.
+
 ## Later milestones
 
 A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.

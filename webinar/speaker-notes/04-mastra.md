@@ -1,7 +1,7 @@
 # 04 — Move the agent into Mastra and show Studio
 
 **Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-04`.
+**Current worktree:** `packt-webinar-02`, branch `webinar-05`; select 04 to rehearse this chapter.
 **Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.
 Mastra, its shared libraries, environment loading, storage, tracing and Studio CORS
 are prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on

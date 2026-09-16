@@ -1,7 +1,7 @@
 # 03 — Replace Basic Chat with CopilotKit and AG-UI
 
 **Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.
-**Current worktree:** `packt-webinar-02` now has branch `webinar-04` checked out; select 03 to rehearse this chapter.
+**Current worktree:** `packt-webinar-02` now has branch `webinar-05` checked out; select 03 to rehearse this chapter.
 **Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.
 The `.chat-container` styles, packages, system prompt and Angular proxy are prepared.
 The CSS is committed in both webinar-01 and webinar-02; do not write CSS live.

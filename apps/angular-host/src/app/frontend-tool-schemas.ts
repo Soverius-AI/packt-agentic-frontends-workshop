@@ -27,17 +27,21 @@ export const updateFiltersInputSchema = z.object({
     .string()
     .nullable()
     .optional()
-    .describe('Room ID from context. Null clears it; omission preserves it.'),
+    .describe('Exact room ID returned by list_rooms. Null clears it; omission preserves it.'),
   metricId: z
     .string()
     .nullable()
     .optional()
-    .describe('Metric ID from context. Null clears it; omission preserves it.'),
+    .describe(
+      'Exact metric ID supplied by the operator; no metric-discovery tool is available. Null clears it; omission preserves it.',
+    ),
   shiftManager: z
     .string()
     .nullable()
     .optional()
-    .describe('Shift-manager name from context. Null clears it; omission preserves it.'),
+    .describe(
+      'Exact shift-manager name returned by list_shift_managers. Null clears it; omission preserves it.',
+    ),
   condition: z
     .enum(['normal', 'warning', 'critical', 'unavailable'])
     .nullable()

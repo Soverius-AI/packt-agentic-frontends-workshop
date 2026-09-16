@@ -3,7 +3,8 @@
     "01": "webinar-01",
     "02": "webinar-02",
     "03": "webinar-03",
-    "04": "webinar-04"
+    "04": "webinar-04",
+    "05": "webinar-05"
   },
   "files": [
     "apps/angular-host/src/app/app.html",
@@ -22,7 +23,8 @@
     "01": "Webinar starting state",
     "02": "Basic Chat \u2014 completed",
     "03": "CopilotKit and AG-UI",
-    "04": "Mastra agent and Studio"
+    "04": "Mastra agent and Studio",
+    "05": "Frontend tools"
   },
   "absent": {
     "01": ["apps/facility-service/src/create-copilot-runtime.ts"],
@@ -32,6 +34,10 @@
       "apps/facility-service/src/embedded-copilot-runtime.ts"
     ],
     "04": [
+      "apps/facility-service/src/chat.ts",
+      "apps/facility-service/src/embedded-copilot-runtime.ts"
+    ],
+    "05": [
       "apps/facility-service/src/chat.ts",
       "apps/facility-service/src/embedded-copilot-runtime.ts"
     ]

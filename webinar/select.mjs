@@ -35,7 +35,7 @@ if (argument === "status") {
 const phase = argument.padStart(2, "0");
 if (!Object.hasOwn(manifest.milestones, phase)) {
   console.error(
-    "Usage: pnpm webinar:select <01|02|03|04> | pnpm webinar:status",
+    "Usage: pnpm webinar:select <01|02|03|04|05> | pnpm webinar:status",
   );
   process.exit(1);
 }
