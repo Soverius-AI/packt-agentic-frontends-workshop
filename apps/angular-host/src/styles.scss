@@ -1,24 +1,24 @@
 @import '@copilotkit/angular/styles.css';
 
-app-chat copilot-chat-view-scroll-view > div {
+:is(app-chat, .chat-container) copilot-chat-view-scroll-view > div {
   height: 100% !important;
 }
 
-app-chat copilot-chat-view .copilotKitChat > copilot-slot {
+:is(app-chat, .chat-container) copilot-chat-view .copilotKitChat > copilot-slot {
   display: block;
   flex: 0 0 auto;
 }
 
-app-chat copilot-chat-view-input-container > div {
+:is(app-chat, .chat-container) copilot-chat-view-input-container > div {
   position: static !important;
 }
 
-app-chat copilot-chat-view-feather {
+:is(app-chat, .chat-container) copilot-chat-view-feather {
   display: none;
 }
 
 // Give prompts the full width; keep CopilotKit's controls on the row below.
-app-chat copilot-chat-input [data-layout='compact'] {
+:is(app-chat, .chat-container) copilot-chat-input [data-layout='compact'] {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 
