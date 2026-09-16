@@ -1,6 +1,6 @@
 # Milestone 5 — four frontend tools
 
-**Start:** `webinar-04`. **Completed:** `webinar-05`, checked out in
+**Start:** `webinar-04`. **Completed:** `webinar-05`. Rehearse with `git switch webinar-04` in
 `packt-webinar-02`.
 
 The completed chapter follows the presenter's four-tool implementation:
@@ -39,7 +39,7 @@ tool is included, so metric IDs must be supplied explicitly or already confirmed
 - [Step-by-step speaker notes](speaker-notes/05-frontend-tools.md)
 - [Demo prompts](demo-prompts.md#05--frontend-tools)
 - Presenter desk: http://localhost:4400/#05/0
-- Recovery: `pnpm webinar:select 05`; starting state: `pnpm webinar:select 04`
+- Recovery: `git switch webinar-05`; starting state: `git switch webinar-04`
 
 Use these notes and checkpoints instead of the older `workshop/solutions/05`
 adapter implementation. The original milestone branches remain unchanged.
