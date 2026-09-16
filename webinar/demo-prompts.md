@@ -4,7 +4,7 @@
 
 Type these questions into the application chat after completing the named milestone. These are demo inputs; the agent instruction prompts live in the source files listed in the presenter guide.
 
-Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Selecting a checkpoint changes code only, not conversations, stored readings or alarms.
+Follow the numbered order within each milestone; optional entries can be skipped. Before changing milestones, restart affected services, reload the app and start a fresh conversation. Use git switch webinar-01 through webinar-08; save rehearsal edits before switching. Switching branches does not reset conversations, stored readings or alarms.
 
 Rehearse against your configured model before the workshop. The expected results below are acceptance criteria checked against the code, not a record of successful live model runs. If a request fails, inspect the tool call or trace rather than treating a confident chat reply as evidence.
 
@@ -173,6 +173,74 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 **Expected:** The alarm appears in Snapshot. The audit records approved, executed and the created alarm ID; the assistant confirms the returned outcome. A failed execution must be reported as a failure.
 
 **Show and explain:** Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.
+
+## 07 — Query the historian
+
+[Speaker notes](speaker-notes/07-historian.md)
+
+### 1. Read historical measurements
+
+**Before:** Complete chapter 07, wait for Mastra and Angular to reload and start a fresh Angular conversation on 4200. Keep backend 3101 running and open the AG-UI Chrome extension.
+
+> Show the latest ten air-temperature readings from the Cooling room.
+
+**Expected:** Calls query_historian once with the whole question. Successful stored readings open in the Historian result grid. The assistant receives a completion receipt, not the row values.
+
+**Show and explain:** Show the question-only tool input and the full tool result in AG-UI. In Studio on 4212, inspect the registered workflow and the Angular request trace: generate SQL, semantic review, deterministic validation/execution.
+
+### 2. Select the stored maximum rows
+
+**Before:** Keep the same conversation and the historian grid visible. Use existing stored readings; selecting a checkpoint does not reset them.
+
+> Show the highest air-temperature reading for each shift manager.
+
+**Expected:** Returns complete stored reading rows for the maxima, including manager and timestamp, using the same fixed table. The previous historian result is filtered out of later model input.
+
+**Show and explain:** Compare SQL, returned rows and the grid. Show toModelOutput and ToolCallFilter: Angular retains full results while the main model gets only the receipt. Switch to Snapshot and back to Historian result to show result retention.
+
+### 3. Expose the fixed-table limit
+
+**Before:** Keep the fixed result grid visible. This checkpoint does not support aggregate result shapes.
+
+> What is the average air temperature in the Cooling room?
+
+**Expected:** Explains that averages are unsupported in this chapter. The assistant may decline without calling a tool; if it calls the workflow, an unsupported aggregate must not be executed as a successful grid result.
+
+**Show and explain:** Explain that model refusal alone does not prove SQL validation. Show the prepared backend policy or local tests for that boundary. Use this limitation to introduce A2UI in webinar 08.
+
+## 08 — Compose views with A2UI
+
+[Speaker notes](speaker-notes/08-a2ui.md)
+
+### 1. Display aggregate data in a generated table
+
+**Before:** Complete chapter 08, restart pnpm dev:backend, wait for Angular and Mastra reload and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension.
+
+> Show a table of the average air temperature for each room. Include only the room name and average temperature.
+
+**Expected:** Calls query_historian with the complete request, obtains aggregate data and displays an A2UI table using the requested columns. The same widget also appears in chat; this is accepted for the webinar.
+
+**Show and explain:** Inspect SQL, returned values and A2UI activity. Show the prepared catalog and compare the generated table with chapter seven’s fixed reading grid. The assistant receives a receipt, not row values.
+
+### 2. Choose columns without editing Angular
+
+**Before:** Keep the same conversation and the main generated view visible. The previous result payload is filtered before another request reaches Mastra.
+
+> Show the latest ten air-temperature readings from the Cooling room in a table with only time, temperature and shift manager.
+
+**Expected:** The generated table contains the requested columns and stored reading values without a template change. No second display tool is needed.
+
+**Show and explain:** Compare query rows, component configuration and rendered cells. Show HistorianBridge, toModelOutput and ToolCallFilter as the prepared result-handling boundaries.
+
+### 3. Compose repeated cards and tables
+
+**Before:** Use the same Angular conversation. Open Mastra Studio on 4212 for the Angular request trace. Ask explicitly for cards and tables to select the UI branch.
+
+> Show one card per room, with a table of its latest five air-temperature readings. Include time and temperature.
+
+**Expected:** Composes room cards with tables bound to real data. The main area and chat both render the widget. Verify the result rather than relying on the assistant’s acknowledgement.
+
+**Show and explain:** Show select-result-format and generate-a2ui in Studio, plus AG-UI activity. The format agent receives metadata; the composer receives the question and columns, while application code binds the actual rows.
 
 ## Later milestones
 

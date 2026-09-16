@@ -121,5 +121,57 @@
       "inspect": "Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.",
       "optional": false
     }
+  ],
+  "07": [
+    {
+      "title": "Read historical measurements",
+      "prompt": "Show the latest ten air-temperature readings from the Cooling room.",
+      "before": "Complete chapter 07, wait for Mastra and Angular to reload and start a fresh Angular conversation on 4200. Keep backend 3101 running and open the AG-UI Chrome extension.",
+      "expected": "Calls query_historian once with the whole question. Successful stored readings open in the Historian result grid. The assistant receives a completion receipt, not the row values.",
+      "inspect": "Show the question-only tool input and the full tool result in AG-UI. In Studio on 4212, inspect the registered workflow and the Angular request trace: generate SQL, semantic review, deterministic validation/execution.",
+      "optional": false
+    },
+    {
+      "title": "Select the stored maximum rows",
+      "prompt": "Show the highest air-temperature reading for each shift manager.",
+      "before": "Keep the same conversation and the historian grid visible. Use existing stored readings; selecting a checkpoint does not reset them.",
+      "expected": "Returns complete stored reading rows for the maxima, including manager and timestamp, using the same fixed table. The previous historian result is filtered out of later model input.",
+      "inspect": "Compare SQL, returned rows and the grid. Show toModelOutput and ToolCallFilter: Angular retains full results while the main model gets only the receipt. Switch to Snapshot and back to Historian result to show result retention.",
+      "optional": false
+    },
+    {
+      "title": "Expose the fixed-table limit",
+      "prompt": "What is the average air temperature in the Cooling room?",
+      "before": "Keep the fixed result grid visible. This checkpoint does not support aggregate result shapes.",
+      "expected": "Explains that averages are unsupported in this chapter. The assistant may decline without calling a tool; if it calls the workflow, an unsupported aggregate must not be executed as a successful grid result.",
+      "inspect": "Explain that model refusal alone does not prove SQL validation. Show the prepared backend policy or local tests for that boundary. Use this limitation to introduce A2UI in webinar 08.",
+      "optional": false
+    }
+  ],
+  "08": [
+    {
+      "title": "Display aggregate data in a generated table",
+      "prompt": "Show a table of the average air temperature for each room. Include only the room name and average temperature.",
+      "before": "Complete chapter 08, restart pnpm dev:backend, wait for Angular and Mastra reload and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension.",
+      "expected": "Calls query_historian with the complete request, obtains aggregate data and displays an A2UI table using the requested columns. The same widget also appears in chat; this is accepted for the webinar.",
+      "inspect": "Inspect SQL, returned values and A2UI activity. Show the prepared catalog and compare the generated table with chapter seven\u2019s fixed reading grid. The assistant receives a receipt, not row values.",
+      "optional": false
+    },
+    {
+      "title": "Choose columns without editing Angular",
+      "prompt": "Show the latest ten air-temperature readings from the Cooling room in a table with only time, temperature and shift manager.",
+      "before": "Keep the same conversation and the main generated view visible. The previous result payload is filtered before another request reaches Mastra.",
+      "expected": "The generated table contains the requested columns and stored reading values without a template change. No second display tool is needed.",
+      "inspect": "Compare query rows, component configuration and rendered cells. Show HistorianBridge, toModelOutput and ToolCallFilter as the prepared result-handling boundaries.",
+      "optional": false
+    },
+    {
+      "title": "Compose repeated cards and tables",
+      "prompt": "Show one card per room, with a table of its latest five air-temperature readings. Include time and temperature.",
+      "before": "Use the same Angular conversation. Open Mastra Studio on 4212 for the Angular request trace. Ask explicitly for cards and tables to select the UI branch.",
+      "expected": "Composes room cards with tables bound to real data. The main area and chat both render the widget. Verify the result rather than relying on the assistant\u2019s acknowledgement.",
+      "inspect": "Show select-result-format and generate-a2ui in Studio, plus AG-UI activity. The format agent receives metadata; the composer receives the question and columns, while application code binds the actual rows.",
+      "optional": false
+    }
   ]
 }
