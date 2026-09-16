@@ -1,8 +1,8 @@
 # 01 — Webinar starting state
 
-**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.
+**Branch:** `webinar-01`. **Folder:** `packt-webinar-02`.
 **Next checkpoint:** `webinar-02`, the end of chapter 2.
-**Start:** `pnpm webinar:select 01`, then `pnpm dev`.
+**Start:** `git switch webinar-01`, then `pnpm dev`.
 Open the Angular app at http://localhost:4200. Backend: http://localhost:3101.
 This branch has its own private `.env`; keep it off screen. Its environment checks
 require the configured key and model even before chat is connected.
@@ -30,6 +30,12 @@ an existing Angular component to a model through our backend.”
 
 ## Recovery
 
-Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.
-The selector backs up and replaces the checkpoint files. It never resets
-readings or alarms. Existing milestone branches and `workshop/solutions` are separate.
+Run `git switch webinar-01` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and reload
+the application. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.

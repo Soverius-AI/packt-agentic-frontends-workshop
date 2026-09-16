@@ -1,8 +1,8 @@
 # 03 — Replace Basic Chat with CopilotKit and AG-UI
 
 **Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.
-**Current worktree:** `packt-webinar-02` now has branch `webinar-03` checked out.
-**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.
+**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.
+**Completed checkpoint:** `git switch webinar-03`. Rehearse from `webinar-02`.
 The `.chat-container` styles, packages, system prompt and Angular proxy are prepared.
 The CSS is committed in both webinar-01 and webinar-02; do not write CSS live.
 
@@ -73,11 +73,12 @@ Mastra while keeping the CopilotKit chat interface.”
 
 ## Recovery
 
-Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.
-Check http://localhost:3101/api/copilotkit/info for the `default` agent.
-A 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.
-Mastra is not needed for this chapter. Keep credentials off screen.
-The selector restores all nine checkpoint paths, including file creation and
-removal. It backs up current files and records which paths were absent.
-To rehearse the previous chapter in this worktree, select 02 and restart the backend;
-select 03 to return. These commands change files, not the checked-out Git branch.
+Run `git switch webinar-03` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-02`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start
+a fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.
