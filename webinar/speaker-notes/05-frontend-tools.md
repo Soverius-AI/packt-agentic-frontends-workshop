@@ -1,7 +1,7 @@
 # 05 — Give the agent four Angular tools
 
 **Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-07`.
+**Current worktree:** `packt-webinar-02`, branch `webinar-08`.
 **Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,
 then start a fresh conversation. If selecting from an earlier backend chapter,
 restart `pnpm dev:backend` too.
@@ -99,7 +99,7 @@ through the historian comes afterwards, in webinar 07.”
 ## Recovery
 
 Run `pnpm webinar:select 05` in this worktree and reload Angular after its build
-and Mastra's reload finish. The selector restores thirteen implementation paths,
+and Mastra's reload finish. The selector restores fourteen implementation paths,
 including the completed frontend registrations and Mastra prompt import. Shared
 schemas, prompt text and layout support remain prepared. It backs up current files
 and does not switch branches or reset data. Use `pnpm webinar:select 04` to rehearse

@@ -1,7 +1,7 @@
 # 03 — Replace Basic Chat with CopilotKit and AG-UI
 
 **Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.
-**Current worktree:** `packt-webinar-02` now has branch `webinar-07` checked out; select 03 to rehearse this chapter.
+**Current worktree:** `packt-webinar-02` now has branch `webinar-08` checked out; select 03 to rehearse this chapter.
 **Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.
 The `.chat-container` styles, packages, system prompt and Angular proxy are prepared.
 The CSS is committed in both webinar-01 and webinar-02; do not write CSS live.
@@ -77,7 +77,7 @@ Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.
 Check http://localhost:3101/api/copilotkit/info for the `default` agent.
 A 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.
 Mastra is not needed for this chapter. Keep credentials off screen.
-The selector restores all thirteen checkpoint paths, including the empty Mastra starting state, including file creation and
+The selector restores all fourteen checkpoint paths, including the empty Mastra starting state, including file creation and
 removal. It backs up current files and records which paths were absent.
 To rehearse the previous chapter in this worktree, select 02 and restart the backend;
 select 03 to return. These commands change files, not the checked-out Git branch.

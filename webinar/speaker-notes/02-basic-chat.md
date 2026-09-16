@@ -2,7 +2,7 @@
 
 **Start branch:** `webinar-01` in `packt-webinar-zero`.
 **Completed branch:** `webinar-02` (end of chapter 2).
-The `packt-webinar-02` worktree now uses branch `webinar-07`; select state 02
+The `packt-webinar-02` worktree now uses branch `webinar-08`; select state 02
 there to rehearse this chapter without switching branches.
 **In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.
 The component, Angular imports, API response adapter, environment setup, types,
@@ -54,8 +54,7 @@ connection to current facility readings, filters or actions.”
 
 “The model can converse. Its next capabilities will need explicit connections.”
 The next chapter will start from `webinar-02` and end at `webinar-03`.
-`webinar-03` through `webinar-07` are prepared. Branch `webinar-08` will be created
-as we prepare those chapters. The selector currently supports 01, 02, 03, 04 and 05. Existing milestone
+`webinar-03` through `webinar-08` are prepared. The selector supports 01–08. Existing milestone
 branches and their solutions remain separate.
 
 ## Recovery

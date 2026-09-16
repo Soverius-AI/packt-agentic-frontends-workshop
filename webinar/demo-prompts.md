@@ -208,6 +208,40 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Explain that model refusal alone does not prove SQL validation. Show the prepared backend policy or local tests for that boundary. Use this limitation to introduce A2UI in webinar 08.
 
+## 08 — Compose views with A2UI
+
+[Speaker notes](speaker-notes/08-a2ui.md)
+
+### 1. Display aggregate data in a generated table
+
+**Before:** Complete chapter 08, restart pnpm dev:backend, wait for Angular and Mastra reload and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension.
+
+> Show a table of the average air temperature for each room. Include only the room name and average temperature.
+
+**Expected:** Calls query_historian with the complete request, obtains aggregate data and displays an A2UI table using the requested columns. The same widget also appears in chat; this is accepted for the webinar.
+
+**Show and explain:** Inspect SQL, returned values and A2UI activity. Show the prepared catalog and compare the generated table with chapter seven’s fixed reading grid. The assistant receives a receipt, not row values.
+
+### 2. Choose columns without editing Angular
+
+**Before:** Keep the same conversation and the main generated view visible. The previous result payload is filtered before another request reaches Mastra.
+
+> Show the latest ten air-temperature readings from the Cooling room in a table with only time, temperature and shift manager.
+
+**Expected:** The generated table contains the requested columns and stored reading values without a template change. No second display tool is needed.
+
+**Show and explain:** Compare query rows, component configuration and rendered cells. Show HistorianBridge, toModelOutput and ToolCallFilter as the prepared result-handling boundaries.
+
+### 3. Compose repeated cards and tables
+
+**Before:** Use the same Angular conversation. Open Mastra Studio on 4212 for the Angular request trace. Ask explicitly for cards and tables to select the UI branch.
+
+> Show one card per room, with a table of its latest five air-temperature readings. Include time and temperature.
+
+**Expected:** Composes room cards with tables bound to real data. The main area and chat both render the widget. Verify the result rather than relying on the assistant’s acknowledgement.
+
+**Show and explain:** Show select-result-format and generate-a2ui in Studio, plus AG-UI activity. The format agent receives metadata; the composer receives the question and columns, while application code binds the actual rows.
+
 ## Later milestones
 
 A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.

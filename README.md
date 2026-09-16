@@ -1,27 +1,22 @@
 # Webinar — chapter branches
 
-## Chapter 8 in progress
+## Completed chapter 8
 
-The working branch is `webinar-08`, based on the completed chapter 7 below.
-The A2UI prompt and [implementation guide](webinar/milestone-08.md) are prepared.
-The presenter writes the connections; the completed recovery checkpoints remain
-01–07 until the implementation is finished. See the [speaker walkthrough](webinar/speaker-notes/08-a2ui.md).
+All eight webinar checkpoints are saved. Chapter 8 connects the prepared A2UI
+composition workflow, dataset historian service, runtime bridge and Angular catalog.
+The workflow can render aggregate results and requested Table/Card/Text layouts.
+Frontend tools and human approval remain available in the cumulative application.
 
-## Completed chapter 7
+The generated widget currently appears in both the main area and the chat. That
+behavior is accepted for this webinar; suppressing the chat widget is deferred.
 
-The historian workflow and query_historian tool are connected. Mastra index.ts
-creates the workflow and tool, registers the workflow for Studio, and passes the
-tool to the main agent. Angular reads the completed tool result into the existing
-Historian result grid. The model receives a short receipt; previous historian
-results are filtered out of later model requests. Human approval remains available.
-
-See the [implementation guide](webinar/milestone-07.md),
-[speaker notes](webinar/speaker-notes/07-historian.md) and
-[verification record](webinar/verification-07.md).
+See the [implementation guide](webinar/milestone-08.md),
+[speaker notes](webinar/speaker-notes/08-a2ui.md) and
+[verification record](webinar/verification-08.md).
 
 Earlier checkpoints retain Basic Chat (02), CopilotKit and AG-UI (03), Mastra and
-Studio (04), frontend tools (05), and alarm approval (06). Original milestone
-branches remain unchanged.
+Studio (04), frontend tools (05), alarm approval (06), and the fixed historian grid
+(07). Original milestone branches remain unchanged.
 
 ## Chapter checkpoints
 
@@ -34,10 +29,11 @@ branches remain unchanged.
 | `webinar-05` | Four frontend tools                | Git checkpoint       |
 | `webinar-06` | Raise an alarm with human approval | Git checkpoint       |
 | `webinar-07` | Query the historian                | Git checkpoint       |
+| `webinar-08` | Compose views with A2UI            | `packt-webinar-02`   |
 
-The existing `packt-webinar-02` directory has **webinar-08** checked out for preparation,
+The existing `packt-webinar-02` directory has **webinar-08** checked out,
 so your editor and terminals keep their paths. Each branch includes the earlier
-chapters. Branch 08 is in progress. The original
+chapters. All eight webinar branches are complete. The original
 milestone branches remain separate and unchanged.
 
 ### Webinar order
@@ -58,7 +54,7 @@ or rejects the proposal. The dedicated `webinar-06.ts` prompt matches our curren
 not advertise historian access or reactive context.
 
 Chapter 7 adds the historian while retaining the approval flow. Both chapters
-are saved locally; chapter 08 is in progress.
+are saved locally; chapter 08 adds A2UI composition.
 
 Chapter 5 adds four registrations in `app.ts` and selects the prepared `main-05`
 prompt in Mastra's `agent.ts`. The checkpoint also restores streaming-scroll
@@ -67,7 +63,7 @@ branch. Input descriptions and prompt text are prepared support files.
 
 ## Start here
 
-Use **packt-webinar-02**, branch **webinar-08**, initially with chapter-seven behavior. Keep `OPENROUTER_API_KEY` and
+Use **packt-webinar-02**, branch **webinar-08**. Keep `OPENROUTER_API_KEY` and
 `OPENROUTER_MODEL` in the private, ignored `.env`; Mastra reads them in chapter 4.
 
 ```sh
@@ -101,20 +97,22 @@ pnpm webinar:select 04
 pnpm webinar:select 05
 pnpm webinar:select 06
 pnpm webinar:select 07
+pnpm webinar:select 08
 ```
 
-Open http://localhost:4400. The presenter desk covers chapters 01–07 with exact
+Open http://localhost:4400. The presenter desk covers chapters 01–08 with exact
 code differences, demo prompts and recovery commands. Chapter 3 explicitly reminds
 you to show the AG-UI Chrome extension again. Chapter 4 requires showing Mastra
 Studio, trying the agent there, and inspecting the trace from an Angular request.
 
-The selector restores thirteen paths, including the chapter-6 and chapter-7 prompts, and
+The selector restores fourteen paths, including the chapter-6, chapter-7 and chapter-8 prompts, and
 backs up current files plus an absence list in ignored `.webinar-backups/`.
 Selecting 03 empties the agent and restores `agents: {}`; selecting 04 restores
 the chapter-4 implementation; selecting 05 restores the four frontend tools
 and removes the chapter-6 prompt; selecting 06 restores metric discovery and
 human approval; selecting 07 also connects the historian workflow, tool and result
-store. It changes files, not Git branches or databases. Restart the
+store; selecting 08 enables A2UI and the dataset backend. It changes files, not
+Git branches or databases. Restart the
 backend, wait for Mastra to reload, then reload Angular after selecting a state.
 
 - [Starting-state speaker notes](webinar/speaker-notes/01-start.md)
@@ -124,6 +122,8 @@ backend, wait for Mastra to reload, then reload Angular after selecting a state.
 - [Frontend tools speaker notes](webinar/speaker-notes/05-frontend-tools.md)
 - [Alarm approval speaker notes](webinar/speaker-notes/06-alarm-approval.md)
 - [Historian speaker notes](webinar/speaker-notes/07-historian.md)
+- [A2UI speaker notes](webinar/speaker-notes/08-a2ui.md)
+- [Chapter 8 verification](webinar/verification-08.md)
 - [Chapter 7 verification](webinar/verification-07.md)
 - [Chapter 6 verification](webinar/verification-06.md)
 - [Demo prompts](webinar/demo-prompts.md)

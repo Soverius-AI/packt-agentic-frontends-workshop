@@ -67,7 +67,7 @@ test("prepared server preserves facility data, Copilot routing and approval beha
       },
     );
     await t.test(
-      "04 exposes the real Mastra adapter without calling a model",
+      "runtime exposes a supported Mastra adapter without calling a model",
       async () => {
         process.env.COPILOTKIT_TELEMETRY_DISABLED = "true";
         const { createChatClient } =
@@ -83,7 +83,15 @@ test("prepared server preserves facility data, Copilot routing and approval beha
           new URL("../apps/facility-service/package.json", import.meta.url),
         );
         const { MastraAgent } = require("@ag-ui/mastra");
-        assert.equal(info.agents.default.className, MastraAgent.name);
+        const { HistorianBridge } =
+          await import("../apps/facility-service/dist/copilot-runtime.js");
+        assert.ok(HistorianBridge.prototype instanceof MastraAgent);
+        assert.ok(
+          [MastraAgent.name, HistorianBridge.name].includes(
+            info.agents.default.className,
+          ),
+          `Unexpected adapter: ${info.agents.default.className}`,
+        );
       },
     );
     await t.test(

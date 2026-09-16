@@ -89,7 +89,7 @@ Next, A2UI lets the application render other result shapes using trusted compone
 
 ## Recovery
 
-Run `pnpm webinar:select 07` to restore the completed thirteen implementation paths.
+Run `pnpm webinar:select 07` to restore the completed fourteen implementation paths.
 Use `pnpm webinar:select 06` to rehearse: it restores alarm approval without the
 historian connections and removes webinar-07.ts. The chapter-seven prompt can be
 copied from the presenter Code changes section when you reconnect it.

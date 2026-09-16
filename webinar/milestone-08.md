@@ -1,7 +1,7 @@
 # Webinar 08 — Connect A2UI
 
-**Start:** completed webinar-07. **Working branch:** webinar-08.
-**Status:** Prepared prompt and walkthrough; live connections and recovery snapshot pending.
+**Start:** webinar-07. **Completed:** webinar-08.
+**Recovery:** `pnpm webinar:select 08`; use 07 to rehearse.
 **Worktree:** /Users/rainerh/programming/packt-webinar-02.
 
 Chapter 7 selected records for a fixed grid. Chapter 8 can query aggregate datasets
@@ -24,6 +24,8 @@ format selection and optional A2UI composition.
 
 ## 2. Select the prepared prompt
 
+Copy the prepared webinar-08.ts from the presenter Code changes section into
+apps/agent-service/src/mastra/prompts/webinar-08.ts when rehearsing from 07.
 In apps/agent-service/src/mastra/agents/main/agent.ts:
 
 ```ts
@@ -127,6 +129,17 @@ binds the real data to its layout.
 
 [Speaker walkthrough](speaker-notes/08-a2ui.md).
 
-After these connections and the live check, save the completed webinar-08
-checkpoint, demo prompts and presenter snapshots. Until then the presenter and
-selector cover completed chapters 01–07; select 08 is not available yet.
+## Accepted chat rendering
+
+The generated widget is displayed in both chat and the main area. This behavior
+is intentionally retained for this webinar; do not register the prepared
+registerGeneratedViewNotice helper. Suppressing the chat widget is deferred.
+
+## Recovery and verification
+
+The completed presenter and selector cover chapters 01–08. Use
+`pnpm webinar:select 08` to restore this implementation or 07 to rehearse.
+Restart `pnpm dev:backend` after either selection so the correct historian service
+and runtime are rebuilt. Stored facility data and Git branches are unchanged.
+
+[Verification record](verification-08.md).

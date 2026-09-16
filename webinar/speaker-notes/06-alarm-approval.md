@@ -1,7 +1,7 @@
 # 06 — Raise an alarm with human approval
 
 **Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-07`.
+**Current worktree:** `packt-webinar-02`, branch `webinar-08`.
 **Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.
 **Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,
 presenter desk 4400. Use `pnpm dev:all` for the four application services.
@@ -97,7 +97,7 @@ flow stays in place.”
 
 ## Recovery
 
-Run `pnpm webinar:select 06` to restore the completed thirteen implementation paths,
+Run `pnpm webinar:select 06` to restore the completed fourteen implementation paths,
 including the chapter-specific prompt. Use `pnpm webinar:select 05` to rehearse;
 that removes webinar-06.ts and restores the main-05 import and the four tools.
 The selector backs up current files in .webinar-backups and changes neither Git
