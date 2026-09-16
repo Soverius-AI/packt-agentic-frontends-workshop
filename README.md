@@ -1,5 +1,14 @@
 # Webinar — chapter branches
 
+## Chapter 7 in progress
+
+The working branch is now `webinar-07` in `packt-webinar-02`. It starts from the
+completed chapter 6 below. The historian prompt and [live implementation guide](webinar/milestone-07.md)
+are prepared; the presenter still writes the workflow, tool and result-store
+connections. See the [chapter 7 speaker walkthrough](webinar/speaker-notes/07-historian.md).
+The completed presenter/recovery checkpoints remain 01–06 until those connections
+are finished and verified. `pnpm webinar:select 07` is not available yet.
+
 ## Completed chapter 6
 
 The presenter adds metric discovery and connects `raise_alarm` to the prepared
@@ -22,9 +31,9 @@ remain unchanged.
 | `webinar-05` | Four frontend tools                | Git checkpoint       |
 | `webinar-06` | Raise an alarm with human approval | `packt-webinar-02`   |
 
-The existing `packt-webinar-02` directory now has **webinar-06** checked out,
+The existing `packt-webinar-02` directory has **webinar-07** checked out for preparation,
 so your editor and terminals keep their paths. Each branch includes the earlier
-chapters. Branches 07–08 will be created when those chapters are ready. The original
+chapters. Branch 07 is in progress; branch 08 will be created when that chapter is ready. The original
 milestone branches remain separate and unchanged.
 
 ### Webinar order
@@ -45,7 +54,7 @@ or rejects the proposal. The dedicated `webinar-06.ts` prompt matches our curren
 not advertise historian access or reactive context.
 
 Chapter 6 is saved locally. Chapter 7 then adds the historian while retaining
-the approval flow; chapters 07 and 08 remain planned checkpoints.
+the approval flow; chapter 07 is in progress and chapter 08 remains planned.
 
 Chapter 5 adds four registrations in `app.ts` and selects the prepared `main-05`
 prompt in Mastra's `agent.ts`. The checkpoint also restores streaming-scroll
@@ -54,7 +63,7 @@ branch. Input descriptions and prompt text are prepared support files.
 
 ## Start here
 
-Use **packt-webinar-02**, branch **webinar-06**. Keep `OPENROUTER_API_KEY` and
+Use **packt-webinar-02**, branch **webinar-07**, starting from chapter-six behavior. Keep `OPENROUTER_API_KEY` and
 `OPENROUTER_MODEL` in the private, ignored `.env`; Mastra reads them in chapter 4.
 
 ```sh
