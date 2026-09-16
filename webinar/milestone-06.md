@@ -25,5 +25,5 @@ an explicit operator request; the operator approves or rejects it.
 - [Verification](verification-06.md)
 - Presenter desk: http://localhost:4400/#06/0
 
-Use `pnpm webinar:select 05` to rehearse and `pnpm webinar:select 06` to recover.
+Use `git switch webinar-05` to rehearse and `git switch webinar-06` to recover.
 These commands restore files, not Git branches or database state.

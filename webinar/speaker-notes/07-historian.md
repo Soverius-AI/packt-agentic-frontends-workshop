@@ -2,7 +2,7 @@
 
 **Status:** Completed chapter, with saved code and recovery snapshot.
 **Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.
-**Recovery:** `pnpm webinar:select 07`; select 06 to rehearse.
+**Completed checkpoint:** `git switch webinar-07`. Rehearse from `webinar-06`.
 **Worktree:** /Users/rainerh/programming/packt-webinar-02.
 **Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.
 Original milestone 6 is taught here, after human approval. Keep all frontend tools
@@ -89,11 +89,12 @@ Next, A2UI lets the application render other result shapes using trusted compone
 
 ## Recovery
 
-Run `pnpm webinar:select 07` to restore the completed thirteen implementation paths.
-Use `pnpm webinar:select 06` to rehearse: it restores alarm approval without the
-historian connections and removes webinar-07.ts. The chapter-seven prompt can be
-copied from the presenter Code changes section when you reconnect it.
-The selector backs up edited files and changes neither Git branches nor stored
-readings, alarms, audit entries or conversations. Wait for Angular and Mastra to
-reload, then start a fresh conversation. Restart the backend launcher only when
-recovering from an earlier chapter with different backend code. Keep keys off screen.
+Run `git switch webinar-07` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-06`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start
+a fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.

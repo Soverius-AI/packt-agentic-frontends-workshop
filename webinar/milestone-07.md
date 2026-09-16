@@ -1,7 +1,7 @@
 # Webinar 07 — Historian connections to write live
 
 **Start:** webinar-06. **Completed:** webinar-07.
-**Recovery:** `pnpm webinar:select 07`; use 06 to rehearse.
+**Recovery:** `git switch webinar-07`; use 06 to rehearse.
 **Worktree:** /Users/rainerh/programming/packt-webinar-02.
 
 The workflow, generator/reviewer agents, tool adapter, backend SQL validation,
@@ -126,7 +126,6 @@ Do not reset the demo database just to connect this chapter.
 [Speaker walkthrough](speaker-notes/07-historian.md).
 
 The completed checkpoint includes the three application files and chapter-seven
-prompt. Recover with `pnpm webinar:select 07`, or use 06 to rehearse. The selector
-changes thirteen paths and preserves database state and Git branches.
+prompt. Recover with `git switch webinar-07`, or use 06 to rehearse. Save rehearsal edits before switching branches. Stored facility data is preserved.
 
 [Verification record](verification-07.md).

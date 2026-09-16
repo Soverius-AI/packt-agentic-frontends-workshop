@@ -1,10 +1,8 @@
 # 05 — Give the agent four Angular tools
 
 **Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-07`.
-**Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,
-then start a fresh conversation. If selecting from an earlier backend chapter,
-restart `pnpm dev:backend` too.
+**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.
+**Completed checkpoint:** `git switch webinar-05`. Rehearse from `webinar-04`.
 **Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,
 presenter desk 4400. Use `pnpm dev:all` to start the four application services.
 The UI methods, filter schemas and `main-05` prompt are prepared. The chat layout
@@ -98,9 +96,12 @@ through the historian comes afterwards, in webinar 07.”
 
 ## Recovery
 
-Run `pnpm webinar:select 05` in this worktree and reload Angular after its build
-and Mastra's reload finish. The selector restores thirteen implementation paths,
-including the completed frontend registrations and Mastra prompt import. Shared
-schemas, prompt text and layout support remain prepared. It backs up current files
-and does not switch branches or reset data. Use `pnpm webinar:select 04` to rehearse
-adding the tools again. Keep API keys off screen.
+Run `git switch webinar-05` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-04`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start
+a fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.

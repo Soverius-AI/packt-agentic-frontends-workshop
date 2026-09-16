@@ -1,8 +1,8 @@
 # 06 — Raise an alarm with human approval
 
 **Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-07`.
-**Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.
+**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.
+**Completed checkpoint:** `git switch webinar-06`. Rehearse from `webinar-05`.
 **Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,
 presenter desk 4400. Use `pnpm dev:all` for the four application services.
 This chapter brings original milestone 7 forward. Historian queries follow in
@@ -97,10 +97,12 @@ flow stays in place.”
 
 ## Recovery
 
-Run `pnpm webinar:select 06` to restore the completed thirteen implementation paths,
-including the chapter-specific prompt. Use `pnpm webinar:select 05` to rehearse;
-that removes webinar-06.ts and restores the main-05 import and the four tools.
-The selector backs up current files in .webinar-backups and changes neither Git
-branches nor stored alarms, audit records or conversations. Angular and Mastra
-watch source changes. Restart the backend launcher when recovering from an earlier
-chapter that changes backend code, then reload Angular and start a fresh chat.
+Run `git switch webinar-06` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-05`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start
+a fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.

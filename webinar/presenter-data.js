@@ -6,12 +6,12 @@ window.workshopPresenter = {
       name: "Webinar starting state",
       source: "webinar/speaker-notes/01-start.md",
       intro:
-        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+        "**Branch:** `webinar-01`. **Folder:** `packt-webinar-02`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `git switch webinar-01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-zero`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `pnpm webinar:select 01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
+          body: "**Branch:** `webinar-01`. **Folder:** `packt-webinar-02`.\n**Next checkpoint:** `webinar-02`, the end of chapter 2.\n**Start:** `git switch webinar-01`, then `pnpm dev`.\nOpen the Angular app at http://localhost:4200. Backend: http://localhost:3101.\nThis branch has its own private `.env`; keep it off screen. Its environment checks\nrequire the configured key and model even before chat is connected.",
         },
         {
           label: "EXPLAIN",
@@ -41,7 +41,7 @@ window.workshopPresenter = {
       ],
       prompts: [],
       recovery:
-        "Run `pnpm webinar:select 01`, restart the backend launcher and reload the app.\nThe selector backs up and replaces the checkpoint files. It never resets\nreadings or alarms. Existing milestone branches and `workshop/solutions` are separate.",
+        'Run `git switch webinar-01` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and reload\nthe application. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [],
       flow: ["Angular controls", "Facility API", "SQLite"],
     },
@@ -50,12 +50,12 @@ window.workshopPresenter = {
       name: "Basic Chat — completed",
       source: "webinar/speaker-notes/02-basic-chat.md",
       intro:
-        "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-07`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+        "**Start branch:** `webinar-01` in `packt-webinar-02`.\n**Completed branch:** `webinar-02` (end of chapter 2).\n**Completed checkpoint:** `git switch webinar-02`. Rehearse from `webinar-01`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-01` in `packt-webinar-zero`.\n**Completed branch:** `webinar-02` (end of chapter 2).\nThe `packt-webinar-02` worktree now uses branch `webinar-07`; select state 02\nthere to rehearse this chapter without switching branches.\n**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
+          body: "**Start branch:** `webinar-01` in `packt-webinar-02`.\n**Completed branch:** `webinar-02` (end of chapter 2).\n**Completed checkpoint:** `git switch webinar-02`. Rehearse from `webinar-01`.\nThe component, Angular imports, API response adapter, environment setup, types,\nassertion helpers and system prompt are prepared. The live work is three files.",
         },
         {
           label: "EXPLAIN",
@@ -100,7 +100,7 @@ window.workshopPresenter = {
         {
           label: "TRANSITION",
           title: "Transition",
-          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` through `webinar-07` are prepared. Branch `webinar-08` will be created\nas we prepare those chapters. The selector currently supports 01, 02, 03, 04 and 05. Existing milestone\nbranches and their solutions remain separate.",
+          body: "“The model can converse. Its next capabilities will need explicit connections.”\nThe next chapter will start from `webinar-02` and end at `webinar-03`.\n`webinar-03` through `webinar-08` are prepared. Switch between the eight webinar branches in the same directory. Existing milestone\nbranches and their solutions remain separate.",
         },
       ],
       prompts: [
@@ -128,7 +128,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.\nIt restores the complete chapter 2 checkpoint, including its native chat endpoint. Before another rehearsal,\n`pnpm webinar:select 01` restores the starting state. No database reset is involved.\nFor an error, first check the terminal build result and `/api/chat` response. A\nworking dashboard does not prove that the model call succeeded.",
+        'Run `git switch webinar-02` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -159,12 +159,12 @@ window.workshopPresenter = {
       name: "CopilotKit and AG-UI",
       source: "webinar/speaker-notes/03-copilotkit.md",
       intro:
-        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-07` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+        "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-03`. Rehearse from `webinar-02`.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current worktree:** `packt-webinar-02` now has branch `webinar-07` checked out; select 03 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 03`, then restart the backend launcher.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
+          body: "**Start branch:** `webinar-02`. **Completed branch:** `webinar-03`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-03`. Rehearse from `webinar-02`.\nThe `.chat-container` styles, packages, system prompt and Angular proxy are prepared.\nThe CSS is committed in both webinar-01 and webinar-02; do not write CSS live.",
         },
         {
           label: "EXPLAIN",
@@ -262,7 +262,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 03`, restart the backend launcher and reload Angular.\nCheck http://localhost:3101/api/copilotkit/info for the `default` agent.\nA 404 from `/api/chat` is expected in chapter 3: that endpoint was removed.\nMastra is not needed for this chapter. Keep credentials off screen.\nThe selector restores all thirteen checkpoint paths, including the empty Mastra starting state, including file creation and\nremoval. It backs up current files and records which paths were absent.\nTo rehearse the previous chapter in this worktree, select 02 and restart the backend;\nselect 03 to return. These commands change files, not the checked-out Git branch.",
+        'Run `git switch webinar-03` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-02`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -333,12 +333,12 @@ window.workshopPresenter = {
       name: "Mastra agent and Studio",
       source: "webinar/speaker-notes/04-mastra.md",
       intro:
-        "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`; select 04 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+        "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-04`. Rehearse from `webinar-03`.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`; select 04 to rehearse this chapter.\n**Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
+          body: "**Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-04`. Rehearse from `webinar-03`.\nMastra, its shared libraries, environment loading, storage, tracing and Studio CORS\nare prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on\n4211 and Mastra Studio on 4212 with `pnpm dev:all`, or use the four individual scripts.\nBefore starting, stop any older instance using those ports.",
         },
         {
           label: "EXPLAIN",
@@ -431,7 +431,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 04`, restart the backend launcher, wait for Mastra to\nreload, and reload Angular. Check http://localhost:3101/api/copilotkit/info and\nhttp://localhost:4211/api/agents for `default`. Open Studio on 4212, not the API\nport 4211. API CORS for Studio and common-library builds are already prepared.\nKeep `.env` values and credentials off screen.\nThe selector covers thirteen paths, including the two Mastra source files. Selecting\n03 restores an empty agent file and `agents: {}`; selecting 04 restores this agent.\nIt backs up your current code but does not switch Git branches or reset databases.",
+        'Run `git switch webinar-04` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-03`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.\n\nCheck http://localhost:3101/api/copilotkit/info and http://localhost:4211/api/agents\nfor default. Show Studio on 4212. API CORS and common-library builds are prepared.',
       files: [
         {
           path: "apps/facility-service/src/create-copilot-runtime.ts",
@@ -469,12 +469,12 @@ window.workshopPresenter = {
       name: "Frontend tools",
       source: "webinar/speaker-notes/05-frontend-tools.md",
       intro:
-        "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`.\n**Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,\nthen start a fresh conversation. If selecting from an earlier backend chapter,\nrestart `pnpm dev:backend` too.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
+        "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-05`. Rehearse from `webinar-04`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`.\n**Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,\nthen start a fresh conversation. If selecting from an earlier backend chapter,\nrestart `pnpm dev:backend` too.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
+          body: "**Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-05`. Rehearse from `webinar-04`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` to start the four application services.\nThe UI methods, filter schemas and `main-05` prompt are prepared. The chat layout\nCSS is prepared across webinar-01 through webinar-05. This checkpoint also\nreconnects the existing streaming-scroll directive; that is support wiring,\nnot an additional agent concept to teach.",
         },
         {
           label: "EXPLAIN",
@@ -610,7 +610,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 05` in this worktree and reload Angular after its build\nand Mastra's reload finish. The selector restores thirteen implementation paths,\nincluding the completed frontend registrations and Mastra prompt import. Shared\nschemas, prompt text and layout support remain prepared. It backs up current files\nand does not switch branches or reset data. Use `pnpm webinar:select 04` to rehearse\nadding the tools again. Keep API keys off screen.",
+        'Run `git switch webinar-05` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-04`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.html",
@@ -641,12 +641,12 @@ window.workshopPresenter = {
       name: "Raise an alarm with human approval",
       source: "webinar/speaker-notes/06-alarm-approval.md",
       intro:
-        "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`.\n**Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
+        "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-06`. Rehearse from `webinar-05`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current worktree:** `packt-webinar-02`, branch `webinar-07`.\n**Recovery:** `pnpm webinar:select 06`. To rehearse the live changes, select 05.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
+          body: "**Start branch:** `webinar-05`. **Completed branch:** `webinar-06`.\n**Current directory:** `packt-webinar-02`; use the start branch above for rehearsal.\n**Completed checkpoint:** `git switch webinar-06`. Rehearse from `webinar-05`.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212,\npresenter desk 4400. Use `pnpm dev:all` for the four application services.\nThis chapter brings original milestone 7 forward. Historian queries follow in\nwebinar 07. The approval card, input schema, backend endpoint, audit table and\nrefresh subscription are already prepared. The presenter connects them.",
         },
         {
           label: "EXPLAIN",
@@ -757,7 +757,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 06` to restore the completed thirteen implementation paths,\nincluding the chapter-specific prompt. Use `pnpm webinar:select 05` to rehearse;\nthat removes webinar-06.ts and restores the main-05 import and the four tools.\nThe selector backs up current files in .webinar-backups and changes neither Git\nbranches nor stored alarms, audit records or conversations. Angular and Mastra\nwatch source changes. Restart the backend launcher when recovering from an earlier\nchapter that changes backend code, then reload Angular and start a fresh chat.",
+        'Run `git switch webinar-06` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-05`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.ts",
@@ -793,12 +793,12 @@ window.workshopPresenter = {
       name: "Query the historian",
       source: "webinar/speaker-notes/07-historian.md",
       intro:
-        "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Recovery:** `pnpm webinar:select 07`; select 06 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
+        "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Completed checkpoint:** `git switch webinar-07`. Rehearse from `webinar-06`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
       actions: [
         {
           label: "PREPARE",
           title: "Before you begin",
-          body: "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Recovery:** `pnpm webinar:select 07`; select 06 to rehearse.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
+          body: "**Status:** Completed chapter, with saved code and recovery snapshot.\n**Start branch:** `webinar-06`. **Completed branch:** `webinar-07`.\n**Completed checkpoint:** `git switch webinar-07`. Rehearse from `webinar-06`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, facility backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nOriginal milestone 6 is taught here, after human approval. Keep all frontend tools\nand raise_alarm. No reactive frontend context is introduced.",
         },
         {
           label: "EXPLAIN",
@@ -904,7 +904,7 @@ window.workshopPresenter = {
         },
       ],
       recovery:
-        "Run `pnpm webinar:select 07` to restore the completed thirteen implementation paths.\nUse `pnpm webinar:select 06` to rehearse: it restores alarm approval without the\nhistorian connections and removes webinar-07.ts. The chapter-seven prompt can be\ncopied from the presenter Code changes section when you reconnect it.\nThe selector backs up edited files and changes neither Git branches nor stored\nreadings, alarms, audit entries or conversations. Wait for Angular and Mastra to\nreload, then start a fresh conversation. Restart the backend launcher only when\nrecovering from an earlier chapter with different backend code. Keep keys off screen.",
+        'Run `git switch webinar-07` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-06`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.',
       files: [
         {
           path: "apps/angular-host/src/app/app.ts",
@@ -940,6 +940,185 @@ window.workshopPresenter = {
         "Generate → review",
         "Validate + execute",
         "Result view",
+      ],
+    },
+    {
+      id: "08",
+      name: "Compose views with A2UI",
+      source: "webinar/speaker-notes/08-a2ui.md",
+      intro:
+        "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Completed checkpoint:** `git switch webinar-08`. Rehearse from `webinar-07`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
+      actions: [
+        {
+          label: "PREPARE",
+          title: "Before you begin",
+          body: "**Status:** Completed chapter with saved code and recovery snapshot.\n**Start branch:** `webinar-07`. **Completed branch:** `webinar-08`.\n**Completed checkpoint:** `git switch webinar-08`. Rehearse from `webinar-07`.\n**Worktree:** /Users/rainerh/programming/packt-webinar-02.\n**Ports:** Angular 4200, backend 3101, Mastra API 4211, Studio 4212, notes 4400.\nKeep all existing frontend tools, human approval and historian boundaries.",
+        },
+        {
+          label: "EXPLAIN",
+          title: "Say",
+          body: "“Until now, every result had to fit one fixed reading table. An average is a\nvalid query result, but it is not an individual reading. Now the workflow can\nreturn different datasets and choose a presentation from our component catalog.”\n\n“The model describes Table, Card and Text and their data bindings. Our application\nalready owns those components. It does not execute model-generated Angular code.”",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 1",
+          body: "Show apps/angular-host/src/app/a2ui/web-catalog.ts and the shared catalog\n   definitions. Table, Card and Text are prepared. Show result-table.ts and the\n   existing CopilotA2UIActivityRenderer in app.html; do not rewrite these live.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 2",
+          body: "In Mastra index.ts switch the workflow import to historian-composition/workflow\n   and the tool import to query-composition-tool. Keep the function names, the\n   workflow registration and the same backend URL, http://127.0.0.1:3101.\n   Show the prepared workflow: generate SQL, deterministic check, semantic review,\n   execute, select format, then either return data or generate A2UI.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 3",
+          body: "Copy the prepared webinar-08.ts prompt from the presenter Code changes section\n   into apps/agent-service/src/mastra/prompts/webinar-08.ts, then select it in\n   agent.ts. It preserves the operator's\n   complete question and layout requirements. query_historian still takes only\n   question; there is no second display call or presentation flag to supply.\n   ToolCallFilter and raise_alarm stay in place.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 4",
+          body: "In facility-service main.ts switch HistorianQueryService from ./workshop.js\n   to ./historian-query.js. This selects the prepared dataset backend, including\n   aggregates and the validation endpoint. Explain the same read-only boundary;\n   do not touch the database, implementation or conventional alarm methods.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 5",
+          body: "In create-copilot-runtime.ts use the prepared HistorianBridge in place of\n   MastraAgent and add a2ui: { injectA2UITool: false } to CopilotRuntime.\n   The workflow produces A2UI; the runtime carries it as activity. Show how the\n   bridge keeps previous A2UI activity and row payloads out of subsequent Mastra\n   requests. Reuse it rather than implementing compatibility code live. Remove\n   the unused createRequire import and the old declarations loading MastraAgent.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 6",
+          body: "In Angular app.config.ts import facilityWebCatalog from ./a2ui/web-catalog\n   and add a2ui: { catalog: facilityWebCatalog } to provideCopilotKit. No app.ts\n   or template edit is required: the result-store connection from chapter 7 also\n   gives the prepared renderer access to A2UI activity.",
+        },
+        {
+          label: "DO",
+          title: "Open and change · 7",
+          body: "Restart pnpm dev:backend to rebuild its changes, wait for Angular and Mastra\n   reload, and start a fresh Angular chat. Use the exact snippets in\n   webinar/milestone-08.md. Never display .env contents.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 1",
+          body: "Show the AG-UI Chrome extension. Ask: **Show a table of the average air\n   temperature for each room. Include only the room name and average temperature.**\n   Explain how this exceeds the old fixed-row shape. Verify returned values and\n   the generated table; do not accept a chat acknowledgement as proof of rendering.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 2",
+          body: "Ask: **Show the latest ten air-temperature readings from the Cooling room in\n   a table with only time, temperature and shift manager.** Show how the requested\n   columns change without editing the Angular template.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 3",
+          body: "Ask: **Show one card per room, with a table of its latest five air-temperature\n   readings. Include time and temperature.** Show repeated Card/Table composition\n   and inspect the real data bindings. Exact layout and SQL remain model-dependent.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 4",
+          body: "Show Mastra Studio at http://localhost:4212. Inspect the Angular request trace\n   and the workflow's select-result-format and generate-a2ui steps. The format\n   agent receives the question, column metadata and row count. The composer gets\n   the question and columns; application code supplies row values to the layout.",
+        },
+        {
+          label: "DEMONSTRATE",
+          title: "Demonstrate · 5",
+          body: "Inspect the A2UI activity and component catalog. Explain that explicit tables\n   or cards trigger UI composition; a plain factual question may take the data\n   branch and does not guarantee a new generated view. The main assistant gets a\n   receipt and should not interpret unseen values. Alarm approval remains explicit.",
+        },
+        {
+          label: "DO",
+          title: "Current chat rendering",
+          body: "The generated widget appears both in the main area and in the chat. This is the\naccepted chapter-eight behavior for this webinar. Enabling A2UI registers a default\nchat activity renderer, while app.html already renders the same activity in the\nmain area. Do not add registerGeneratedViewNotice in this chapter; that change\nwas explicitly deferred. If asked, explain the two rendering locations and\ncontinue the demonstration in the main area.",
+        },
+        {
+          label: "TRANSITION",
+          title: "Transition",
+          body: "“We now have conversation, frontend tools, human approval, backend workflows and\nUI composition. Each capability comes from an explicit connection in the app.”",
+        },
+      ],
+      prompts: [
+        {
+          title: "Display aggregate data in a generated table",
+          prompt:
+            "Show a table of the average air temperature for each room. Include only the room name and average temperature.",
+          before:
+            "Complete chapter 08, restart pnpm dev:backend, wait for Angular and Mastra reload and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension.",
+          expected:
+            "Calls query_historian with the complete request, obtains aggregate data and displays an A2UI table using the requested columns. The same widget also appears in chat; this is accepted for the webinar.",
+          inspect:
+            "Inspect SQL, returned values and A2UI activity. Show the prepared catalog and compare the generated table with chapter seven’s fixed reading grid. The assistant receives a receipt, not row values.",
+          optional: false,
+        },
+        {
+          title: "Choose columns without editing Angular",
+          prompt:
+            "Show the latest ten air-temperature readings from the Cooling room in a table with only time, temperature and shift manager.",
+          before:
+            "Keep the same conversation and the main generated view visible. The previous result payload is filtered before another request reaches Mastra.",
+          expected:
+            "The generated table contains the requested columns and stored reading values without a template change. No second display tool is needed.",
+          inspect:
+            "Compare query rows, component configuration and rendered cells. Show HistorianBridge, toModelOutput and ToolCallFilter as the prepared result-handling boundaries.",
+          optional: false,
+        },
+        {
+          title: "Compose repeated cards and tables",
+          prompt:
+            "Show one card per room, with a table of its latest five air-temperature readings. Include time and temperature.",
+          before:
+            "Use the same Angular conversation. Open Mastra Studio on 4212 for the Angular request trace. Ask explicitly for cards and tables to select the UI branch.",
+          expected:
+            "Composes room cards with tables bound to real data. The main area and chat both render the widget. Verify the result rather than relying on the assistant’s acknowledgement.",
+          inspect:
+            "Show select-result-format and generate-a2ui in Studio, plus AG-UI activity. The format agent receives metadata; the composer receives the question and columns, while application code binds the actual rows.",
+          optional: false,
+        },
+      ],
+      recovery:
+        'Run `git switch webinar-08` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-07`.\nBefore switching, commit rehearsal edits on your own practice branch or save\nthem with `git stash push -u -m "webinar rehearsal"`. Git can carry edits\nbetween branches or refuse a switch; switching alone does not discard them.\n\nRestart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start\na fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.\nAll eight branches contain the same complete notes, demo prompts and code\nreferences. Switching branches does not reset stored readings or alarms.\n\nChapter 07 uses the fixed-reading backend; chapter 08 uses the dataset backend.\nAlways restart the backend when switching between them. Copy webinar-08.ts from\nthe presenter Code changes section when reconnecting this chapter.',
+      files: [
+        {
+          path: "apps/angular-host/src/app/app.config.ts",
+          after:
+            "import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';\nimport { provideHttpClient } from '@angular/common/http';\nimport { provideRouter } from '@angular/router';\n\nimport { routes } from './app.routes';\nimport { provideCopilotKit } from '@copilotkit/angular';\nimport { facilityWebCatalog } from './a2ui/web-catalog';\n\nexport const appConfig: ApplicationConfig = {\n  providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(), provideRouter(routes), provideCopilotKit({\n    runtimeUrl: '/api/copilotkit',\n    a2ui: { catalog: facilityWebCatalog }\n  })],\n};\n",
+          deleted: false,
+          diff: "@@ -4,9 +4,11 @@ import { provideRouter } from '@angular/router';\n \n import { routes } from './app.routes';\n import { provideCopilotKit } from '@copilotkit/angular';\n+import { facilityWebCatalog } from './a2ui/web-catalog';\n \n export const appConfig: ApplicationConfig = {\n   providers: [provideBrowserGlobalErrorListeners(), provideHttpClient(), provideRouter(routes), provideCopilotKit({\n-    runtimeUrl: '/api/copilotkit'\n+    runtimeUrl: '/api/copilotkit',\n+    a2ui: { catalog: facilityWebCatalog }\n   })],\n };\n",
+        },
+        {
+          path: "apps/facility-service/src/create-copilot-runtime.ts",
+          after:
+            'import type { ChatMessage } from "@packt-workshop/contracts";\nimport { CHAT_SYSTEM_PROMPT } from "./prompts/basic-chat.js";\nimport OpenAI from "openai";\nimport { getOrThrow } from "@packt-workshop/common/assert-defined";\nimport { createOpenAI } from "@ai-sdk/openai";\nimport { BuiltInAgent, CopilotRuntime } from "@copilotkit/runtime/v2";\nimport { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";\nimport { MastraClient } from "@mastra/client-js";\nimport { AbstractAgent } from "@ag-ui/client";\nimport { HistorianBridge } from "./copilot-runtime.js";\n\n\nexport interface ChatService {\n  reply: (messages: ChatMessage[]) => Promise\u003cChatMessage>;\n}\n\nexport class ChatServiceError extends Error {\n  constructor(\n    message: string,\n    public readonly statusCode: number,\n  ) {\n    super(message);\n  }\n}\n\nexport function createChatClient() {\n  const mastraClient = new MastraClient({\n    baseUrl: "http://localhost:4211"\n  })\n\n  const mastraAgent: AbstractAgent = new HistorianBridge({\n    agent: mastraClient.getAgent(\'default\')\n  })\n\n  const runtime = new CopilotRuntime({\n    a2ui: { injectA2UITool: false },\n    agents: {\n      default: mastraAgent\n    }\n  });\n\n  return createCopilotNodeListener({\n    runtime: runtime,\n    cors: false\n  })\n}\n',
+          deleted: false,
+          diff: '@@ -7,10 +7,8 @@ import { BuiltInAgent, CopilotRuntime } from "@copilotkit/runtime/v2";\n import { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";\n import { MastraClient } from "@mastra/client-js";\n import { AbstractAgent } from "@ag-ui/client";\n-import { createRequire } from "node:module";\n+import { HistorianBridge } from "./copilot-runtime.js";\n \n-const require = createRequire(import.meta.url);\n-const { MastraAgent } = require(\'@ag-ui/mastra\') as typeof import(\'@ag-ui/mastra\')\n \n export interface ChatService {\n   reply: (messages: ChatMessage[]) => Promise\u003cChatMessage>;\n@@ -30,11 +28,12 @@ export function createChatClient() {\n     baseUrl: "http://localhost:4211"\n   })\n \n-  const mastraAgent: AbstractAgent = new MastraAgent({\n+  const mastraAgent: AbstractAgent = new HistorianBridge({\n     agent: mastraClient.getAgent(\'default\')\n   })\n \n   const runtime = new CopilotRuntime({\n+    a2ui: { injectA2UITool: false },\n     agents: {\n       default: mastraAgent\n     }\n',
+        },
+        {
+          path: "apps/facility-service/src/main.ts",
+          after:
+            'import { dirname, resolve } from "node:path";\nimport { fileURLToPath } from "node:url";\nimport dotenv from "dotenv";\nimport { createChatClient } from "./create-copilot-runtime.js";\nimport { LiveTelemetry } from "./live-telemetry.js";\nimport { FacilityRepository } from "./repository.js";\nimport { createFacilityServer } from "./server.js";\nimport { HistorianQueryService } from "./historian-query.js";\n\nconst packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");\ndotenv.config({ path: resolve(packageRoot, "../../.env") });\n\nconst port = Number(process.env["FACILITY_PORT"] ?? "3101");\nconst databasePath = resolve(\n  process.env["FACILITY_DB_PATH"] ??\n  resolve(packageRoot, "data/facility.sqlite"),\n);\nconst repository = new FacilityRepository(databasePath);\nrepository.initialize();\nif (process.argv.includes("--reset-demo")) {\n  repository.resetDemoData();\n  repository.close();\n  console.log(\n    "Demo readings reset to the last seven days; alarms and approval records cleared.",\n  );\n  process.exit(0);\n}\nconst telemetry = new LiveTelemetry(repository);\nconst historian = new HistorianQueryService(databasePath);\nconst server = createFacilityServer({\n  repository,\n  telemetry,\n  historian,\n  copilotRuntime: createChatClient()\n});\n\nserver.listen(port, "127.0.0.1", () => {\n  telemetry.start();\n  console.log(`Facility service listening on http://127.0.0.1:${port}`);\n  console.log(`SQLite database: ${databasePath}`);\n});\n\nconst close = (): void => {\n  telemetry.stop();\n  server.close(() => {\n    repository.close();\n    process.exit(0);\n  });\n};\n\nprocess.on("SIGINT", close);\nprocess.on("SIGTERM", close);\n',
+          deleted: false,
+          diff: '@@ -5,8 +5,7 @@ import { createChatClient } from "./create-copilot-runtime.js";\n import { LiveTelemetry } from "./live-telemetry.js";\n import { FacilityRepository } from "./repository.js";\n import { createFacilityServer } from "./server.js";\n-import { HistorianQueryService } from "./workshop.js";\n-import { getOrThrow } from "@packt-workshop/common/assert-defined";\n+import { HistorianQueryService } from "./historian-query.js";\n \n const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");\n dotenv.config({ path: resolve(packageRoot, "../../.env") });\n',
+        },
+        {
+          path: "apps/agent-service/src/mastra/agents/main/agent.ts",
+          after:
+            'import { createOpenAI } from "@ai-sdk/openai";\nimport { Agent } from "@mastra/core/agent";\nimport { CHAT_SYSTEM_PROMPT } from "../../prompts/webinar-08";\nimport { createTool } from "@mastra/core/tools";\nimport { ToolCallFilter } from "@mastra/core/processors";\n\n\nexport function createAgent(apiKey: string, model: string, historianTool: ReturnType\u003ctypeof createTool>) {\n  const openRouterProvider = createOpenAI({\n    apiKey,\n    baseURL: \'https://openrouter.ai/api/v1\'\n  })\n\n  return new Agent({\n    id: \'default\',\n    name: \'Soverius Chocolate Factory\',\n    model: openRouterProvider(model),\n    instructions: CHAT_SYSTEM_PROMPT,\n    tools: { query_historian: historianTool },\n    inputProcessors: [new ToolCallFilter({ exclude: [\'query_historian\'] })]\n  })\n}',
+          deleted: false,
+          diff: '@@ -1,6 +1,6 @@\n import { createOpenAI } from "@ai-sdk/openai";\n import { Agent } from "@mastra/core/agent";\n-import { CHAT_SYSTEM_PROMPT } from "../../prompts/webinar-07";\n+import { CHAT_SYSTEM_PROMPT } from "../../prompts/webinar-08";\n import { createTool } from "@mastra/core/tools";\n import { ToolCallFilter } from "@mastra/core/processors";\n \n',
+        },
+        {
+          path: "apps/agent-service/src/mastra/index.ts",
+          after:
+            'import { Mastra } from "@mastra/core/mastra";\nimport { LibSQLStore } from "@mastra/libsql";\nimport { MastraStorageExporter, Observability } from "@mastra/observability";\nimport { existsSync, mkdirSync } from "node:fs";\nimport { dirname, resolve } from "node:path";\nimport { createAgent } from "./agents/main/agent";\nimport { getOrThrow } from \'@packt-workshop/common/assert-defined\'\nimport { createHistorianQueryWorkflow } from "./workflows/historian-composition/workflow";\nimport { createQueryHistorianTool } from "./agents/main/tools/query-composition-tool";\n\nconst packageRoot = process.cwd();\nconst environmentPath = resolve(packageRoot, "../../.env");\nif (existsSync(environmentPath)) process.loadEnvFile(environmentPath);\n\nexport const OPENROUTER_API_KEY = getOrThrow(\n  process.env["OPENROUTER_API_KEY"],\n  "openRouterApiKey",\n);\nexport const OPENROUTER_MODEL = getOrThrow(\n  process.env["OPENROUTER_MODEL"],\n  "openRouterModel",\n);\n\nconst storagePath = resolve(\n  process.env["MASTRA_STORAGE_PATH"] ??\n  resolve(packageRoot, "data/mastra.sqlite"),\n);\nmkdirSync(dirname(storagePath), { recursive: true });\n\nconst queryHistorian = createHistorianQueryWorkflow(OPENROUTER_API_KEY, OPENROUTER_MODEL, \'http://127.0.0.1:3101\')\nconst queryHistorianTool = createQueryHistorianTool(queryHistorian);\n\nexport const mastra = new Mastra({\n  server: {\n    port: 4211,\n    cors: {\n      origin: "http://localhost:4212",\n      credentials: true,\n    },\n  },\n  agents: { default: createAgent(OPENROUTER_API_KEY, OPENROUTER_MODEL, queryHistorianTool) },\n  workflows: { queryHistorian },\n  storage: new LibSQLStore({\n    id: "packt-workshop-storage",\n    url: `file:${storagePath}`,\n  }),\n\n  observability: new Observability({\n    configs: {\n      default: {\n        serviceName: "packt-workshop-agent",\n        exporters: [new MastraStorageExporter()],\n      },\n    },\n  }),\n});\n',
+          deleted: false,
+          diff: '@@ -5,8 +5,8 @@ import { existsSync, mkdirSync } from "node:fs";\n import { dirname, resolve } from "node:path";\n import { createAgent } from "./agents/main/agent";\n import { getOrThrow } from \'@packt-workshop/common/assert-defined\'\n-import { createHistorianQueryWorkflow } from "./workflows/historian-query/workflow";\n-import { createQueryHistorianTool } from "./agents/main/tools/query-historian-tool";\n+import { createHistorianQueryWorkflow } from "./workflows/historian-composition/workflow";\n+import { createQueryHistorianTool } from "./agents/main/tools/query-composition-tool";\n \n const packageRoot = process.cwd();\n const environmentPath = resolve(packageRoot, "../../.env");\n',
+        },
+        {
+          path: "apps/agent-service/src/mastra/prompts/webinar-08.ts",
+          after:
+            "export const CHAT_SYSTEM_PROMPT = `You are the assistant embedded in the Soverius Chocolate Factory incident-management application. Never invent application data.\n\nThe following frontend tools may be available: list_rooms returns room IDs and names; list_shift_managers returns the available manager names; list_metrics returns exact metric IDs, names and rooms; set_view switches between snapshot and reading-log; set_filter_values updates the requested filters. Use list_rooms and list_shift_managers to discover exact IDs or names before using values that are not already known from tool results. Never invent option values.\n\nThere is no automatically supplied frontend context. You cannot observe the current view, active filters, timezone or manual UI changes. A tool result can describe the state at the time that tool ran; do not claim it is still current after manual changes. Do not call a modifying tool just to inspect state.\n\nFor set_filter_values, include only fields the operator requests. Omitted filters stay unchanged; null clears that individual filter. Conditions are normal, warning, critical or unavailable. Use list_metrics to discover exact metric IDs and names before selecting a metric. Use the room name to disambiguate metrics; never guess an ID.\n\nThe date arguments accept the literal \"now\"; the browser resolves it to the current local time. For a specific local date use YYYY-MM-DDTHH:mm, or use an ISO date-time with an explicit offset supplied by the operator. Ask for clarification if the date, timezone or requested boundary is ambiguous.\n\nCheck tool results before reporting success. If a filter update returns ok: false, explain the error and do not claim the filters changed. Changing a view or filter does not grant access to the readings displayed there. You cannot directly inspect displayed readings or all alarm records. Persisted readings are available only through query_historian, whose full result is delivered to Angular.\n\nFor questions about stored readings, aggregates or generated views, call query_historian exactly once with the operator's complete message copied verbatim into question, including every layout requirement. Do not generate SQL or A2UI, add dates, paraphrase the question, split it across calls or supply a presentation flag. The prepared workflow owns SQL generation, deterministic checks, semantic review, execution and presentation. It resolves relative periods using the database clock.\n\nThe historian now supports read-only aggregate datasets such as averages and counts. The workflow chooses whether to return data or compose a view using the application's trusted Table, Card and Text components. Preserve explicit requests for tables, cards, selected columns and grouping in the question. An aggregate alone does not imply a generated UI; a plain factual request may return data without an A2UI surface.\n\nFull results go to the application. You receive only a completion or error message. Briefly acknowledge it; do not reproduce or interpret unseen values. Do not call set_view or a second display tool to render a result: Angular opens generated A2UI views automatically. On failure, report the error and stop; a later operator message starts a new run. Never rerun the workflow within the same turn. Do not claim access to a frontend timezone; preserve UTC unless an explicit conversion is available.\n\nWhen the operator explicitly requests raising an alarm, use list_metrics to resolve the target unless the exact metric ID and name were already returned in this run. Then call raise_alarm with the exact metricId, metricName and a concise reason based on the operator's request. Ask for clarification if the target or reason is unclear. Do not invent measurements or call raise_alarm speculatively.\n\nThe raise_alarm tool displays an approval card. The operator must approve or reject the proposal; the proposal itself does not raise an alarm. Never approve on the operator's behalf or bypass the approval card.\n\nTreat the returned decision and execution outcome as authoritative. After rejection, confirm that no alarm was raised and do not retry unless the operator explicitly requests a new proposal. Confirm that an alarm was raised only when outcome is executed. Report failed or not-executed outcomes accurately and do not claim success. Acknowledge and resolve remain conventional operator controls. The tool result describes this decision and outcome, not access to all alarm records.\n\nYou may answer general food-industry questions from general knowledge, but distinguish that knowledge from actual facility data.`;\n",
+          deleted: false,
+          diff: "@@ -0,0 +1,25 @@\n+export const CHAT_SYSTEM_PROMPT = `You are the assistant embedded in the Soverius Chocolate Factory incident-management application. Never invent application data.\n+\n+The following frontend tools may be available: list_rooms returns room IDs and names; list_shift_managers returns the available manager names; list_metrics returns exact metric IDs, names and rooms; set_view switches between snapshot and reading-log; set_filter_values updates the requested filters. Use list_rooms and list_shift_managers to discover exact IDs or names before using values that are not already known from tool results. Never invent option values.\n+\n+There is no automatically supplied frontend context. You cannot observe the current view, active filters, timezone or manual UI changes. A tool result can describe the state at the time that tool ran; do not claim it is still current after manual changes. Do not call a modifying tool just to inspect state.\n+\n+For set_filter_values, include only fields the operator requests. Omitted filters stay unchanged; null clears that individual filter. Conditions are normal, warning, critical or unavailable. Use list_metrics to discover exact metric IDs and names before selecting a metric. Use the room name to disambiguate metrics; never guess an ID.\n+\n+The date arguments accept the literal \"now\"; the browser resolves it to the current local time. For a specific local date use YYYY-MM-DDTHH:mm, or use an ISO date-time with an explicit offset supplied by the operator. Ask for clarification if the date, timezone or requested boundary is ambiguous.\n+\n+Check tool results before reporting success. If a filter update returns ok: false, explain the error and do not claim the filters changed. Changing a view or filter does not grant access to the readings displayed there. You cannot directly inspect displayed readings or all alarm records. Persisted readings are available only through query_historian, whose full result is delivered to Angular.\n+\n+For questions about stored readings, aggregates or generated views, call query_historian exactly once with the operator's complete message copied verbatim into question, including every layout requirement. Do not generate SQL or A2UI, add dates, paraphrase the question, split it across calls or supply a presentation flag. The prepared workflow owns SQL generation, deterministic checks, semantic review, execution and presentation. It resolves relative periods using the database clock.\n+\n+The historian now supports read-only aggregate datasets such as averages and counts. The workflow chooses whether to return data or compose a view using the application's trusted Table, Card and Text components. Preserve explicit requests for tables, cards, selected columns and grouping in the question. An aggregate alone does not imply a generated UI; a plain factual request may return data without an A2UI surface.\n+\n+Full results go to the application. You receive only a completion or error message. Briefly acknowledge it; do not reproduce or interpret unseen values. Do not call set_view or a second display tool to render a result: Angular opens generated A2UI views automatically. On failure, report the error and stop; a later operator message starts a new run. Never rerun the workflow within the same turn. Do not claim access to a frontend timezone; preserve UTC unless an explicit conversion is available.\n+\n+When the operator explicitly requests raising an alarm, use list_metrics to resolve the target unless the exact metric ID and name were already returned in this run. Then call raise_alarm with the exact metricId, metricName and a concise reason based on the operator's request. Ask for clarification if the target or reason is unclear. Do not invent measurements or call raise_alarm speculatively.\n+\n+The raise_alarm tool displays an approval card. The operator must approve or reject the proposal; the proposal itself does not raise an alarm. Never approve on the operator's behalf or bypass the approval card.\n+\n+Treat the returned decision and execution outcome as authoritative. After rejection, confirm that no alarm was raised and do not retry unless the operator explicitly requests a new proposal. Confirm that an alarm was raised only when outcome is executed. Report failed or not-executed outcomes accurately and do not claim success. Acknowledge and resolve remain conventional operator controls. The tool result describes this decision and outcome, not access to all alarm records.\n+\n+You may answer general food-industry questions from general knowledge, but distinguish that knowledge from actual facility data.`;\n",
+        },
+      ],
+      flow: [
+        "Reviewed query",
+        "Format decision",
+        "Table / Card / Text",
+        "Generated view",
       ],
     },
   ],
