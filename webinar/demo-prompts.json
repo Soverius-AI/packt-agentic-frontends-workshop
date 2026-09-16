@@ -53,5 +53,125 @@
       "inspect": "Show tools: {} in the Mastra agent and the static prompt. Explain that frontend tools are introduced in chapter 5.",
       "optional": false
     }
+  ],
+  "05": [
+    {
+      "title": "Discover options through Angular",
+      "prompt": "Which rooms and shift managers are available?",
+      "before": "Open a fresh Angular conversation on 4200 after completing chapter 5. Show the AG-UI Chrome extension.",
+      "expected": "Calls list_rooms and list_shift_managers and reports only the names returned by Angular.",
+      "inspect": "Show empty input objects, array results and the matching manual filter options. This uses tool results, not reactive agent context.",
+      "optional": false
+    },
+    {
+      "title": "Operate the existing controls",
+      "prompt": "Switch to the reading log and show only warnings from the Cooling room managed by Charles Bond.",
+      "before": "Keep the previous conversation so discovered IDs are available. Keep the view buttons and filters visible.",
+      "expected": "The reading log is selected and room, manager and warning filters match the request. Existing unrelated filters are preserved.",
+      "inspect": "Inspect set_view and set_filter_values, their returned results, and the actual controls. Compare handlers with the methods used by the template.",
+      "optional": false
+    },
+    {
+      "title": "Change one date without losing other filters",
+      "prompt": "Change only the start date to now.",
+      "before": "Keep the room, manager and warning filters from the previous demo.",
+      "expected": "Only the start boundary changes to the browser current time. No matching readings is a valid result.",
+      "inspect": "The tool arguments omit unrelated fields. Angular preserves them and resolves the now convention.",
+      "optional": false
+    },
+    {
+      "title": "Clear exactly one field",
+      "prompt": "Clear only the start date.",
+      "before": "Keep the other filters selected.",
+      "expected": "The start date clears; room, manager and condition remain selected.",
+      "inspect": "Show from: null and explain that null clears that field while omission preserves the others.",
+      "optional": false
+    },
+    {
+      "title": "Tools still have a data boundary",
+      "prompt": "What is the current air temperature in our Cooling room?",
+      "before": "Keep actual readings visible but do not paste them into chat. Open Mastra Studio on 4212 to inspect an Angular trace.",
+      "expected": "The assistant explains that it cannot read measurements with these tools.",
+      "inspect": "Show the Angular request trace in Studio. Room and manager discovery plus UI control do not grant historian access; Studio standalone chat has no Angular handlers.",
+      "optional": false
+    }
+  ],
+  "06": [
+    {
+      "title": "Discover the exact metric",
+      "prompt": "Which metrics are available in the Cooling room?",
+      "before": "Complete chapter 06, wait for Angular and Mastra to reload, and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension. Clear old filters and select Snapshot.",
+      "expected": "Calls list_metrics and reports metrics belonging to the Cooling room using the returned names. It makes no measurement claims.",
+      "inspect": "Show the returned exact metric IDs, names and room names. The handler returns options, not readings.",
+      "optional": false
+    },
+    {
+      "title": "Reject an alarm proposal",
+      "prompt": "Raise an alarm for the Cooling room air temperature because I observed a cooling failure.",
+      "before": "Use a target without an active alarm. If necessary, use the existing manual acknowledge/resolve controls. Keep Snapshot and the audit visible.",
+      "expected": "The raise_alarm tool renders a proposal card. No alarm is created before approval. Click Reject: the audit records rejected and not-executed; the assistant acknowledges rejection without retrying.",
+      "inspect": "Show the tool arguments and the operator decision separately. Inspect the correlation ID and authoritative outcome in the audit and tool result.",
+      "optional": false
+    },
+    {
+      "title": "Approve and verify execution",
+      "prompt": "Raise an alarm for the Cooling room air temperature because I observed a cooling failure.",
+      "before": "Repeat the request after rejection. Confirm the target still has no active alarm. Click Approve and raise alarm on the new proposal.",
+      "expected": "The alarm appears in Snapshot. The audit records approved, executed and the created alarm ID; the assistant confirms the returned outcome. A failed execution must be reported as a failure.",
+      "inspect": "Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.",
+      "optional": false
+    }
+  ],
+  "07": [
+    {
+      "title": "Read historical measurements",
+      "prompt": "Show the latest ten air-temperature readings from the Cooling room.",
+      "before": "Complete chapter 07, wait for Mastra and Angular to reload and start a fresh Angular conversation on 4200. Keep backend 3101 running and open the AG-UI Chrome extension.",
+      "expected": "Calls query_historian once with the whole question. Successful stored readings open in the Historian result grid. The assistant receives a completion receipt, not the row values.",
+      "inspect": "Show the question-only tool input and the full tool result in AG-UI. In Studio on 4212, inspect the registered workflow and the Angular request trace: generate SQL, semantic review, deterministic validation/execution.",
+      "optional": false
+    },
+    {
+      "title": "Select the stored maximum rows",
+      "prompt": "Show the highest air-temperature reading for each shift manager.",
+      "before": "Keep the same conversation and the historian grid visible. Use existing stored readings; selecting a checkpoint does not reset them.",
+      "expected": "Returns complete stored reading rows for the maxima, including manager and timestamp, using the same fixed table. The previous historian result is filtered out of later model input.",
+      "inspect": "Compare SQL, returned rows and the grid. Show toModelOutput and ToolCallFilter: Angular retains full results while the main model gets only the receipt. Switch to Snapshot and back to Historian result to show result retention.",
+      "optional": false
+    },
+    {
+      "title": "Expose the fixed-table limit",
+      "prompt": "What is the average air temperature in the Cooling room?",
+      "before": "Keep the fixed result grid visible. This checkpoint does not support aggregate result shapes.",
+      "expected": "Explains that averages are unsupported in this chapter. The assistant may decline without calling a tool; if it calls the workflow, an unsupported aggregate must not be executed as a successful grid result.",
+      "inspect": "Explain that model refusal alone does not prove SQL validation. Show the prepared backend policy or local tests for that boundary. Use this limitation to introduce A2UI in webinar 08.",
+      "optional": false
+    }
+  ],
+  "08": [
+    {
+      "title": "Display aggregate data in a generated table",
+      "prompt": "Show a table of the average air temperature for each room. Include only the room name and average temperature.",
+      "before": "Complete chapter 08, restart pnpm dev:backend, wait for Angular and Mastra reload and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension.",
+      "expected": "Calls query_historian with the complete request, obtains aggregate data and displays an A2UI table using the requested columns. The same widget also appears in chat; this is accepted for the webinar.",
+      "inspect": "Inspect SQL, returned values and A2UI activity. Show the prepared catalog and compare the generated table with chapter seven\u2019s fixed reading grid. The assistant receives a receipt, not row values.",
+      "optional": false
+    },
+    {
+      "title": "Choose columns without editing Angular",
+      "prompt": "Show the latest ten air-temperature readings from the Cooling room in a table with only time, temperature and shift manager.",
+      "before": "Keep the same conversation and the main generated view visible. The previous result payload is filtered before another request reaches Mastra.",
+      "expected": "The generated table contains the requested columns and stored reading values without a template change. No second display tool is needed.",
+      "inspect": "Compare query rows, component configuration and rendered cells. Show HistorianBridge, toModelOutput and ToolCallFilter as the prepared result-handling boundaries.",
+      "optional": false
+    },
+    {
+      "title": "Compose repeated cards and tables",
+      "prompt": "Show one card per room, with a table of its latest five air-temperature readings. Include time and temperature.",
+      "before": "Use the same Angular conversation. Open Mastra Studio on 4212 for the Angular request trace. Ask explicitly for cards and tables to select the UI branch.",
+      "expected": "Composes room cards with tables bound to real data. The main area and chat both render the widget. Verify the result rather than relying on the assistant\u2019s acknowledgement.",
+      "inspect": "Show select-result-format and generate-a2ui in Studio, plus AG-UI activity. The format agent receives metadata; the composer receives the question and columns, while application code binds the actual rows.",
+      "optional": false
+    }
   ]
 }

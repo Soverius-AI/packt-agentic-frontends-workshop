@@ -62,10 +62,21 @@ test("checkpoint recovery handles additions, deletions and backups without chang
       "02",
       "03",
       "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "07",
+      "08",
+      "06",
+      "07",
+      "05",
+      "06",
+      "04",
       "03",
       "02",
       "01",
-      "04",
+      "05",
       "03",
     ]) {
       assert.equal(select(phase).status, 0);
@@ -96,7 +107,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
     const html = join(dir, chapterTwoFiles[0]);
     await writeFile(html, "Presenter live edit");
     assert.match(select("status").stdout, /Custom presenter edits/);
-    assert.equal(select("05").status, 1);
+    assert.equal(select("09").status, 1);
     assert.equal(await readFile(html, "utf8"), "Presenter live edit");
     const missing = "apps/facility-service/src/create-copilot-runtime.ts";
     await unlink(join(dir, "webinar/solutions/03", missing));
@@ -114,7 +125,7 @@ test("checkpoint recovery handles additions, deletions and backups without chang
   }
 });
 
-test("presenter shows chapters 03 and 04 with exact code and required demonstrations", async () => {
+test("presenter shows chapters 03 through 08 with exact code and required demonstrations", async () => {
   const context = { window: {} };
   vm.runInNewContext(
     await readFile(new URL("./presenter-data.js", import.meta.url), "utf8"),
@@ -123,7 +134,7 @@ test("presenter shows chapters 03 and 04 with exact code and required demonstrat
   const data = JSON.parse(JSON.stringify(context.window.workshopPresenter));
   assert.deepEqual(
     data.milestones.map((m) => m.id),
-    ["01", "02", "03", "04"],
+    ["01", "02", "03", "04", "05", "06", "07", "08"],
   );
   assert.equal(data.milestones[0].files.length, 0);
   assert.deepEqual(
@@ -146,11 +157,18 @@ test("presenter shows chapters 03 and 04 with exact code and required demonstrat
       assert.equal(file.deleted, expected === null);
       assert.match(file.diff, /@@/);
     }
-    assert.equal(milestone.prompts.length, 2);
+    assert.equal(
+      milestone.prompts.length,
+      milestone.id === "05"
+        ? 5
+        : ["06", "07", "08"].includes(milestone.id)
+          ? 3
+          : 2,
+    );
   }
   assert.deepEqual(
     data.milestones[2].files.filter((f) => f.deleted).map((f) => f.path),
-    manifest.absent["03"],
+    manifest.absent["03"].filter((path) => !path.includes("/prompts/webinar-")),
   );
   assert.deepEqual(
     data.milestones[3].files.map((f) => f.path),
@@ -173,6 +191,122 @@ test("presenter shows chapters 03 and 04 with exact code and required demonstrat
     JSON.stringify(data.milestones[3].actions),
     /trace for that Angular request/,
   );
+  assert.deepEqual(
+    data.milestones[4].files.map((f) => f.path),
+    [
+      "apps/angular-host/src/app/app.html",
+      "apps/angular-host/src/app/app.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+    ],
+  );
+  const chapterFiveActions = JSON.stringify(data.milestones[4].actions);
+  for (const name of [
+    "list_rooms",
+    "list_shift_managers",
+    "set_view",
+    "set_filter_values",
+  ])
+    assert.ok(chapterFiveActions.includes(name));
+  assert.match(chapterFiveActions, /Show the AG-UI Chrome extension again/);
+  assert.match(chapterFiveActions, /Show Mastra Studio/);
+  assert.match(chapterFiveActions, /does not receive.*reactive context/s);
+  const chapterSix = data.milestones[5];
+  assert.deepEqual(
+    chapterSix.files.map((file) => file.path),
+    [
+      "apps/angular-host/src/app/app.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-06.ts",
+    ],
+  );
+  assert.deepEqual(chapterSix.flow, [
+    "Alarm proposal",
+    "Operator decision",
+    "Facility transaction",
+    "Alarm + audit",
+  ]);
+  const chapterSixActions = JSON.stringify(chapterSix.actions);
+  for (const term of [
+    "list_metrics",
+    "raise_alarm",
+    "registerHumanInTheLoop",
+    "Reject",
+    "Approve and raise alarm",
+    "Show the AG-UI Chrome extension again",
+    "Show Mastra Studio",
+    "webinar-06",
+    "webinar 07",
+  ])
+    assert.ok(chapterSixActions.includes(term), term);
+  assert.match(chapterSix.prompts[1].expected, /rejected and not-executed/);
+  assert.match(chapterSix.prompts[2].expected, /approved, executed/);
+  const chapterSeven = data.milestones[6];
+  assert.deepEqual(
+    chapterSeven.files.map((file) => file.path),
+    [
+      "apps/angular-host/src/app/app.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+      "apps/agent-service/src/mastra/index.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-07.ts",
+    ],
+  );
+  assert.deepEqual(chapterSeven.flow, [
+    "Historian tool",
+    "Generate → review",
+    "Validate + execute",
+    "Result view",
+  ]);
+  const chapterSevenActions = JSON.stringify(chapterSeven.actions);
+  for (const term of [
+    "queryHistorianTool",
+    "historianTool",
+    "query_historian",
+    "http://127.0.0.1:3101",
+    "toModelOutput",
+    "ToolCallFilter",
+    "injectAgentStore",
+    "Show the AG-UI Chrome extension",
+    "Show Mastra Studio",
+    "raise_alarm",
+  ])
+    assert.ok(chapterSevenActions.includes(term), term);
+  assert.match(chapterSeven.recovery, /git switch webinar-07/);
+  assert.match(chapterSeven.prompts[2].expected, /without calling a tool/);
+  const chapterEight = data.milestones[7];
+  assert.deepEqual(
+    chapterEight.files.map((file) => file.path),
+    [
+      "apps/angular-host/src/app/app.config.ts",
+      "apps/facility-service/src/create-copilot-runtime.ts",
+      "apps/facility-service/src/main.ts",
+      "apps/agent-service/src/mastra/agents/main/agent.ts",
+      "apps/agent-service/src/mastra/index.ts",
+      "apps/agent-service/src/mastra/prompts/webinar-08.ts",
+    ],
+  );
+  assert.deepEqual(chapterEight.flow, [
+    "Reviewed query",
+    "Format decision",
+    "Table / Card / Text",
+    "Generated view",
+  ]);
+  const chapterEightActions = JSON.stringify(chapterEight.actions);
+  for (const term of [
+    "historian-composition/workflow",
+    "query-composition-tool",
+    "HistorianBridge",
+    "injectA2UITool: false",
+    "facilityWebCatalog",
+    "Show the AG-UI Chrome extension",
+    "Show Mastra Studio",
+    "raise_alarm",
+    "both in the main area and in the chat",
+    "Do not add registerGeneratedViewNotice",
+  ])
+    assert.ok(chapterEightActions.includes(term), term);
+  assert.match(chapterEight.recovery, /git switch webinar-08/);
+  assert.match(chapterEight.recovery, /pnpm dev:backend/);
+  assert.match(chapterEight.prompts[0].expected, /also appears in chat/);
   const html = await readFile(
     new URL("./presenter.html", import.meta.url),
     "utf8",
@@ -182,10 +316,14 @@ test("presenter shows chapters 03 and 04 with exact code and required demonstrat
     "02": "webinar-02",
     "03": "webinar-03",
     "04": "webinar-04",
+    "05": "webinar-05",
+    "06": "webinar-06",
+    "07": "webinar-07",
+    "08": "webinar-08",
   });
   for (const branch of Object.values(manifest.branches))
     assert.ok(html.includes(branch));
-  assert.match(html, /pnpm webinar:select/);
+  assert.match(html, /git switch webinar-/);
   for (const match of html.matchAll(
     /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g,
   ))

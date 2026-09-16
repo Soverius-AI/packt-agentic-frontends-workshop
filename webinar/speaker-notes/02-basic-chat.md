@@ -1,10 +1,8 @@
 # 02 — Implement and connect Basic Chat
 
-**Start branch:** `webinar-01` in `packt-webinar-zero`.
+**Start branch:** `webinar-01` in `packt-webinar-02`.
 **Completed branch:** `webinar-02` (end of chapter 2).
-The `packt-webinar-02` worktree now uses branch `webinar-04`; select state 02
-there to rehearse this chapter without switching branches.
-**In-place recovery:** `pnpm webinar:select 02`; this copies files, not branches.
+**Completed checkpoint:** `git switch webinar-02`. Rehearse from `webinar-01`.
 The component, Angular imports, API response adapter, environment setup, types,
 assertion helpers and system prompt are prepared. The live work is three files.
 
@@ -54,14 +52,17 @@ connection to current facility readings, filters or actions.”
 
 “The model can converse. Its next capabilities will need explicit connections.”
 The next chapter will start from `webinar-02` and end at `webinar-03`.
-`webinar-03` and `webinar-04` are prepared. Branches `webinar-05` through `webinar-08` will be created
-as we prepare those chapters. The selector currently supports 01, 02, 03 and 04. Existing milestone
+`webinar-03` through `webinar-08` are prepared. Switch between the eight webinar branches in the same directory. Existing milestone
 branches and their solutions remain separate.
 
 ## Recovery
 
-Run `pnpm webinar:select 02`, restart the backend launcher and reload the app.
-It restores the complete chapter 2 checkpoint, including its native chat endpoint. Before another rehearsal,
-`pnpm webinar:select 01` restores the starting state. No database reset is involved.
-For an error, first check the terminal build result and `/api/chat` response. A
-working dashboard does not prove that the model call succeeded.
+Run `git switch webinar-02` to open the saved chapter. To rehearse its implementation, start from `git switch webinar-01`.
+Before switching, commit rehearsal edits on your own practice branch or save
+them with `git stash push -u -m "webinar rehearsal"`. Git can carry edits
+between branches or refuse a switch; switching alone does not discard them.
+
+Restart `pnpm dev:backend`, wait for Angular and Mastra to reload, and start
+a fresh chat. Restart `pnpm webinar:notes` if the presenter was already running.
+All eight branches contain the same complete notes, demo prompts and code
+references. Switching branches does not reset stored readings or alarms.
