@@ -1,7 +1,7 @@
 # 04 — Move the agent into Mastra and show Studio
 
 **Start branch:** `webinar-03`. **Completed branch:** `webinar-04`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-05`; select 04 to rehearse this chapter.
+**Current worktree:** `packt-webinar-02`, branch `webinar-06`; select 04 to rehearse this chapter.
 **Recovery:** `pnpm webinar:select 04`, restart the backend and reload Angular.
 Mastra, its shared libraries, environment loading, storage, tracing and Studio CORS
 are prepared. Start Angular on 4200, the facility backend on 3101, Mastra API on
@@ -83,6 +83,6 @@ reload, and reload Angular. Check http://localhost:3101/api/copilotkit/info and
 http://localhost:4211/api/agents for `default`. Open Studio on 4212, not the API
 port 4211. API CORS for Studio and common-library builds are already prepared.
 Keep `.env` values and credentials off screen.
-The selector covers eleven paths, including the two Mastra source files. Selecting
+The selector covers twelve paths, including the two Mastra source files. Selecting
 03 restores an empty agent file and `agents: {}`; selecting 04 restores this agent.
 It backs up your current code but does not switch Git branches or reset databases.

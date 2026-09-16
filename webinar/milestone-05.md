@@ -1,6 +1,6 @@
 # Milestone 5 — four frontend tools
 
-**Start:** `webinar-04`. **Completed:** `webinar-05`, checked out in
+**Start:** `webinar-04`. **Completed:** `webinar-05`. Rehearse with `pnpm webinar:select 05` in
 `packt-webinar-02`.
 
 The completed chapter follows the presenter's four-tool implementation:

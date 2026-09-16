@@ -35,7 +35,7 @@ if (argument === "status") {
 const phase = argument.padStart(2, "0");
 if (!Object.hasOwn(manifest.milestones, phase)) {
   console.error(
-    "Usage: pnpm webinar:select <01|02|03|04|05> | pnpm webinar:status",
+    "Usage: pnpm webinar:select <01|02|03|04|05|06> | pnpm webinar:status",
   );
   process.exit(1);
 }
@@ -75,5 +75,5 @@ console.log(
   `Previous presenter files and their absence list saved to ${backup}`,
 );
 console.log(
-  "Restart your backend launcher, wait for Mastra to reload, and reload the app. Only the eleven checkpoint files were restored or removed; Git branches and the database were not changed.",
+  `Restart your backend launcher, wait for Mastra to reload, and reload the app. Only the ${manifest.files.length} checkpoint files were restored or removed; Git branches and the database were not changed.`,
 );

@@ -1,29 +1,51 @@
 # Webinar — chapter branches
 
-## Completed chapter 5
+## Completed chapter 6
 
-The presenter registers four frontend tools: list rooms, list shift managers,
-set the view, and update filters. Their handlers reuse the application's signals
-and UI methods. No reactive agent context is registered. The prepared Mastra prompt
-matches those tools. See [the chapter guide](webinar/milestone-05.md).
+The presenter adds metric discovery and connects `raise_alarm` to the prepared
+human-approval card. The operator approves or rejects the proposal; the backend
+records the decision and actual outcome. The Mastra prompt matches the available
+tools, with no historian access or reactive context. See [the chapter guide](webinar/milestone-06.md).
 
-Earlier checkpoints retain Basic Chat (02), CopilotChat and AG-UI (03), and the
-Mastra agent plus Studio (04). Original milestone branches remain unchanged.
+Earlier checkpoints retain Basic Chat (02), CopilotChat and AG-UI (03), the Mastra
+agent and Studio (04), and four frontend tools (05). Original milestone branches
+remain unchanged.
 
 ## Chapter checkpoints
 
-| Branch       | Completed state                   | Local directory      |
-| ------------ | --------------------------------- | -------------------- |
-| `webinar-01` | Prepared starting point           | `packt-webinar-zero` |
-| `webinar-02` | Basic Chat and backend connection | Git checkpoint       |
-| `webinar-03` | CopilotKit and AG-UI              | Git checkpoint       |
-| `webinar-04` | Mastra agent and Studio           | Git checkpoint       |
-| `webinar-05` | Four frontend tools               | `packt-webinar-02`   |
+| Branch       | Completed state                    | Local directory      |
+| ------------ | ---------------------------------- | -------------------- |
+| `webinar-01` | Prepared starting point            | `packt-webinar-zero` |
+| `webinar-02` | Basic Chat and backend connection  | Git checkpoint       |
+| `webinar-03` | CopilotKit and AG-UI               | Git checkpoint       |
+| `webinar-04` | Mastra agent and Studio            | Git checkpoint       |
+| `webinar-05` | Four frontend tools                | Git checkpoint       |
+| `webinar-06` | Raise an alarm with human approval | `packt-webinar-02`   |
 
-The existing `packt-webinar-02` directory now has **webinar-05** checked out,
+The existing `packt-webinar-02` directory now has **webinar-06** checked out,
 so your editor and terminals keep their paths. Each branch includes the earlier
-chapters. Branches 06–08 will be created when those chapters are ready. The original
+chapters. Branches 07–08 will be created when those chapters are ready. The original
 milestone branches remain separate and unchanged.
+
+### Webinar order
+
+| Webinar branch | Topic                                      | Original milestone |
+| -------------- | ------------------------------------------ | ------------------ |
+| `webinar-06`   | Raise an alarm with human approval         | `07-human-in-loop` |
+| `webinar-07`   | Query the historian through a backend tool | `06-sql-tool`      |
+| `webinar-08`   | A2UI                                       | `08-a2ui`          |
+
+Chapter 6 starts from completed `webinar-05`. The approval card, input schema,
+backend endpoint and audit display are already prepared. The presenter adds
+`list_metrics`, registers `raise_alarm` with `registerHumanInTheLoop`, and
+selects an adapted agent prompt. Metric discovery must return the exact metric
+ID and name, with the room name for disambiguation. No historian query is needed:
+the operator explicitly requests the alarm and supplies the reason, then approves
+or rejects the proposal. The dedicated `webinar-06.ts` prompt matches our current tool names and does
+not advertise historian access or reactive context.
+
+Chapter 6 is saved locally. Chapter 7 then adds the historian while retaining
+the approval flow; chapters 07 and 08 remain planned checkpoints.
 
 Chapter 5 adds four registrations in `app.ts` and selects the prepared `main-05`
 prompt in Mastra's `agent.ts`. The checkpoint also restores streaming-scroll
@@ -32,7 +54,7 @@ branch. Input descriptions and prompt text are prepared support files.
 
 ## Start here
 
-Use **packt-webinar-02**, branch **webinar-05**. Keep `OPENROUTER_API_KEY` and
+Use **packt-webinar-02**, branch **webinar-06**. Keep `OPENROUTER_API_KEY` and
 `OPENROUTER_MODEL` in the private, ignored `.env`; Mastra reads them in chapter 4.
 
 ```sh
@@ -64,17 +86,20 @@ pnpm webinar:select 02
 pnpm webinar:select 03
 pnpm webinar:select 04
 pnpm webinar:select 05
+pnpm webinar:select 06
 ```
 
-Open http://localhost:4400. The presenter desk covers chapters 01–05 with exact
+Open http://localhost:4400. The presenter desk covers chapters 01–06 with exact
 code differences, demo prompts and recovery commands. Chapter 3 explicitly reminds
 you to show the AG-UI Chrome extension again. Chapter 4 requires showing Mastra
 Studio, trying the agent there, and inspecting the trace from an Angular request.
 
-The selector restores eleven paths, including the two Mastra entry files, and
+The selector restores twelve paths, including the chapter-6 prompt file, and
 backs up current files plus an absence list in ignored `.webinar-backups/`.
 Selecting 03 empties the agent and restores `agents: {}`; selecting 04 restores
-the chapter-4 implementation; selecting 05 restores the frontend tools. It changes files, not Git branches or databases. Restart the
+the chapter-4 implementation; selecting 05 restores the four frontend tools
+and removes the chapter-6 prompt; selecting 06 restores metric discovery and
+human approval. It changes files, not Git branches or databases. Restart the
 backend, wait for Mastra to reload, then reload Angular after selecting a state.
 
 - [Starting-state speaker notes](webinar/speaker-notes/01-start.md)
@@ -82,6 +107,8 @@ backend, wait for Mastra to reload, then reload Angular after selecting a state.
 - [CopilotKit speaker notes](webinar/speaker-notes/03-copilotkit.md)
 - [Mastra speaker notes](webinar/speaker-notes/04-mastra.md)
 - [Frontend tools speaker notes](webinar/speaker-notes/05-frontend-tools.md)
+- [Alarm approval speaker notes](webinar/speaker-notes/06-alarm-approval.md)
+- [Chapter 6 verification](webinar/verification-06.md)
 - [Demo prompts](webinar/demo-prompts.md)
 - [Chapter 5 verification](webinar/verification-05.md)
 - [Earlier chapter 4 verification](webinar/verification.md)

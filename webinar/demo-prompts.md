@@ -140,6 +140,40 @@ There is no chat in this milestone. Tour the snapshot, reading log, filters and 
 
 **Show and explain:** Show the Angular request trace in Studio. Room and manager discovery plus UI control do not grant historian access; Studio standalone chat has no Angular handlers.
 
+## 06 — Raise an alarm with human approval
+
+[Speaker notes](speaker-notes/06-alarm-approval.md)
+
+### 1. Discover the exact metric
+
+**Before:** Complete chapter 06, wait for Angular and Mastra to reload, and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension. Clear old filters and select Snapshot.
+
+> Which metrics are available in the Cooling room?
+
+**Expected:** Calls list_metrics and reports metrics belonging to the Cooling room using the returned names. It makes no measurement claims.
+
+**Show and explain:** Show the returned exact metric IDs, names and room names. The handler returns options, not readings.
+
+### 2. Reject an alarm proposal
+
+**Before:** Use a target without an active alarm. If necessary, use the existing manual acknowledge/resolve controls. Keep Snapshot and the audit visible.
+
+> Raise an alarm for the Cooling room air temperature because I observed a cooling failure.
+
+**Expected:** The raise_alarm tool renders a proposal card. No alarm is created before approval. Click Reject: the audit records rejected and not-executed; the assistant acknowledges rejection without retrying.
+
+**Show and explain:** Show the tool arguments and the operator decision separately. Inspect the correlation ID and authoritative outcome in the audit and tool result.
+
+### 3. Approve and verify execution
+
+**Before:** Repeat the request after rejection. Confirm the target still has no active alarm. Click Approve and raise alarm on the new proposal.
+
+> Raise an alarm for the Cooling room air temperature because I observed a cooling failure.
+
+**Expected:** The alarm appears in Snapshot. The audit records approved, executed and the created alarm ID; the assistant confirms the returned outcome. A failed execution must be reported as a failure.
+
+**Show and explain:** Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.
+
 ## Later milestones
 
 A2UI is included in milestone 08. A2A and MCP demos will be added when their implementations are ready.

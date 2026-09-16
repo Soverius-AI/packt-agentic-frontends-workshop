@@ -22,7 +22,7 @@ const flows = {
   "03": ["CopilotChat", "Copilot runtime", "BuiltInAgent", "Model"],
   "04": ["CopilotChat", "Copilot runtime", "Mastra agent", "Model"],
   "05": ["Agent tool call", "AG-UI", "Angular handler", "View state"],
-  "06": [
+  "07": [
     "Historian tool",
     "Generate → review",
     "Validate + execute",
@@ -34,7 +34,7 @@ const flows = {
     "Table / Card / Text",
     "Generated view",
   ],
-  "07": [
+  "06": [
     "Alarm proposal",
     "Operator decision",
     "Facility transaction",

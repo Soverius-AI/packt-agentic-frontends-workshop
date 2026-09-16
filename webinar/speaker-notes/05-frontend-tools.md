@@ -1,7 +1,7 @@
 # 05 — Give the agent four Angular tools
 
 **Start branch:** `webinar-04`. **Completed branch:** `webinar-05`.
-**Current worktree:** `packt-webinar-02`, branch `webinar-05`.
+**Current worktree:** `packt-webinar-02`, branch `webinar-06`.
 **Recovery:** `pnpm webinar:select 05`, wait for Angular and Mastra to reload,
 then start a fresh conversation. If selecting from an earlier backend chapter,
 restart `pnpm dev:backend` too.
@@ -91,13 +91,15 @@ shift managers, conditions and dates.
 
 ## Transition
 
-“The agent can discover options and operate the UI, but it cannot read measurements.
-Next we introduce a bounded backend tool for historian queries.”
+“The agent can discover options and operate the UI. Next, in webinar 06, it can
+propose raising an alarm, but a person must approve or reject the action. We add
+metric discovery and connect the prepared approval card. Reading measurements
+through the historian comes afterwards, in webinar 07.”
 
 ## Recovery
 
 Run `pnpm webinar:select 05` in this worktree and reload Angular after its build
-and Mastra's reload finish. The selector restores eleven implementation paths,
+and Mastra's reload finish. The selector restores twelve implementation paths,
 including the completed frontend registrations and Mastra prompt import. Shared
 schemas, prompt text and layout support remain prepared. It backs up current files
 and does not switch branches or reset data. Use `pnpm webinar:select 04` to rehearse

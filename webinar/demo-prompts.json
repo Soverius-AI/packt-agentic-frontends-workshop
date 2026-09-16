@@ -95,5 +95,31 @@
       "inspect": "Show the Angular request trace in Studio. Room and manager discovery plus UI control do not grant historian access; Studio standalone chat has no Angular handlers.",
       "optional": false
     }
+  ],
+  "06": [
+    {
+      "title": "Discover the exact metric",
+      "prompt": "Which metrics are available in the Cooling room?",
+      "before": "Complete chapter 06, wait for Angular and Mastra to reload, and start a fresh Angular conversation on 4200. Open the AG-UI Chrome extension. Clear old filters and select Snapshot.",
+      "expected": "Calls list_metrics and reports metrics belonging to the Cooling room using the returned names. It makes no measurement claims.",
+      "inspect": "Show the returned exact metric IDs, names and room names. The handler returns options, not readings.",
+      "optional": false
+    },
+    {
+      "title": "Reject an alarm proposal",
+      "prompt": "Raise an alarm for the Cooling room air temperature because I observed a cooling failure.",
+      "before": "Use a target without an active alarm. If necessary, use the existing manual acknowledge/resolve controls. Keep Snapshot and the audit visible.",
+      "expected": "The raise_alarm tool renders a proposal card. No alarm is created before approval. Click Reject: the audit records rejected and not-executed; the assistant acknowledges rejection without retrying.",
+      "inspect": "Show the tool arguments and the operator decision separately. Inspect the correlation ID and authoritative outcome in the audit and tool result.",
+      "optional": false
+    },
+    {
+      "title": "Approve and verify execution",
+      "prompt": "Raise an alarm for the Cooling room air temperature because I observed a cooling failure.",
+      "before": "Repeat the request after rejection. Confirm the target still has no active alarm. Click Approve and raise alarm on the new proposal.",
+      "expected": "The alarm appears in Snapshot. The audit records approved, executed and the created alarm ID; the assistant confirms the returned outcome. A failed execution must be reported as a failure.",
+      "inspect": "Show the AG-UI result and the Angular request trace in Mastra Studio on 4212. Compare the trace with the durable facility audit. Selecting a checkpoint does not undo this alarm.",
+      "optional": false
+    }
   ]
 }
