@@ -10,10 +10,6 @@
     "reset:demo": "node --enable-source-maps dist/main.js --reset-demo"
   },
   "dependencies": {
-    "@ag-ui/client": "0.0.57",
-    "@ag-ui/core": "0.0.57",
-    "@ag-ui/mastra": "1.1.0",
-    "@copilotkit/runtime": "^1.69.2",
     "@mastra/client-js": "1.42.1",
     "@packt-workshop/contracts": "workspace:*"
   },

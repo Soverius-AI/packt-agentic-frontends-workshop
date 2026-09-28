@@ -1,17 +1,42 @@
 <aside aria-labelledby="chat-title">
   <div class="chat-heading">
     <div>
-      <p class="eyebrow">CopilotKit · AG-UI streaming</p>
-      <h2 id="chat-title">Factory assistant</h2>
+      <p class="eyebrow">Historian</p>
+      <h2 id="chat-title">Ask about the readings</h2>
     </div>
-    <span>Frontend + SQL</span>
   </div>
   <p class="chat-boundary">
-    The assistant can adjust this view and query the historian through reviewer and deterministic
-    safety gates. It cannot perform operational actions.
+    Describe the readings you need. The results appear in the existing table.
   </p>
-
-  <div class="copilot-chat-shell">
-    <copilot-chat agentId="default" appStreamingAutoScroll />
+  <form (submit)="$event.preventDefault(); investigate(question.value)" [attr.aria-busy]="busy()">
+    <label for="question">Your question</label>
+    <textarea
+      #question
+      id="question"
+      rows="4"
+      maxlength="4000"
+      required
+      placeholder="Show the highest air temperature for each shift manager"
+    ></textarea>
+    <button type="submit" [disabled]="busy()">
+      {{ busy() ? 'Investigating…' : 'Find readings' }}
+    </button>
+  </form>
+  <div aria-live="polite">
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    @if (response(); as result) {
+      @if (result.status === 'executed') {
+        <p>{{ result.rowCount }} readings found.</p>
+      } @else {
+        <p role="alert">{{ result.message }}</p>
+      }
+      <details>
+        <summary>Query and review</summary>
+        <pre>{{ result.sql }}</pre>
+        <p>{{ result.review.summary }}</p>
+      </details>
+    }
   </div>
 </aside>

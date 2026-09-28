@@ -4,12 +4,13 @@ import {
   type ServerResponse,
 } from "node:http";
 import {
+  historianQueryInputSchema,
   alarmActionRequestSchema,
   historianExecutionRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
-import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
+import type { InvestigateHistorian } from "./investigate-historian.js";
 import type { LiveTelemetry } from "./live-telemetry.js";
 import {
   FacilityRepository,
@@ -54,7 +55,7 @@ const readBody = async (request: IncomingMessage): Promise<unknown> => {
 export const createFacilityServer = (
   repository: FacilityRepository,
   telemetry: LiveTelemetry,
-  copilotRuntime: NodeCopilotListener,
+  investigate: InvestigateHistorian,
   historian?: HistorianQueryExecutor,
 ) =>
   createServer(async (request, response) => {
@@ -62,8 +63,9 @@ export const createFacilityServer = (
       const method = request.method ?? "GET";
       const url = new URL(request.url ?? "/", "http://localhost");
 
-      if (url.pathname.startsWith("/api/copilotkit")) {
-        await copilotRuntime(request, response);
+      if (method === "POST" && url.pathname === "/api/investigate") {
+        const input = historianQueryInputSchema.parse(await readBody(request));
+        sendJson(response, 200, await investigate(input.question));
         return;
       }
 

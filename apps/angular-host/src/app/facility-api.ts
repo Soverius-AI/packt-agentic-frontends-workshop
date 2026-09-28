@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import {
+  historianToolResultSchema,
+  type HistorianToolResult,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
@@ -17,6 +19,13 @@ import { firstValueFrom } from 'rxjs';
 @Service()
 export class FacilityApi {
   readonly #http = inject(HttpClient);
+
+  async investigate(question: string): Promise<HistorianToolResult> {
+    const response = await firstValueFrom(
+      this.#http.post<unknown>('/api/investigate', { question }),
+    );
+    return historianToolResultSchema.parse(response);
+  }
 
   async getDashboard(): Promise<FacilityDashboard> {
     const response = await firstValueFrom(this.#http.get<unknown>('/api/dashboard'));

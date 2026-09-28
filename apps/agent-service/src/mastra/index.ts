@@ -21,7 +21,7 @@ if (!apiKey) throw new Error("OPENROUTER_API_KEY is required.");
 
 const model = process.env["OPENROUTER_MODEL"] || "google/gemma-4-31b-it";
 const facilityBaseUrl =
-  process.env["FACILITY_BASE_URL"] || "http://127.0.0.1:3001";
+  process.env["FACILITY_BASE_URL"] || "http://127.0.0.1:3101";
 
 export const historianQueryWorkflow = createHistorianQueryWorkflow(
   apiKey,
@@ -32,6 +32,7 @@ export const historianQueryWorkflow = createHistorianQueryWorkflow(
 export const mainAgent = createMainAgent(apiKey, model, historianQueryWorkflow);
 
 export const mastra = new Mastra({
+  server: { port: Number(process.env["MASTRA_PORT"] || "4211") },
   agents: { default: mainAgent },
   workflows: { historianQueryWorkflow },
   storage: new LibSQLStore({

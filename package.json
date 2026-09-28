@@ -2,7 +2,7 @@
   "name": "packt-agentic-frontends-workshop",
   "version": "0.1.0",
   "private": true,
-  "description": "Checkpoint 06: reviewed, deterministically validated generated SQL through CopilotKit, AG-UI, and Mastra.",
+  "description": "AI DevCraft chapter 2: Mastra agents generate and review SQL for the incident historian.",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {
@@ -14,7 +14,6 @@
     "dev:backend": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service dev",
     "dev:agent": "pnpm --filter @packt-workshop/agent-service dev",
     "dev:angular": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter angular-host dev",
-    "dev:react": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --parallel --filter @packt-workshop/facility-service --filter @packt-workshop/agent-service --filter react-host dev",
     "reset:demo": "pnpm --filter @packt-workshop/contracts build && pnpm --filter @packt-workshop/facility-service build && pnpm --filter @packt-workshop/facility-service reset:demo"
   },
   "devDependencies": {

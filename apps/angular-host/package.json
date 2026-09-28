@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve",
+    "dev": "ng serve --port 4300",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development"
@@ -18,7 +18,6 @@
     "@angular/forms": "^22.1.0",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
-    "@copilotkit/angular": "^0.3.1",
     "@packt-workshop/contracts": "workspace:*",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

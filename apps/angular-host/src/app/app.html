@@ -15,9 +15,9 @@
         <h1 class="product-title">Incident Management</h1>
         <p class="subtitle">
           Persistent factory telemetry, historical readings, operator-managed alarms, and
-          standardized streaming agent chat.
+          natural-language historian queries.
         </p>
-        <p class="stage-label">Stage 6 · Reviewed SQL · Read-only historian access</p>
+        <p class="stage-label">AI DevCraft · Backend agents · Mastra</p>
       </div>
     </div>
     <div class="header-actions">
@@ -401,7 +401,7 @@
         </section>
       </section>
 
-      <app-chat />
+      <app-chat (result)="showInvestigation($event)" />
     </div>
   }
 
