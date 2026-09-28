@@ -2,7 +2,7 @@
   "name": "packt-agentic-frontends-workshop",
   "version": "0.1.0",
   "private": true,
-  "description": "AI DevCraft chapter 2: Mastra agents generate and review SQL for the incident historian.",
+  "description": "AI DevCraft chapter 3: CopilotKit progress, frontend tools and human-approved alarms on the Mastra backend.",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {

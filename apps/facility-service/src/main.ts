@@ -1,3 +1,4 @@
+import { createWorkshopCopilotRuntime } from "./copilot-runtime.js";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -36,6 +37,9 @@ const server = createFacilityServer(
   telemetry,
   investigate,
   historian,
+  createWorkshopCopilotRuntime({
+    mastraBaseUrl: process.env["MASTRA_BASE_URL"] || "http://127.0.0.1:4211",
+  }),
 );
 
 server.listen(port, "127.0.0.1", () => {

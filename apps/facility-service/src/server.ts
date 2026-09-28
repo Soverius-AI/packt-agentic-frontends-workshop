@@ -4,12 +4,14 @@ import {
   type ServerResponse,
 } from "node:http";
 import {
+  alarmApprovalRequestSchema,
   historianQueryInputSchema,
   alarmActionRequestSchema,
   historianExecutionRequestSchema,
   metricConditionSchema,
   raiseAlarmRequestSchema,
 } from "@packt-workshop/contracts";
+import type { NodeCopilotListener } from "@copilotkit/runtime/v2/node";
 import type { InvestigateHistorian } from "./investigate-historian.js";
 import type { LiveTelemetry } from "./live-telemetry.js";
 import {
@@ -57,11 +59,26 @@ export const createFacilityServer = (
   telemetry: LiveTelemetry,
   investigate: InvestigateHistorian,
   historian?: HistorianQueryExecutor,
+  copilotRuntime?: NodeCopilotListener,
 ) =>
   createServer(async (request, response) => {
     try {
       const method = request.method ?? "GET";
       const url = new URL(request.url ?? "/", "http://localhost");
+
+      if (copilotRuntime && url.pathname.startsWith("/api/copilotkit")) {
+        await copilotRuntime(request, response);
+        return;
+      }
+      if (method === "GET" && url.pathname === "/api/alarm-approvals") {
+        sendJson(response, 200, repository.getAlarmApprovalAudit());
+        return;
+      }
+      if (method === "POST" && url.pathname === "/api/alarm-approvals") {
+        const input = alarmApprovalRequestSchema.parse(await readBody(request));
+        sendJson(response, 200, repository.decideAlarmApproval(input));
+        return;
+      }
 
       if (method === "POST" && url.pathname === "/api/investigate") {
         const input = historianQueryInputSchema.parse(await readBody(request));

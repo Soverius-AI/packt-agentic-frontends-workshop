@@ -1,14 +1,40 @@
 import { Component, computed, DestroyRef, inject, linkedSignal, signal } from '@angular/core';
+import {
+  connectAgentContext,
+  registerFrontendTool,
+  injectAgentStore,
+  registerHumanInTheLoop,
+} from '@copilotkit/angular';
 import type {
+  AlarmApprovalAuditEntry,
+  ConfigureFacilityView,
   FacilityDashboard,
   FacilityReadingEntry,
-  HistorianToolResult,
   FacilityReadingPage,
+  FacilityViewState,
   MetricHistory,
   MetricReading,
   MetricSummary,
   MetricUpdateEvent,
 } from '@packt-workshop/contracts';
+import {
+  alarmApprovalToolSchema,
+  applyFacilityViewCommand,
+  clearFiltersToolSchema,
+  getUserTimeZone,
+  listConditionsToolSchema,
+  listMetricsToolSchema,
+  listRoomsToolSchema,
+  listShiftManagersToolSchema,
+  metricConditionSchema,
+  resolveFacilityViewDates,
+  resolveFacilityViewAvailableOptions,
+  setViewToolSchema,
+  historianToolResultSchema,
+  updateFiltersToolSchema,
+} from '@packt-workshop/contracts';
+import { AlarmApprovalCard } from './alarm-approval-card';
+import { AlarmApprovalEvents } from './alarm-approval-events';
 import { ChatComponent } from './chat/chat.component';
 import { FacilityApi } from './facility-api';
 
@@ -23,6 +49,7 @@ const READING_PAGE_SIZE = 50;
 })
 export class App {
   readonly #api = inject(FacilityApi);
+  readonly #approvalEvents = inject(AlarmApprovalEvents);
   readonly #destroyRef = inject(DestroyRef);
   #stopMetricUpdates: (() => void) | undefined;
 
@@ -34,6 +61,7 @@ export class App {
   protected readonly selectedHistory = signal<MetricHistory | undefined>(undefined);
   protected readonly selectedMetricId = signal<string | undefined>(undefined);
   protected readonly continuousUpdates = signal(false);
+  private readonly agentStore = injectAgentStore('default');
   private readonly historianResultId = computed(() => this.historianResult()?.id);
   protected readonly displayMode = linkedSignal<DisplayMode>(() =>
     this.historianResultId() ? 'historian-result' : 'snapshot',
@@ -49,9 +77,31 @@ export class App {
   protected readonly roomFilter = signal('');
   protected readonly metricFilter = signal('');
   protected readonly conditionFilter = signal('');
-  protected readonly historianResult = signal<
-    (Extract<HistorianToolResult, { status: 'executed' }> & { id: string }) | undefined
-  >(undefined);
+  protected readonly historianResult = computed(() => {
+    const messages = this.agentStore().messages();
+    const queryIds = new Set(
+      messages.flatMap((message) =>
+        message.role === 'assistant'
+          ? (message.toolCalls ?? [])
+              .filter((call) => call.function.name === 'query_historian')
+              .map((call) => call.id)
+          : [],
+      ),
+    );
+    for (const message of [...messages].reverse()) {
+      if (message.role !== 'tool' || !queryIds.has(message.toolCallId)) continue;
+      try {
+        const result = historianToolResultSchema.safeParse(JSON.parse(message.content));
+        if (result.success && result.data.status === 'executed') {
+          return { ...result.data, id: message.id };
+        }
+      } catch {
+        // An incomplete tool message has no result to display yet.
+      }
+    }
+    return undefined;
+  });
+  protected readonly alarmApprovals = signal<readonly AlarmApprovalAuditEntry[]>([]);
   protected readonly rooms = computed(() => this.dashboard()?.rooms ?? []);
   protected readonly activeAlarmCount = computed(() => this.dashboard()?.activeAlarmCount ?? 0);
   protected readonly shiftManagerOptions = computed(() => this.dashboard()?.shiftManagers ?? []);
@@ -63,6 +113,17 @@ export class App {
       })),
     ),
   );
+  protected readonly facilityViewState = computed<FacilityViewState>(() => ({
+    view: this.displayMode() === 'snapshot' ? ('snapshot' as const) : ('reading-log' as const),
+    filters: {
+      from: this.updatedFrom() || null,
+      to: this.updatedTo() || null,
+      shiftManager: this.shiftManagerFilter() || null,
+      roomId: this.roomFilter() || null,
+      metricId: this.metricFilter() || null,
+      condition: metricConditionSchema.safeParse(this.conditionFilter()).data ?? null,
+    },
+  }));
   protected readonly currentRows = computed(() =>
     this.rooms().flatMap((room) => room.metrics.map((metric) => ({ room, metric }))),
   );
@@ -89,16 +150,225 @@ export class App {
   });
 
   constructor() {
-    this.#destroyRef.onDestroy(() => this.#stopMetricUpdates?.());
+    connectAgentContext(() => ({
+      description:
+        'Current facility view, active filters, and user timezone. This context contains no option catalogs, readings, alarm records, or historian results.',
+      value: JSON.stringify({
+        ...this.facilityViewState(),
+        userTimeZone: getUserTimeZone(),
+      }),
+    }));
+    registerFrontendTool({
+      name: 'list_rooms',
+      description:
+        'List the rooms currently supported by the facility application. Use this tool when the user asks which rooms exist or before selecting a room filter.',
+      parameters: listRoomsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = listRoomsToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { rooms: this.rooms().map(({ id, name }) => ({ id, name })) };
+      },
+    });
+    registerFrontendTool({
+      name: 'list_metrics',
+      description:
+        'List supported facility metrics. Optionally provide a room ID returned by list_rooms to restrict the result to that room.',
+      parameters: listMetricsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => this.#listMetrics(input),
+    });
+    registerFrontendTool({
+      name: 'list_shift_managers',
+      description: 'List the shift managers currently available for reading-log filtering.',
+      parameters: listShiftManagersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = listShiftManagersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { shiftManagers: this.shiftManagerOptions() };
+      },
+    });
+    registerFrontendTool({
+      name: 'list_conditions',
+      description: 'List the reading conditions supported by the reading-log filter.',
+      parameters: listConditionsToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = listConditionsToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return { conditions: ['normal', 'warning', 'critical', 'unavailable'] };
+      },
+    });
+    registerFrontendTool({
+      name: 'set_view',
+      description:
+        'Switch the visible facility view between snapshot and reading-log. Existing filters are preserved.',
+      parameters: setViewToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = setViewToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'set_view', ...validation.data });
+      },
+    });
+    registerFrontendTool({
+      name: 'update_filters',
+      description:
+        'Patch only the supplied reading-log filters and preserve all omitted filters. Use IDs returned by the list tools and the condition field returned by list_conditions. The literal "now" means the browser current time.',
+      parameters: updateFiltersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = updateFiltersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'update_filters', ...validation.data });
+      },
+    });
+    registerFrontendTool({
+      name: 'clear_filters',
+      description:
+        'Clear the selected reading-log filters. Omit the filters list to clear every filter. The current view is preserved.',
+      parameters: clearFiltersToolSchema,
+      agentId: 'default',
+      followUp: true,
+      handler: async (input) => {
+        const validation = clearFiltersToolSchema.safeParse(input);
+        if (!validation.success)
+          return this.#invalidToolPayload(validation.error.issues[0]?.message);
+        return this.#configureFacilityView({ action: 'clear_filters', ...validation.data });
+      },
+    });
+    registerHumanInTheLoop({
+      name: 'review_alarm',
+      description:
+        'Ask the operator to approve or reject raising an alarm for one exact metric. Use an ID and name returned by list_metrics and explain why the alarm is proposed.',
+      parameters: alarmApprovalToolSchema,
+      component: AlarmApprovalCard,
+      agentId: 'default',
+    });
+    const approvalSubscription = this.#approvalEvents.recorded$.subscribe((record) => {
+      this.alarmApprovals.update((entries) => [
+        record,
+        ...entries.filter((entry) => entry.correlationId !== record.correlationId),
+      ]);
+      this.status.set(this.#alarmApprovalStatus(record));
+      void this.loadDashboard(false);
+    });
+    this.#destroyRef.onDestroy(() => {
+      approvalSubscription.unsubscribe();
+      this.#stopMetricUpdates?.();
+    });
     this.#startContinuousUpdates();
     void this.loadDashboard();
+    void this.loadAlarmApprovalAudit();
   }
 
-  protected showInvestigation(result: HistorianToolResult): void {
-    if (result.status !== 'executed') return;
-    this.#stopContinuousUpdates();
-    this.closeHistory();
-    this.historianResult.set({ ...result, id: crypto.randomUUID() });
+  async #listMetrics(input: unknown): Promise<unknown> {
+    const validation = listMetricsToolSchema.safeParse(input);
+    if (!validation.success) return this.#invalidToolPayload(validation.error.issues[0]?.message);
+
+    let roomId = validation.data.roomId;
+    if (roomId) {
+      try {
+        const resolved = resolveFacilityViewAvailableOptions(
+          { action: 'update_filters', filters: { roomId } },
+          this.#availableFilterOptions(),
+        );
+        roomId =
+          resolved.action === 'update_filters' ? (resolved.filters.roomId ?? undefined) : roomId;
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : 'Invalid room option.',
+        };
+      }
+    }
+
+    return {
+      metrics: this.rooms()
+        .filter((room) => !roomId || room.id === roomId)
+        .flatMap((room) =>
+          room.metrics.map((metric) => ({
+            id: metric.id,
+            name: metric.name,
+            roomId: room.id,
+            roomName: room.name,
+            kind: metric.kind,
+            unit: metric.unit,
+          })),
+        ),
+    };
+  }
+
+  async #configureFacilityView(command: ConfigureFacilityView): Promise<unknown> {
+    let validatedCommand = command;
+    try {
+      validatedCommand = resolveFacilityViewAvailableOptions(
+        validatedCommand,
+        this.#availableFilterOptions(),
+      );
+    } catch (error) {
+      return {
+        ok: false,
+        state: this.facilityViewState(),
+        error: error instanceof Error ? error.message : 'Invalid facility filter option.',
+      };
+    }
+    const next = resolveFacilityViewDates(
+      applyFacilityViewCommand(this.facilityViewState(), validatedCommand),
+    );
+    const nextDisplayMode: DisplayMode = next.view === 'snapshot' ? 'snapshot' : 'reading-log';
+    const viewChanged = nextDisplayMode !== this.displayMode();
+
+    this.updatedFrom.set(next.filters.from ?? '');
+    this.updatedTo.set(next.filters.to ?? '');
+    this.shiftManagerFilter.set(next.filters.shiftManager ?? '');
+    this.roomFilter.set(next.filters.roomId ?? '');
+    this.metricFilter.set(next.filters.metricId ?? '');
+    this.conditionFilter.set(next.filters.condition ?? '');
+    this.readingPageIndex.set(0);
+
+    if (viewChanged) {
+      this.displayMode.set(nextDisplayMode);
+      this.closeHistory();
+      if (nextDisplayMode === 'snapshot') this.#startContinuousUpdates();
+      else this.#stopContinuousUpdates();
+    }
+    if (nextDisplayMode === 'reading-log') await this.loadReadingEntries();
+
+    this.status.set('The assistant updated the facility view.');
+    return {
+      ok: true,
+      state: next,
+      message: 'Facility view updated. Unspecified values were preserved.',
+    };
+  }
+
+  #invalidToolPayload(message?: string): unknown {
+    return {
+      ok: false,
+      state: this.facilityViewState(),
+      error: message ?? 'Invalid frontend tool payload.',
+    };
+  }
+
+  #availableFilterOptions() {
+    return {
+      rooms: this.rooms().map((room) => ({ id: room.id, name: room.name })),
+      metrics: this.metricOptions(),
+      shiftManagers: this.shiftManagerOptions(),
+    };
   }
 
   protected setDisplayMode(mode: DisplayMode): void {
@@ -134,6 +404,14 @@ export class App {
       this.status.set('The conventional facility backend is unavailable.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  protected async loadAlarmApprovalAudit(): Promise<void> {
+    try {
+      this.alarmApprovals.set((await this.#api.getAlarmApprovalAudit()).entries);
+    } catch (error) {
+      this.status.set(this.#errorMessage(error));
     }
   }
 
@@ -340,6 +618,22 @@ export class App {
       day: '2-digit',
       month: 'short',
     }).format(new Date(timestamp));
+  }
+
+  protected alarmApprovalOutcome(entry: AlarmApprovalAuditEntry): string {
+    if (entry.outcome === 'executed') return 'Alarm raised';
+    if (entry.outcome === 'failed') return `Execution failed: ${entry.error}`;
+    return 'No alarm raised';
+  }
+
+  #alarmApprovalStatus(entry: AlarmApprovalAuditEntry): string {
+    if (entry.outcome === 'executed') {
+      return `Operator approved the proposal. Alarm raised for ${entry.metricName}.`;
+    }
+    if (entry.outcome === 'failed') {
+      return `Operator approved the proposal, but execution failed: ${entry.error}`;
+    }
+    return `Operator rejected the proposal for ${entry.metricName}. No alarm was raised.`;
   }
 
   #applyMetricUpdate(event: MetricUpdateEvent): void {

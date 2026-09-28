@@ -1,14 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import {
-  historianToolResultSchema,
-  type HistorianToolResult,
+  alarmApprovalAuditEntrySchema,
+  alarmApprovalAuditSchema,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
   metricHistorySchema,
   metricUpdateEventSchema,
   type FacilityDashboard,
+  type AlarmApprovalAudit,
+  type AlarmApprovalAuditEntry,
+  type AlarmApprovalRequest,
   type FacilityReadingPage,
   type MetricAlarm,
   type MetricHistory,
@@ -19,13 +22,6 @@ import { firstValueFrom } from 'rxjs';
 @Service()
 export class FacilityApi {
   readonly #http = inject(HttpClient);
-
-  async investigate(question: string): Promise<HistorianToolResult> {
-    const response = await firstValueFrom(
-      this.#http.post<unknown>('/api/investigate', { question }),
-    );
-    return historianToolResultSchema.parse(response);
-  }
 
   async getDashboard(): Promise<FacilityDashboard> {
     const response = await firstValueFrom(this.#http.get<unknown>('/api/dashboard'));
@@ -76,6 +72,20 @@ export class FacilityApi {
       }),
     );
     return metricAlarmSchema.parse(response);
+  }
+
+  async getAlarmApprovalAudit(): Promise<AlarmApprovalAudit> {
+    const response = await firstValueFrom(
+      this.#http.get<unknown>('/api/alarm-approvals', { params: { limit: 20 } }),
+    );
+    return alarmApprovalAuditSchema.parse(response);
+  }
+
+  async decideAlarmApproval(request: AlarmApprovalRequest): Promise<AlarmApprovalAuditEntry> {
+    const response = await firstValueFrom(
+      this.#http.post<unknown>('/api/alarm-approvals', request),
+    );
+    return alarmApprovalAuditEntrySchema.parse(response);
   }
 
   subscribeToMetricUpdates(
