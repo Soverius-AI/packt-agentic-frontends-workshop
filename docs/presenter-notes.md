@@ -2,18 +2,13 @@
 
 For the interactive presenter website, run `pnpm presenter` and open http://localhost:4410. This Markdown file is the printable reference.
 
-Use this guide for chapter 2. Branch `ai-devcraft/00-start` captures the working demo from `ai-devcraft/02-backend-agents`. Start with [Worktree setup](start-here.md). All code paths in the walkthrough are relative to whichever incident-management checkout you open.
+Use this guide for chapter 2. Branch `ai-devcraft/00-start` contains the presenter desk; the working demo is on `ai-devcraft/02-backend-agents`. Start with [Worktree setup](start-here.md). All code paths in the walkthrough are relative to whichever incident-management checkout you open.
 
 ## Slide 9: 02 · Backend agents
 
-Introduce chapter 2: the backend turns a natural-language question into a checked SQL query. Chapter 3 will add CopilotKit and AG-UI; this branch uses an ordinary Angular form and HTTP request.
+Keep the presenter desk running from branch 00. Open the second working checkout based on branch 02 for the app and code walkthrough. Follow the worktree instructions in README.md or section 00 of the presenter desk.
 
-Before presenting:
-- Open the incident-management checkout in VS Code. Use ai-devcraft/00-start in the second worktree; the original checkout remains on ai-devcraft/02-backend-agents.
-- If the services are not already running, run pnpm dev from that folder. The generator and Jev use OPENROUTER_API_KEY; keep the environment file off screen.
-- Have the Angular app at http://localhost:4300 and Mastra Studio at http://localhost:4211 open in separate tabs.
-- Rehearse the two prompts in slide 14. Keep their runs available in Studio as a fallback. Model-generated SQL can vary between runs.
-- Press N in the deck to open the current slide's speaker notes.
+Rehearse both prompts in this app checkout, with Angular on 4300 and Mastra Studio on 4211. Keep OPENROUTER_API_KEY off screen. The app has no CopilotKit or AG-UI on branch 02.
 
 ## Slide 10: Agents in the backend
 

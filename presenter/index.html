@@ -7,15 +7,15 @@
     <style>
       :root {
         color-scheme: light;
-        --paper: #f5f2ec;
-        --white: #fffefa;
-        --ink: #233d3a;
-        --muted: #596d67;
-        --line: #d8ddd4;
-        --accent: #135e51;
-        --soft: #e7efe8;
-        --gold: #9c6121;
-        --code: #172b29;
+        --paper: #f7f8fb;
+        --white: #ffffff;
+        --ink: #0b151d;
+        --muted: #52616b;
+        --line: #c8d2da;
+        --accent: #0867ad;
+        --soft: #edf3f7;
+        --gold: #db6b00;
+        --code: #091a31;
       }
       * {
         box-sizing: border-box;
@@ -43,7 +43,7 @@
       button:focus-visible,
       a:focus-visible,
       summary:focus-visible {
-        outline: 3px solid #ce842a;
+        outline: 3px solid #db6b00;
         outline-offset: 4px;
       }
       button:disabled {
@@ -74,12 +74,13 @@
       .sidebar {
         padding: 30px 20px;
         border-right: 1px solid var(--line);
-        background: #eeeae1;
+        background: #edf3f7;
         position: sticky;
         top: 0;
         height: 100vh;
         overflow: auto;
       }
+      .brand-logo { display:block; width:180px; max-width:100%; height:auto; margin-bottom:20px; }
       .brand {
         font-size: 12px;
         letter-spacing: 0.16em;
@@ -167,7 +168,7 @@
         padding: 5px 9px;
         border: 1px solid var(--line);
         border-radius: 6px;
-        background: #faf8f3;
+        background: #f7f8fb;
       }
       .flow i {
         font-style: normal;
@@ -182,7 +183,7 @@
         border: 1px solid var(--line);
         border-radius: 18px;
         background: var(--white);
-        box-shadow: 0 7px 24px #20352c05;
+        box-shadow: 0 7px 24px #1832471a;
       }
       .current {
         padding: 28px;
@@ -219,7 +220,7 @@
           SFMono-Regular,
           Consolas,
           monospace;
-        background: #edf0e9;
+        background: #edf3f7;
         padding: 2px 5px;
         border-radius: 4px;
         overflow-wrap: anywhere;
@@ -264,7 +265,7 @@
       }
       .progress {
         height: 4px;
-        background: #dfe5dc;
+        background: #c8d2da;
         border-radius: 3px;
         margin-bottom: 22px;
         overflow: hidden;
@@ -374,7 +375,7 @@
       .file pre {
         margin: 10px 0 0;
         background: var(--code);
-        color: #edf5ed;
+        color: #f7f9fd;
         border-radius: 8px;
         padding: 12px;
         font:
@@ -393,17 +394,17 @@
         margin: 9px 0;
       }
       .add {
-        color: #b2e6b3;
+        color: #55dcae;
       }
       .remove {
-        color: #ffc7bd;
+        color: #ffb58c;
       }
       .hunk {
-        color: #acd5f5;
+        color: #5b9df4;
       }
       .recovery {
-        background: #fbf5e8;
-        border-color: #e3d2ae;
+        background: #fff5eb;
+        border-color: #ebbf95;
       }
       .recovery .body {
         font-size: 14px;
@@ -536,7 +537,7 @@
           display: block;
         }
       }
-      .command { background: var(--code); color: #edf5ed; padding: 18px;
+      .command { background: var(--code); color: #f7f9fd; padding: 18px;
         border-radius: 10px; overflow: auto; font: 14px/1.6 ui-monospace, monospace; }
       @media print {
         .sidebar,
@@ -571,7 +572,8 @@
     <a class="skip" href="#main">Skip to current action</a>
     <div class="shell">
       <aside class="sidebar">
-        <div class="brand">SOVERIUS · AI DEVCRAFT</div>
+        <img class="brand-logo" src="./soverius-ai-logo.png" alt="Soverius AI" />
+        <div class="brand">AI DEVCRAFT · SPEAKER NOTES</div>
         <h1>Presenter desk</h1>
         <p class="muted">Your notes, code connections,<br />and next move.</p>
         <nav id="milestones" aria-label="Walkthrough sections"></nav>
@@ -584,7 +586,7 @@
         <div class="later">
           <strong>Starting branch</strong>
           <p>ai-devcraft/00-start</p>
-          <p>Working chapter 2 demo · Mastra + Jev</p>
+          <p>Presenter desk only · app on branch 02</p>
         </div>
       </aside>
       <main id="main" tabindex="-1">
@@ -898,7 +900,7 @@
           ? "· " + m.files.length + (m.files.length === 1 ? " file" : " files")
           : "";
         $("code-hint").textContent = m.files.length
-          ? "Code from this checkout. Start with the excerpt, then open the full file when needed."
+          ? "Reference code from chapter 2. Start with the excerpt, then open the full file when needed."
           : "Follow the action above. No source file is needed for this step.";
         for (const file of m.files) {
           const details = document.createElement("details");

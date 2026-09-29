@@ -1,71 +1,44 @@
-# AI DevCraft: incident-management demos
+# AI DevCraft presenter desk
 
-Open the presenter website with `pnpm presenter`, then visit http://localhost:4410. It has a section menu, presenter actions, code walkthroughs and copyable demo prompts.
+This branch (`ai-devcraft/00-start`) contains only the presenter website, instructions and reference code. The applications live on `ai-devcraft/02-backend-agents` and `ai-devcraft/03-agentic-ui`.
 
-Presentation starting point: `ai-devcraft/00-start`. See [Start here](docs/start-here.md) to create the second worktree, then follow the [Presenter notes](docs/presenter-notes.md).
+## Open the desk
 
-This branch captures the working chapter 2 baseline from `ai-devcraft/02-backend-agents`.
-Derived from the Packt `06-sql-tool` checkpoint (`2115c3d`). This isolated demo uses the Angular incident-management app, Mastra, and the existing reviewed SQL historian. There is no CopilotKit or A2UI integration in this branch. The original Packt repository and its React examples are unchanged.
-
-## Run
+With Node.js installed, run:
 
 ```sh
-pnpm install
-cp .env.example .env # only if .env does not already exist
-# Set OPENROUTER_API_KEY in .env.
-pnpm dev
+node presenter/serve.mjs
 ```
 
-- Application: http://localhost:4300
-- Facility service: http://127.0.0.1:3101
-- Mastra Studio/API: http://localhost:4211
+Or run `pnpm presenter`. No dependency installation or API key is needed for the presenter desk. Open http://localhost:4410.
 
-These ports are separate from the original Packt demo. `pnpm reset:demo` resets only this checkout's demo database to the last seven days. Stop this demo before switching branches and run `pnpm install` after switching.
+Use the sidebar and Previous/Next controls to follow the walkthrough. The arrow keys also move through actions, and your place is remembered. Code appears below the instructions; prompts and commands have copy buttons.
 
-## Chapter 2: backend agents
+## Create the application checkout
 
-Ask **“Show the highest air temperature for each shift manager.”**
+In another terminal in this repository:
 
-The ordinary request form calls `POST /api/investigate`. The facility service starts the Mastra `historianQueryWorkflow`. A generator proposes SQL, a deterministic preflight rejects prohibited statements, Jev reviews the meaning through OpenRouter’s Decisions API, and the facility service applies its full deterministic policy before executing against the read-only historian.
+```sh
+git worktree add -b ai-devcraft/live-demo ../incident-management-live ai-devcraft/02-backend-agents
+cd ../incident-management-live
+code .
+pnpm install
+# Only if .env is absent:
+cp .env.example .env
+```
 
-The workflow is **Generate SQL → Preflight SQL → Review SQL → Validate and execute**. Preflight uses the same SQL-aware lexical scanner as the execution boundary. It rejects write/schema operations and multiple statements, while distinguishing keywords from quoted text and comments. Rejection stops the workflow before the reviewer or database is called; the form explains that review was not run. The agentic check now uses Jev (`typesafe/jev-1.13`); SQL generation still uses `OPENROUTER_MODEL`.
+Set OPENROUTER_API_KEY in the application's .env privately. Stop any demo already using ports 4300/3101/4211, then run `pnpm dev` in the application checkout. The desk keeps running separately on 4410.
 
-Preflight is an early statement-policy check, not a proof against every possible SQL injection. SQLite authorization, read-only access, result-shape checks, and execution limits remain mandatory. Readings and aggregate results appear in the existing table. Open **Query and review** to inspect the SQL and reviewer verdict.
+Open Angular at http://localhost:4300 and Mastra Studio at http://localhost:4211. Follow the rejected email-address prompt, then the approved highest-temperature prompt in the desk. Each worktree has its own databases and Studio history.
 
-### Jev review
+If the rehearsal folder already exists, inspect `git worktree list` and reuse it rather than rerunning the creation command. The live-demo branch allows changes without modifying the chapter 2 checkpoint.
 
-Jev receives the question and SQL, with three Noul questions:
+Chapter 3 is available on `ai-devcraft/03-agentic-ui`. Stop the app before switching checkpoints and reinstall dependencies after switching. Branch 03 is a separate committed checkpoint; it has not been updated with the latest Jev changes from branch 02.
 
-- **Safety:** Is it a single read-only query against the historian?
-- **Intent:** Does it answer the human's question?
-- **Columns:** Does the result contain all and only the table columns? MAX, MIN, and AVG are allowed when aliased to an existing column, such as `numeric_value`.
+## Edit the notes
 
-The generator returns all table columns automatically. Highest/lowest reading queries retain the complete stored row. Aggregate queries retain metadata with a single value per group and return NULL where no single value applies; those cells remain blank. Missing or invented output columns are rejected.
+- `presenter/guide.json`: sections, presenter actions, commands and prompts.
+- `presenter/code-examples.json`: reference snippets captured from branch 02, with the source commit recorded. These are documentation, not a runnable app.
+- `presenter/index.html`: the webinar presenter layout with the Soverius AI light palette and original logo.
 
-Noul returns a yes-probability from 0 to 1. All three answers must satisfy `noul > 0.5`; a tie is rejected. There are no Choice options or separate confidence checks. This threshold is a simple demo decision rule, not an accuracy guarantee. Database access and result shape are still enforced by deterministic validation.
-
-The reviewer takes only `apiKey` and calls `typesafe/jev-1.13` through OpenRouter. Invalid responses and API errors stop execution. For the talk, open `workflow.ts`, then `agents/jev-sql-reviewer.ts` to show the three questions and decision. **Query and review** displays failed checks; the review contains only `approved` and `concerns`, with no summary.
-
-Reference: [TypeSafe Noul](https://docs.typesafe.ai/primitives/noul).
-
-Try **“Show critical readings in the Cooling room”** next. Try **“Show the average air temperature for each shift manager.”** The aggregate appears in the existing Value column.
-
-The application owns data validation and execution. Mastra agents do not receive a writable database handle. Existing manual alarm buttons remain ordinary application operations; the AI cannot raise alarms in this branch.
-
-## Chapter 3 checkpoint
-
-The subsequent `ai-devcraft/03-agentic-ui` branch adds CopilotKit/AG-UI to the same backend: visible investigation progress, frontend view/filter tools, and a human approval card before an agent-requested alarm. A2UI is out of scope.
-
-## Validation
-
-`pnpm build` builds shared contracts, facility service, Mastra and Angular. `pnpm format:check` checks formatting. The historian policy and worker deadline are retained from the original implementation.
-
-Earlier workshop documents under `docs/` are retained as source material; this README defines the AI DevCraft demo.
-
-## Angular structure
-
-The shared Angular refactor originates on this backend-only branch. It uses a facility domain, Signal Store, Signal Forms, single-file components, strict checking, and Sheriff boundaries. See [Architecture](apps/angular-host/ARCHITECTURE.md). Run `pnpm --filter angular-host lint` and `pnpm --filter angular-host test`.
-
-Branch numbers match talk chapters: 01 Agentic Coding, 02 Backend Agents, 03 Agentic UI.
-
-Preflight regression tests: `pnpm --filter @packt-workshop/agent-service test`. Execution-boundary tests: `node --test apps/facility-service/test/historian-policy.test.mjs` after building contracts and the facility service.
+Restart the desk after editing to regenerate `presenter-data.js`, then reload the browser. The website serves only its page, generated data and logo; it does not expose application files or environment variables.

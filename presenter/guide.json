@@ -4,40 +4,46 @@
       "id": "00",
       "name": "Set up the worktree",
       "flow": [
-        "Original checkout",
-        "Second worktree",
+        "Presenter desk · 00",
+        "App worktree · 02",
         "VS Code",
-        "Run the app"
+        "Run demo"
       ],
       "actions": [
         {
           "label": "EXPLAIN",
-          "title": "Two working folders",
-          "body": "The original folder stays on branch 02. A second worktree gives us separate files and local databases while sharing the same Git history. Branch 00 already contains the working backend demo and these instructions."
+          "title": "Keep the desk and app separate",
+          "body": "Branch 00 contains this presenter desk, instructions and reference code. The runnable apps live on branches 02 and 03. Keep the desk open while working in a second checkout."
         },
         {
           "label": "DO",
-          "title": "Create the second checkout",
-          "body": "Run from the original incident-management repository. If this folder already exists from rehearsal, open it instead of creating it again.",
-          "command": "git worktree add ../incident-management-live ai-devcraft/00-start\ncd ../incident-management-live\ncode .\ngit worktree list"
+          "title": "Start the presenter desk",
+          "body": "From the branch 00 checkout, run the command below and open http://localhost:4410. No API key or dependency installation is needed for the desk. Keep this terminal running.",
+          "command": "node presenter/serve.mjs"
         },
         {
           "label": "DO",
-          "title": "Prepare the demo",
-          "body": "Install dependencies in the new checkout. Create .env only if it is absent, then set OPENROUTER_API_KEY privately. Keep credentials off screen.",
-          "command": "pnpm install\n# Only if .env does not exist:\ncp .env.example .env"
+          "title": "Create the application worktree",
+          "body": "In another terminal in the repository, create a working branch from the committed chapter 2 app. This also works when branch 02 is already checked out elsewhere. If this rehearsal folder already exists, inspect git worktree list and reuse it.",
+          "command": "git worktree add -b ai-devcraft/live-demo ../incident-management-live ai-devcraft/02-backend-agents\ncd ../incident-management-live\ncode .\ngit worktree list"
         },
         {
           "label": "DO",
-          "title": "Start the app and presenter desk",
-          "body": "Stop the app running in the original checkout: both use the same ports. Run pnpm dev here. In a second terminal in this worktree, run pnpm presenter. Open Angular on 4300, Studio on 4211 and this presenter desk on 4410. Each worktree has its own Studio history.",
-          "command": "pnpm dev\n# In a second terminal:\npnpm presenter"
+          "title": "Prepare the application",
+          "body": "In the new application checkout, install dependencies. Create .env only if absent and set OPENROUTER_API_KEY privately. Keep credentials off screen.",
+          "command": "pnpm install\n# Only if .env is absent:\ncp .env.example .env"
+        },
+        {
+          "label": "DO",
+          "title": "Start chapter 2",
+          "body": "Stop any other demo app using the same ports, then run pnpm dev in the application checkout. Open Angular on 4300 and Mastra Studio on 4211. The presenter desk remains on 4410. Rehearse both prompts here: each worktree has separate databases and Studio history.",
+          "command": "pnpm dev"
         }
       ],
       "files": [],
       "prompts": [],
-      "recovery": "Use git worktree list to locate an existing rehearsal folder. Keep one demo and one presenter server running. If port 4410 is already serving these notes, use that tab; stop that server before starting another. Do not remove a worktree containing changes.",
-      "recoveryCommand": "pnpm dev",
+      "recovery": "Keep the presenter desk on branch 00 and run the app from the second worktree. Use git worktree list to locate an existing rehearsal folder; do not delete it or discard its changes. Stop only the conflicting server before restarting on the same port.",
+      "recoveryCommand": "git worktree list",
       "source": "presenter/guide.json"
     },
     {

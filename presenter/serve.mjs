@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 const routes = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
+  ['/soverius-ai-logo.png', ['soverius-ai-logo.png', 'image/png']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/presenter-data.js', ['presenter-data.js', 'text/javascript; charset=utf-8']],
 ]);
