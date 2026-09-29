@@ -25,8 +25,8 @@ window.workshopPresenter = {
         {
           "label": "DO",
           "title": "Create the application worktree",
-          "body": "In another terminal in the repository, create a working branch from the committed chapter 2 app. This also works when branch 02 is already checked out elsewhere. If this rehearsal folder already exists, inspect git worktree list and reuse it.",
-          "command": "git worktree add -b ai-devcraft/live-demo ../incident-management-live ai-devcraft/02-backend-agents\ncd ../incident-management-live\ncode .\ngit worktree list"
+          "body": "In another terminal in the presenter repository, fetch the remote branches and create your local working branch from chapter 2. This works after a fresh clone. If the rehearsal folder already exists, inspect git worktree list and reuse it.",
+          "command": "git fetch origin\ngit worktree add --no-track -b ai-devcraft/live-demo ../incident-management-live origin/ai-devcraft/02-backend-agents\ncd ../incident-management-live\ncode .\ngit worktree list"
         },
         {
           "label": "DO",
