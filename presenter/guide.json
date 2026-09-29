@@ -429,38 +429,40 @@
       "name": "Activity display · 4 min",
       "flow": [
         "Demo · 1 min",
-        "Running → complete",
+        "Workflow step → activity → UI",
         "Code · 3 min"
       ],
       "actions": [
         {
           "label": "DEMO",
           "title": "Watch the investigation run",
-          "body": "4:00–5:00. Repeat the query, this time focusing on the activity card. Show running → complete and the returned row count. These are tool lifecycle events, not simulated progress or a separate display of every SQL step.",
+          "body": "4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.",
           "command": "Show the highest air temperature for each shift manager.",
           "copyLabel": "Copy prompt"
         },
         {
           "label": "CODE",
-          "title": "Show where activity comes from",
-          "body": "5:00–6:30. In `apps/facility-service/src/investigation-progress.ts`, point to the tool-start and tool-result handling that creates activity snapshots. In `apps/facility-service/src/copilot-runtime.ts`, show run and the pipe forwarding those snapshots into the AG-UI stream. Do not re-explain SQL generation or Jev."
+          "title": "Emit progress from the workflow",
+          "body": "5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own progress. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic."
         },
         {
           "label": "CODE",
           "title": "Connect the event to its renderer",
-          "body": "6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type and schema to InvestigationProgressCard. Open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`: content().status controls the indicator and content().message supplies the text. Move to approval at minute 8."
+          "body": "6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status and content().message. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8."
         }
       ],
       "files": [
         {
-          "path": "apps/facility-service/src/investigation-progress.ts",
-          "start": null,
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/workflow.ts",
+          "ref": "03:apps/agent-service/src/mastra/workflows/historian-query/workflow.ts",
+          "start": "function createGenerateSqlStep(",
           "end": null
         },
         {
-          "path": "apps/facility-service/src/copilot-runtime.ts",
-          "start": "  override run(",
-          "end": "\n}\n"
+          "path": "apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts",
+          "ref": "03:apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts",
+          "start": "    execute: async",
+          "end": null
         },
         {
           "path": "apps/angular-host/src/app/app.config.ts",
@@ -478,8 +480,8 @@
           "title": "Visible activity",
           "prompt": "Show the highest air temperature for each shift manager.",
           "before": "Enter this in the Factory assistant on branch 03.",
-          "expected": "The activity card changes from running to complete when the actual query finishes.",
-          "inspect": "Keep the activity card visible, then show event handling, renderer registration and the small Angular renderer.",
+          "expected": "The card follows the workflow steps. Deterministic checking and Jev review each remain visible for at least two seconds; completion shows the result count. Rejection ends the sequence without execution.",
+          "inspect": "Show the changing card, then the workflow writer, streamed forwarding, renderer registration and Angular renderer.",
           "optional": false
         }
       ],

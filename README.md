@@ -103,12 +103,14 @@ Unit 3 is a **15-minute demonstration**, with each feature immediately followed 
 | Time | Feature | Show, then explain |
 | --- | --- | --- |
 | 0–4 min | Chat integration | Question and table result → Angular configuration, chat component and Mastra connection |
-| 4–8 min | Activity display | Running/completed activity → events, registration and UI renderer |
+| 4–8 min | Activity display | Workflow step activity → workflow writer, streamed forwarding and UI renderer |
 | 8–15 min | Human-in-the-loop | Reject, then approve a new alarm proposal → registration, approval component and respond() |
 
 Prepare the application branch, open the code and check the alarm state before the timed unit; the Setup menu includes these instructions. Use the existing successful query for the first two features:
 
 > Show the highest air temperature for each shift manager.
+
+The activity demo reports progress from the workflow itself. Deterministic checking and Jev review each have an artificial two-second pause for visibility; mention this during the demo.
 
 For human approval:
 

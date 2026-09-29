@@ -123,17 +123,17 @@ Prepare branch 03 and the demo alarm before the timed unit using the Setup menu.
 
 **DEMO — Watch the investigation run**
 
-4:00–5:00. Repeat the query, this time focusing on the activity card. Show running → complete and the returned row count. These are tool lifecycle events, not simulated progress or a separate display of every SQL step.
+4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.
 
 > Show the highest air temperature for each shift manager.
 
-**CODE — Show where activity comes from**
+**CODE — Emit progress from the workflow**
 
-5:00–6:30. In `apps/facility-service/src/investigation-progress.ts`, point to the tool-start and tool-result handling that creates activity snapshots. In `apps/facility-service/src/copilot-runtime.ts`, show run and the pipe forwarding those snapshots into the AG-UI stream. Do not re-explain SQL generation or Jev.
+5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own progress. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic.
 
 **CODE — Connect the event to its renderer**
 
-6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type and schema to InvestigationProgressCard. Open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`: content().status controls the indicator and content().message supplies the text. Move to approval at minute 8.
+6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status and content().message. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8.
 
 ### Human-in-the-loop · 7 min
 

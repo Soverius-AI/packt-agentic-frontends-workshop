@@ -5,8 +5,8 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const examples = JSON.parse(await readFile(resolve(directory, 'code-examples.json'), 'utf8'));
 const guide = JSON.parse(await readFile(resolve(directory, 'guide.json'), 'utf8'));
 for (const section of guide.milestones) {
-  section.files = await Promise.all(section.files.map(async ({ path, start, end }) => {
-    const after = examples.files[path];
+  section.files = await Promise.all(section.files.map(async ({ path, ref, start, end }) => {
+    const after = examples.files[ref ?? path];
     if (typeof after !== 'string') throw new Error(`Code example missing: ${path}`);
     const from = start ? after.indexOf(start) : 0;
     if (from < 0) throw new Error(`Excerpt start missing: ${path}: ${start}`);
