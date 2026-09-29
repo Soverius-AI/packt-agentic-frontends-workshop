@@ -1,12 +1,12 @@
-# AI DevCraft — backend demo presenter guide
+# AI DevCraft — presenter guide
 
 For the interactive presenter website, run `pnpm presenter` and open http://localhost:4410. This Markdown file is the printable reference.
 
-Use this guide for chapter 2. Branch `ai-devcraft/00-start` contains the presenter desk; the working demo is on `ai-devcraft/02-backend-agents`. Start with [Worktree setup](start-here.md). All code paths in the walkthrough are relative to whichever incident-management checkout you open.
+The first sections cover Unit 2; the timed Unit 3 sequence follows below. Branch `ai-devcraft/00-start` contains the presenter desk; the working demo is on `ai-devcraft/02-backend-agents`. Start with [Worktree setup](start-here.md). All code paths in the walkthrough are relative to whichever incident-management checkout you open.
 
 ## Slide 9: 02 · Backend agents
 
-Keep the presenter desk running from branch 00. Open the second working checkout based on branch 02 for the app and code walkthrough. Follow the worktree instructions in README.md or section 00 of the presenter desk.
+Keep the presenter desk running from branch 00. Open the second working checkout based on branch 02 for the app and code walkthrough. Follow the worktree instructions in README.md or the Setup group in the presenter desk.
 
 Rehearse both prompts in this app checkout, with Angular on 4300 and Mastra Studio on 4211. Keep OPENROUTER_API_KEY off screen. The app has no CopilotKit or AG-UI on branch 02.
 
@@ -99,91 +99,66 @@ If a live run differs, inspect its actual SQL and failed check. Do not promise i
 
 Transition: “Now we have the backend workflow. Next, we add CopilotKit and AG-UI so the frontend can participate in the interaction.”
 
+## Unit 3 — Agentic UI · 15 minutes
 
+Prepare branch 03 and the demo alarm before the timed unit using the Setup menu. Each feature follows demonstrate → explain its integration code.
 
-## Chapter 3 — CopilotKit and human approval
+### Chat integration · 4 min
 
-Branch 03 includes chapter 02. Use the Unit 3 · Agentic UI group in the presenter desk (sections 1–6).
+**DEMO — Ask the existing backend through chat**
 
-### Chapter 3: switch to CopilotKit
+0:00–2:00. Show the Factory assistant replacing Unit 2’s form. Ask the question below and show the populated table. Say: “The backend is the one we already built. CopilotKit connects the conversation to it.” Keep the SQL and Jev internals in Unit 2.
 
-- **Switch the application worktree**: Stop pnpm dev with Ctrl+C in the application terminal. Keep the presenter desk running in its separate checkout. Save any changes first. Create this local branch once; on later rehearsals use git switch ai-devcraft/live-ui.
+> Show the highest air temperature for each shift manager.
 
-```text
-git fetch origin
-git switch --no-track -c ai-devcraft/live-ui origin/ai-devcraft/03-agentic-ui
-pnpm install
-pnpm dev
-```
+**CODE — Show the Angular connection**
 
-- **The backend stays the same**: Reload Angular at http://localhost:4300. The chapter label now says Agentic UI · CopilotKit. Branch 03 includes the latest chapter 02 workflow: SQL generation, deterministic preflight, Jev review and protected execution.
+2:00–3:00. Open `apps/angular-host/src/app/app.config.ts` and point to provideCopilotKit and runtimeUrl. Then open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts` and point to copilot-chat with agentId default. Leave the activity registration for the next feature.
 
-- **What the frontend adds**: Say: “The same backend is now a tool in a conversation. The frontend can show progress, change the view and pause an alarm proposal for a human decision.” There is no A2UI example in this chapter.
+**CODE — Show the Mastra connection**
 
-### Connect the agent and UI
+3:00–4:00. In `apps/facility-service/src/copilot-runtime.ts`, show createWorkshopCopilotRuntime: the Mastra client, agent registration and /api/copilotkit listener. The main agent exposes the existing historian workflow as a tool. Finish by pointing back to the table; move on at minute 4.
 
-- **Start with the chat**: Open app.config.ts and chat.component.ts. Show provideCopilotKit pointing at /api/copilotkit and copilot-chat using agentId default. This is the UI connection.
+### Activity display · 4 min
 
-- **Follow the server connection**: Open copilot-runtime.ts. MastraAgent connects the runtime to Mastra; HistorianBridge adds investigation activity events to the stream.
+**DEMO — Watch the investigation run**
 
-- **Show what the agent may do**: Open the main agent. It has query_historian and discovers frontend tools through the runtime. The alarm instruction allows proposals only after an explicit request. The model does not write the alarm directly.
+4:00–5:00. Repeat the query, this time focusing on the activity card. Show running → complete and the returned row count. These are tool lifecycle events, not simulated progress or a separate display of every SQL step.
 
-### Demo: query with activity
+> Show the highest air temperature for each shift manager.
 
-- **Ask the same successful question**: Use the prompt below in chat. Keep the table and activity card visible.
+**CODE — Show where activity comes from**
 
-```text
-Show the highest air temperature for each shift manager.
-```
+5:00–6:30. In `apps/facility-service/src/investigation-progress.ts`, point to the tool-start and tool-result handling that creates activity snapshots. In `apps/facility-service/src/copilot-runtime.ts`, show run and the pipe forwarding those snapshots into the AG-UI stream. Do not re-explain SQL generation or Jev.
 
-- **Read the activity and result**: Show the running activity followed by Investigation complete and three returned readings. Point out the populated date/time, manager, room, metric, value and condition. Activity reflects actual tool events; it is not a timer or a per-step percentage.
+**CODE — Connect the event to its renderer**
 
-- **Connect the result to the table**: In connect-facility-agent.ts, show historianResult and the effect calling showHistorianResult. The frontend consumes the structured tool result. The agent receives a short acknowledgment rather than the complete reading payload.
+6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type and schema to InvestigationProgressCard. Open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`: content().status controls the indicator and content().message supplies the text. Move to approval at minute 8.
 
-- **Reuse the backend walkthrough**: In Studio, inspect query_historian and its historianQueryWorkflow run. The four steps and Jev checks are the same as chapter 2. The chat agent chooses the tool; the workflow executes it.
+### Human-in-the-loop · 7 min
 
-### Demo: frontend tools
+**DEMO — Pause at the human decision**
 
-- **Let the agent adjust the view**: Enter the prompt below. Show Reading log selected and Cooling room selected in the room filter.
+8:00–9:00. Ask for the alarm below. Point out the room, metric and reason on the approval card. Nothing has been raised merely because the agent proposed it.
 
-```text
-Switch to the reading log and show only the Cooling room.
-```
+> Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.
 
-- **Show context and tool registration**: In connect-facility-agent.ts, show connectAgentContext, list_rooms, set_view and update_filters. The context shares view state and timezone. Tools return available options and update the existing Angular store.
+**DEMO — Reject the proposal**
 
-- **Keep the distinction clear**: Say: “This changes the interface. The previous example generated SQL on the backend. Both use the same chat, but they use different tools.”
+9:00–10:00. Click Reject. Show the rejected outcome on the card and the assistant continuing the conversation. The alarm count stays unchanged.
 
-### Demo: human approval
+**DEMO — Approve a new proposal**
 
-- **Check the alarm before the demo**: Select Snapshot and inspect Packaging hall → Air temperature. It should say not raised. If a previous rehearsal already raised it, resolve that demo alarm with the normal UI before presenting, or use another unraised metric and adapt the prompt. Keep the audit.
+10:00–12:00. Ask again with the prompt below. Click Approve and raise alarm. Show the card’s executed outcome, one additional active alarm and the resumed assistant. Stay with the card and app; no separate audit-table walkthrough.
 
-- **Ask for an alarm proposal**: Enter the prompt below. Pause when the approval card appears. Show room, metric, reason and operator. The alarm has not been raised yet.
+> Please propose that alarm again for Packaging hall air temperature. I want to approve it this time.
 
-```text
-Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.
-```
+**CODE — Register the human pause**
 
-- **Reject first**: Click Reject. Show Rejected · no alarm was raised, the rejected audit entry and the resumed assistant acknowledgment. The active alarm count must not increase.
+12:00–13:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts`, show registerHumanInTheLoop with name review_alarm, its schema and AlarmApprovalCard. This registers the tool whose execution waits for the operator.
 
-- **Create a new proposal**: Ask again using the prompt below. A new proposal needs a new human decision.
+**CODE — Return the human decision to the conversation**
 
-```text
-Please propose that alarm again for Packaging hall air temperature. I want to approve it this time.
-```
+13:00–15:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/alarm-approval-card.ts`, follow decide: read the human choice, await store.decideAlarmApproval, display the recorded outcome and call toolCall.respond(record). Both choices resume the agent. Say: “CopilotKit manages the interaction; our facility service validates and executes the approved operation.” Mention the fixed demo operator briefly. Finish here; backend audit storage and retry implementation are supporting code.
 
-- **Approve and inspect the outcome**: Click Approve and raise alarm. Show Approved · alarm raised, the active alarm count increasing by one, the approved audit entry and the assistant acknowledgment. Approval and execution are distinct: an already-active alarm produces an execution-failed outcome.
-
-- **Name the demo boundary**: The facility backend performs the write and records both decisions. This workshop uses the fixed demo operator night-reception; it does not implement production authentication or role-based authorization.
-
-### Walk through human approval
-
-- **Register the human step**: At the end of connect-facility-agent.ts, show review_alarm, its schema and AlarmApprovalCard. This is the pause point exposed to the agent.
-
-- **Follow the human click**: In AlarmApprovalCard, follow decide: validate the proposal against the facility catalog, wait for the operator, call the store, then pass the recorded outcome to toolCall.respond. Both approval and rejection resume the conversation.
-
-- **Follow the backend write**: Open facility-store.ts → decideAlarmApproval and facility-client.ts → decideAlarmApproval in the app checkout. Follow POST /api/alarm-approvals in server.ts into repository.ts. The transaction checks the metric, records the decision and creates an alarm only when approved.
-
-- **Explain retries with one concrete example**: The message/tool-call identity remains stable when the card reopens or a request is retried. The backend returns the recorded result for that same decision rather than creating a second alarm. A conflicting decision is rejected.
-
-- **Close with the failure paths**: An invalid proposal can be dismissed without executing it, so the conversation can continue. A failed HTTP request shows an error and allows retry. An approved but failed alarm operation is displayed as failed, not as success.
+Keep frontend filtering, SQL internals, audit storage and retry details out of this timed walkthrough.

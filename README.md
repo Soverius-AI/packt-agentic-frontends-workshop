@@ -98,13 +98,25 @@ pnpm dev
 
 On later rehearsals, use `git switch ai-devcraft/live-ui` instead of creating it again. To return to chapter 2, stop the app, run `git switch ai-devcraft/live-demo`, reinstall dependencies and restart. Save your changes before switching. The ignored `.env` and databases stay with the application worktree.
 
-Start with Unit 3 → Switch to CopilotKit. In chat, repeat the successful SQL question, show its activity and populated table, then demonstrate changing the view with frontend tools. For human approval, use:
+Unit 3 is a **15-minute demonstration**, with each feature immediately followed by its integration code:
+
+| Time | Feature | Show, then explain |
+| --- | --- | --- |
+| 0–4 min | Chat integration | Question and table result → Angular configuration, chat component and Mastra connection |
+| 4–8 min | Activity display | Running/completed activity → events, registration and UI renderer |
+| 8–15 min | Human-in-the-loop | Reject, then approve a new alarm proposal → registration, approval component and respond() |
+
+Prepare the application branch, open the code and check the alarm state before the timed unit; the Setup menu includes these instructions. Use the existing successful query for the first two features:
+
+> Show the highest air temperature for each shift manager.
+
+For human approval:
 
 > Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.
 
-Pause at the approval card. Reject first and show the audit and resumed chat. Request a new proposal, approve it and show one alarm raised plus the audit. Check the metric is not already raised before rehearsal; resolve your prior demo alarm through the normal UI if needed. Do not delete the audit. Unit 3 sections 2, 3, 4 and 6 include the code walkthrough.
+Reject first, request a new proposal, then approve. Show the outcomes on the card and in the app. Resolve a prior Packaging hall demo alarm through the normal UI before rehearsal; retain the audit. The fixed operator is a demo identity.
 
-The alarm flow uses a fixed demo operator. It demonstrates approval and audited execution, not production authentication.
+There is no separate integration-code section, frontend-filtering demonstration, audit-table walkthrough or repeat of Unit 2 SQL internals in this 15-minute sequence.
 
 ## Updating the presenter notes
 

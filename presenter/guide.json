@@ -38,6 +38,17 @@
           "title": "Start chapter 2",
           "body": "Stop any other demo app using the same ports, then run pnpm dev in the application checkout. Open Angular on 4300 and Mastra Studio on 4211. The presenter desk remains on 4410. Rehearse both prompts here: each worktree has separate databases and Studio history.",
           "command": "pnpm dev"
+        },
+        {
+          "label": "PREPARE",
+          "title": "Prepare Unit 3 before its 15-minute slot",
+          "body": "In the application worktree, save your changes, stop the app and switch to branch 03. Keep the presenter desk running. Create live-ui only once; on later rehearsals use git switch ai-devcraft/live-ui. Have Angular and the code files ready before the Unit 3 timer starts.",
+          "command": "git fetch origin\ngit switch --no-track -c ai-devcraft/live-ui origin/ai-devcraft/03-agentic-ui\npnpm install\npnpm dev"
+        },
+        {
+          "label": "PREPARE",
+          "title": "Rehearse the three Unit 3 features",
+          "body": "Allow 4 minutes for chat integration, 4 for activity and 7 for human approval. Each demo is followed immediately by its code. Rehearse the query and both alarm decisions; keep a recorded fallback. Check Packaging hall → Air temperature has no active alarm. Resolve an earlier demo alarm through the normal UI and keep its audit. Do this preparation before the timed unit."
         }
       ],
       "files": [],
@@ -355,293 +366,165 @@
     },
     {
       "id": "08",
-      "name": "Switch to CopilotKit",
+      "unit": "03",
+      "name": "Chat integration · 4 min",
       "flow": [
-        "Branch 02",
-        "Branch 03",
-        "Same backend",
-        "Agentic UI"
+        "Demo · 2 min",
+        "Chat → existing backend → table",
+        "Code · 2 min"
       ],
       "actions": [
         {
-          "label": "DO",
-          "title": "Switch the application worktree",
-          "body": "Stop pnpm dev with Ctrl+C in the application terminal. Keep the presenter desk running in its separate checkout. Save any changes first. Create this local branch once; on later rehearsals use git switch ai-devcraft/live-ui.",
-          "command": "git fetch origin\ngit switch --no-track -c ai-devcraft/live-ui origin/ai-devcraft/03-agentic-ui\npnpm install\npnpm dev"
+          "label": "DEMO",
+          "title": "Ask the existing backend through chat",
+          "body": "0:00–2:00. Show the Factory assistant replacing Unit 2’s form. Ask the question below and show the populated table. Say: “The backend is the one we already built. CopilotKit connects the conversation to it.” Keep the SQL and Jev internals in Unit 2.",
+          "command": "Show the highest air temperature for each shift manager.",
+          "copyLabel": "Copy prompt"
         },
         {
-          "label": "SHOW",
-          "title": "The backend stays the same",
-          "body": "Reload Angular at http://localhost:4300. The chapter label now says Agentic UI · CopilotKit. Branch 03 includes the latest chapter 02 workflow: SQL generation, deterministic preflight, Jev review and protected execution."
+          "label": "CODE",
+          "title": "Show the Angular connection",
+          "body": "2:00–3:00. Open `apps/angular-host/src/app/app.config.ts` and point to provideCopilotKit and runtimeUrl. Then open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts` and point to copilot-chat with agentId default. Leave the activity registration for the next feature."
         },
         {
-          "label": "EXPLAIN",
-          "title": "What the frontend adds",
-          "body": "Say: “The same backend is now a tool in a conversation. The frontend can show progress, change the view and pause an alarm proposal for a human decision.” There is no A2UI example in this chapter."
-        }
-      ],
-      "files": [],
-      "prompts": [],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
-      "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
-    },
-    {
-      "id": "09",
-      "name": "Connect the agent and UI",
-      "flow": [
-        "Angular chat",
-        "CopilotKit runtime",
-        "Mastra agent",
-        "Tools"
-      ],
-      "actions": [
-        {
-          "label": "OPEN",
-          "title": "Start with the chat",
-          "body": "Open app.config.ts and chat.component.ts. Show provideCopilotKit pointing at /api/copilotkit and copilot-chat using agentId default. This is the UI connection."
-        },
-        {
-          "label": "OPEN",
-          "title": "Follow the server connection",
-          "body": "Open copilot-runtime.ts. MastraAgent connects the runtime to Mastra; HistorianBridge adds investigation activity events to the stream."
-        },
-        {
-          "label": "OPEN",
-          "title": "Show what the agent may do",
-          "body": "Open the main agent. It has query_historian and discovers frontend tools through the runtime. The alarm instruction allows proposals only after an explicit request. The model does not write the alarm directly."
+          "label": "CODE",
+          "title": "Show the Mastra connection",
+          "body": "3:00–4:00. In `apps/facility-service/src/copilot-runtime.ts`, show createWorkshopCopilotRuntime: the Mastra client, agent registration and /api/copilotkit listener. The main agent exposes the existing historian workflow as a tool. Finish by pointing back to the table; move on at minute 4."
         }
       ],
       "files": [
         {
           "path": "apps/angular-host/src/app/app.config.ts",
-          "start": null,
-          "end": null
+          "start": "    provideCopilotKit({",
+          "end": "    provideCopilotChatLabels("
         },
         {
           "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts",
+          "start": "@Component({",
+          "end": "  styles:"
+        },
+        {
+          "path": "apps/facility-service/src/copilot-runtime.ts",
+          "start": "export const createWorkshopCopilotRuntime",
+          "end": null
+        }
+      ],
+      "prompts": [
+        {
+          "title": "Chat to backend",
+          "prompt": "Show the highest air temperature for each shift manager.",
+          "before": "Enter this in the Factory assistant on branch 03.",
+          "expected": "The existing historian workflow returns complete readings into the table.",
+          "inspect": "Show the user question, table result, then chat configuration and server connection.",
+          "optional": false
+        }
+      ],
+      "recovery": "If the provider is slow or unavailable, use a rehearsed run or screenshot and identify it as recorded. Continue with this feature’s code; keep the 15-minute schedule. Check actual errors after the session.",
+      "recoveryCommand": "git status --short",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "10",
+      "unit": "03",
+      "name": "Activity display · 4 min",
+      "flow": [
+        "Demo · 1 min",
+        "Running → complete",
+        "Code · 3 min"
+      ],
+      "actions": [
+        {
+          "label": "DEMO",
+          "title": "Watch the investigation run",
+          "body": "4:00–5:00. Repeat the query, this time focusing on the activity card. Show running → complete and the returned row count. These are tool lifecycle events, not simulated progress or a separate display of every SQL step.",
+          "command": "Show the highest air temperature for each shift manager.",
+          "copyLabel": "Copy prompt"
+        },
+        {
+          "label": "CODE",
+          "title": "Show where activity comes from",
+          "body": "5:00–6:30. In `apps/facility-service/src/investigation-progress.ts`, point to the tool-start and tool-result handling that creates activity snapshots. In `apps/facility-service/src/copilot-runtime.ts`, show run and the pipe forwarding those snapshots into the AG-UI stream. Do not re-explain SQL generation or Jev."
+        },
+        {
+          "label": "CODE",
+          "title": "Connect the event to its renderer",
+          "body": "6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type and schema to InvestigationProgressCard. Open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`: content().status controls the indicator and content().message supplies the text. Move to approval at minute 8."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/facility-service/src/investigation-progress.ts",
           "start": null,
           "end": null
         },
         {
           "path": "apps/facility-service/src/copilot-runtime.ts",
-          "start": null,
-          "end": null
+          "start": "  override run(",
+          "end": "\n}\n"
         },
         {
-          "path": "apps/agent-service/src/mastra/agents/main/agent.ts",
-          "start": null,
-          "end": null
-        }
-      ],
-      "prompts": [],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
-      "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
-    },
-    {
-      "id": "10",
-      "name": "Demo: query with activity",
-      "flow": [
-        "Chat request",
-        "Running",
-        "Jev + execution",
-        "Table + completion"
-      ],
-      "actions": [
-        {
-          "label": "DO",
-          "title": "Ask the same successful question",
-          "body": "Use the prompt below in chat. Keep the table and activity card visible.",
-          "command": "Show the highest air temperature for each shift manager."
+          "path": "apps/angular-host/src/app/app.config.ts",
+          "start": "      renderActivityMessages:",
+          "end": "    provideCopilotChatLabels("
         },
         {
-          "label": "SHOW",
-          "title": "Read the activity and result",
-          "body": "Show the running activity followed by Investigation complete and three returned readings. Point out the populated date/time, manager, room, metric, value and condition. Activity reflects actual tool events; it is not a timer or a per-step percentage."
-        },
-        {
-          "label": "OPEN",
-          "title": "Connect the result to the table",
-          "body": "In connect-facility-agent.ts, show historianResult and the effect calling showHistorianResult. The frontend consumes the structured tool result. The agent receives a short acknowledgment rather than the complete reading payload."
-        },
-        {
-          "label": "SHOW",
-          "title": "Reuse the backend walkthrough",
-          "body": "In Studio, inspect query_historian and its historianQueryWorkflow run. The four steps and Jev checks are the same as chapter 2. The chat agent chooses the tool; the workflow executes it."
-        }
-      ],
-      "files": [
-        {
-          "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts",
-          "start": "export function connectFacilityAgent()",
-          "end": "  const invalidToolPayload"
-        },
-        {
-          "path": "apps/facility-service/src/investigation-progress.ts",
+          "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts",
           "start": null,
           "end": null
         }
       ],
       "prompts": [
         {
-          "title": "Successful query",
+          "title": "Visible activity",
           "prompt": "Show the highest air temperature for each shift manager.",
-          "before": "Enter this in the Factory assistant chat on branch 03.",
-          "expected": "Completed activity and three complete readings for the seeded data.",
-          "inspect": "Show the corresponding UI result and the actual tool output in Mastra Studio.",
+          "before": "Enter this in the Factory assistant on branch 03.",
+          "expected": "The activity card changes from running to complete when the actual query finishes.",
+          "inspect": "Keep the activity card visible, then show event handling, renderer registration and the small Angular renderer.",
           "optional": false
         }
       ],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
+      "recovery": "If the provider is slow or unavailable, use a rehearsed run or screenshot and identify it as recorded. Continue with this feature’s code; keep the 15-minute schedule. Check actual errors after the session.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
-    },
-    {
-      "id": "11",
-      "name": "Demo: frontend tools",
-      "flow": [
-        "User intent",
-        "Discover options",
-        "Frontend tool",
-        "Angular state"
-      ],
-      "actions": [
-        {
-          "label": "DO",
-          "title": "Let the agent adjust the view",
-          "body": "Enter the prompt below. Show Reading log selected and Cooling room selected in the room filter.",
-          "command": "Switch to the reading log and show only the Cooling room."
-        },
-        {
-          "label": "OPEN",
-          "title": "Show context and tool registration",
-          "body": "In connect-facility-agent.ts, show connectAgentContext, list_rooms, set_view and update_filters. The context shares view state and timezone. Tools return available options and update the existing Angular store."
-        },
-        {
-          "label": "EXPLAIN",
-          "title": "Keep the distinction clear",
-          "body": "Say: “This changes the interface. The previous example generated SQL on the backend. Both use the same chat, but they use different tools.”"
-        }
-      ],
-      "files": [
-        {
-          "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts",
-          "start": "  connectAgentContext(",
-          "end": "  registerHumanInTheLoop("
-        }
-      ],
-      "prompts": [
-        {
-          "title": "Change the view",
-          "prompt": "Switch to the reading log and show only the Cooling room.",
-          "before": "Enter this in the Factory assistant chat on branch 03.",
-          "expected": "Reading log is selected and its room filter is Cooling room.",
-          "inspect": "Show the corresponding UI result and the actual tool output in Mastra Studio.",
-          "optional": false
-        }
-      ],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
-      "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
+      "source": "presenter/guide.json"
     },
     {
       "id": "12",
-      "name": "Demo: human approval",
+      "unit": "03",
+      "name": "Human-in-the-loop · 7 min",
       "flow": [
-        "Proposal",
-        "Human decision",
-        "Facility + audit",
-        "Resume chat"
+        "Demo · 4 min",
+        "Propose → reject / approve → resume",
+        "Code · 3 min"
       ],
       "actions": [
         {
-          "label": "DO",
-          "title": "Check the alarm before the demo",
-          "body": "Select Snapshot and inspect Packaging hall → Air temperature. It should say not raised. If a previous rehearsal already raised it, resolve that demo alarm with the normal UI before presenting, or use another unraised metric and adapt the prompt. Keep the audit."
+          "label": "DEMO",
+          "title": "Pause at the human decision",
+          "body": "8:00–9:00. Ask for the alarm below. Point out the room, metric and reason on the approval card. Nothing has been raised merely because the agent proposed it.",
+          "command": "Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.",
+          "copyLabel": "Copy prompt"
         },
         {
-          "label": "DO",
-          "title": "Ask for an alarm proposal",
-          "body": "Enter the prompt below. Pause when the approval card appears. Show room, metric, reason and operator. The alarm has not been raised yet.",
-          "command": "Raise an alarm for the Packaging hall air temperature because I want the operator to investigate."
+          "label": "DEMO",
+          "title": "Reject the proposal",
+          "body": "9:00–10:00. Click Reject. Show the rejected outcome on the card and the assistant continuing the conversation. The alarm count stays unchanged."
         },
         {
-          "label": "SHOW",
-          "title": "Reject first",
-          "body": "Click Reject. Show Rejected · no alarm was raised, the rejected audit entry and the resumed assistant acknowledgment. The active alarm count must not increase."
+          "label": "DEMO",
+          "title": "Approve a new proposal",
+          "body": "10:00–12:00. Ask again with the prompt below. Click Approve and raise alarm. Show the card’s executed outcome, one additional active alarm and the resumed assistant. Stay with the card and app; no separate audit-table walkthrough.",
+          "command": "Please propose that alarm again for Packaging hall air temperature. I want to approve it this time.",
+          "copyLabel": "Copy prompt"
         },
         {
-          "label": "DO",
-          "title": "Create a new proposal",
-          "body": "Ask again using the prompt below. A new proposal needs a new human decision.",
-          "command": "Please propose that alarm again for Packaging hall air temperature. I want to approve it this time."
+          "label": "CODE",
+          "title": "Register the human pause",
+          "body": "12:00–13:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts`, show registerHumanInTheLoop with name review_alarm, its schema and AlarmApprovalCard. This registers the tool whose execution waits for the operator."
         },
         {
-          "label": "SHOW",
-          "title": "Approve and inspect the outcome",
-          "body": "Click Approve and raise alarm. Show Approved · alarm raised, the active alarm count increasing by one, the approved audit entry and the assistant acknowledgment. Approval and execution are distinct: an already-active alarm produces an execution-failed outcome."
-        },
-        {
-          "label": "EXPLAIN",
-          "title": "Name the demo boundary",
-          "body": "The facility backend performs the write and records both decisions. This workshop uses the fixed demo operator night-reception; it does not implement production authentication or role-based authorization."
-        }
-      ],
-      "files": [],
-      "prompts": [
-        {
-          "title": "Request human approval",
-          "prompt": "Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.",
-          "before": "Enter this in the Factory assistant chat on branch 03.",
-          "expected": "A card waits for Reject or Approve and raise alarm. Nothing is raised merely by proposing it.",
-          "inspect": "Show the corresponding UI result and the actual tool output in Mastra Studio.",
-          "optional": false
-        }
-      ],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
-      "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
-    },
-    {
-      "id": "13",
-      "name": "Walk through human approval",
-      "flow": [
-        "registerHumanInTheLoop",
-        "Approval card",
-        "Audited transaction",
-        "respond"
-      ],
-      "actions": [
-        {
-          "label": "OPEN",
-          "title": "Register the human step",
-          "body": "At the end of connect-facility-agent.ts, show review_alarm, its schema and AlarmApprovalCard. This is the pause point exposed to the agent."
-        },
-        {
-          "label": "OPEN",
-          "title": "Follow the human click",
-          "body": "In AlarmApprovalCard, follow decide: validate the proposal against the facility catalog, wait for the operator, call the store, then pass the recorded outcome to toolCall.respond. Both approval and rejection resume the conversation."
-        },
-        {
-          "label": "OPEN",
-          "title": "Follow the backend write",
-          "body": "Open facility-store.ts → decideAlarmApproval and facility-client.ts → decideAlarmApproval in the app checkout. Follow POST /api/alarm-approvals in server.ts into repository.ts. The transaction checks the metric, records the decision and creates an alarm only when approved."
-        },
-        {
-          "label": "SHOW",
-          "title": "Explain retries with one concrete example",
-          "body": "The message/tool-call identity remains stable when the card reopens or a request is retried. The backend returns the recorded result for that same decision rather than creating a second alarm. A conflicting decision is rejected."
-        },
-        {
-          "label": "SHOW",
-          "title": "Close with the failure paths",
-          "body": "An invalid proposal can be dismissed without executing it, so the conversation can continue. A failed HTTP request shows an error and allows retry. An approved but failed alarm operation is displayed as failed, not as success."
+          "label": "CODE",
+          "title": "Return the human decision to the conversation",
+          "body": "13:00–15:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/alarm-approval-card.ts`, follow decide: read the human choice, await store.decideAlarmApproval, display the recorded outcome and call toolCall.respond(record). Both choices resume the agent. Say: “CopilotKit manages the interaction; our facility service validates and executes the approved operation.” Mention the fixed demo operator briefly. Finish here; backend audit storage and retry implementation are supporting code."
         }
       ],
       "files": [
@@ -652,20 +535,23 @@
         },
         {
           "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/alarm-approval-card.ts",
-          "start": "export class AlarmApprovalCard",
-          "end": null
-        },
-        {
-          "path": "apps/facility-service/src/repository.ts",
-          "start": "  decideAlarmApproval(",
-          "end": null
+          "start": "  protected async decide(",
+          "end": "  protected dismissProposal("
         }
       ],
-      "prompts": [],
-      "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
+      "prompts": [
+        {
+          "title": "Human approval",
+          "prompt": "Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.",
+          "before": "Enter this in the Factory assistant on branch 03.",
+          "expected": "The card waits for a decision. Reject creates no alarm; approving a new proposal raises one and resumes the conversation.",
+          "inspect": "Show the approval card and actual app outcome, then registerHumanInTheLoop and respond().",
+          "optional": false
+        }
+      ],
+      "recovery": "If the provider is slow or unavailable, use a rehearsed run or screenshot and identify it as recorded. Continue with this feature’s code; keep the 15-minute schedule. Check actual errors after the session.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json",
-      "unit": "03"
+      "source": "presenter/guide.json"
     }
   ],
   "units": [
