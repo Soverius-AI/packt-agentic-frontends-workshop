@@ -17,7 +17,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 @Service()
-export class FacilityApi {
+export class FacilityClient {
   readonly #http = inject(HttpClient);
 
   async investigate(question: string): Promise<HistorianToolResult> {

@@ -37,3 +37,9 @@ The subsequent `ai-devcraft/03-agentic-ui` branch adds CopilotKit/AG-UI to the s
 `pnpm build` builds shared contracts, facility service, Mastra and Angular. `pnpm format:check` checks formatting. The historian policy and worker deadline are retained from the original implementation.
 
 Earlier workshop documents under `docs/` are retained as source material; this README defines the AI DevCraft demo.
+
+## Angular structure
+
+The shared Angular refactor originates on this backend-only branch. It uses a facility domain, Signal Store, Signal Forms, single-file components, strict checking, and Sheriff boundaries. See [Architecture](apps/angular-host/ARCHITECTURE.md). Run `pnpm --filter angular-host lint` and `pnpm --filter angular-host test`.
+
+Branch numbers match talk chapters: 01 Agentic Coding, 02 Backend Agents, 03 Agentic UI.
