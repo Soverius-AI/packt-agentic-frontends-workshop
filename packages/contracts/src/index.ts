@@ -100,6 +100,11 @@ export const facilityReadingEntrySchema = z.object({
 });
 export type FacilityReadingEntry = z.infer<typeof facilityReadingEntrySchema>;
 
+export const historianEntrySchema = facilityReadingEntrySchema
+  .partial()
+  .strict();
+export type HistorianEntry = z.infer<typeof historianEntrySchema>;
+
 export const facilityReadingPageSchema = z.object({
   entries: z.array(facilityReadingEntrySchema),
   total: z.number().int().nonnegative(),
@@ -245,7 +250,6 @@ export type HistorianQueryInput = QueryHistorianToolInput;
 export const sqlReviewSchema = z
   .object({
     approved: z.boolean(),
-    summary: z.string().trim().min(1).max(1_000),
     concerns: z.array(z.string().trim().min(1).max(500)).max(10),
   })
   .strict();
@@ -263,7 +267,7 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
   historianToolResultBaseSchema
     .extend({
       status: z.literal("executed"),
-      entries: z.array(facilityReadingEntrySchema).max(200),
+      entries: z.array(historianEntrySchema).max(200),
       rowCount: z.number().int().nonnegative().max(200),
       truncated: z.boolean(),
       durationMs: z.number().int().nonnegative(),

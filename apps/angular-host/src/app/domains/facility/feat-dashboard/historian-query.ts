@@ -39,14 +39,16 @@ import { FacilityClient } from '../data/facility-client';
         }
         @if (response(); as result) {
           @if (result.status === 'executed') {
-            <p>{{ result.rowCount }} readings found.</p>
+            <p>{{ result.rowCount }} rows found.</p>
           } @else {
             <p role="alert">{{ result.message }}</p>
           }
           <details>
             <summary>Query and review</summary>
             <pre>{{ result.sql }}</pre>
-            <p>{{ result.review.summary }}</p>
+            @for (concern of result.review.concerns; track $index) {
+              <p>{{ concern }}</p>
+            }
           </details>
         }
       </div>

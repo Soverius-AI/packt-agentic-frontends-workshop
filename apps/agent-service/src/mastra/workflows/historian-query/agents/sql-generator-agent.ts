@@ -2,34 +2,19 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import { z } from "zod";
 
-// Workflow-private, tool-free agent for the generate-sql step.
+export const SQL_GENERATOR_INSTRUCTIONS = `Generate one read-only SQLite SELECT or WITH query and a short explanation.
 
-export const SQL_GENERATOR_INSTRUCTIONS = `You generate one read-only SQLite query for the Soverius Chocolate Factory historian.
+View: historian_readings
+Always return all these output columns: reading_id, recorded_at, room_id, room_name, metric_id, metric_name, unit, numeric_value, text_value, shift_manager_name, condition.
+recorded_at is ISO-8601 UTC. condition is normal, warning, critical, or unavailable.
+Rooms: Cooling room, Packaging hall.
+Metrics: Air temperature, Relative humidity, Product surface temperature, Supply-air temperature, Cooling-unit power, Line state, Line speed, Seal temperature, Package reject rate.
+Use exact catalog values. Unqualified "temperature" means Air temperature.
 
-The only query surface is historian_readings with these columns:
-- reading_id
-- recorded_at (ISO-8601 UTC timestamp)
-- room_id, room_name
-- metric_id, metric_name, unit
-- numeric_value, text_value
-- shift_manager_name
-- condition (normal, warning, critical, unavailable)
-
-Use these exact catalog values when filtering:
-- room_name: Cooling room, Packaging hall
-- metric_name: Air temperature, Relative humidity, Product surface temperature, Supply-air temperature, Cooling-unit power, Line state, Line speed, Seal temperature, Package reject rate
-
-Never shorten or invent a catalog value in an equality predicate. In an unqualified facility request, "temperature" means the Air temperature metric. Other temperature metrics must be named by the operator or clearly required by the question.
-
-Every successful query must populate the application's existing historical-reading grid. The final SELECT must therefore return complete stored reading records with exactly these columns and in this order:
-reading_id, recorded_at, room_id, room_name, metric_id, metric_name, unit, numeric_value, text_value, shift_manager_name, condition.
-
-Use exactly one SELECT or read-only WITH statement. SQLite CTEs, MAX, MIN, allowlisted window functions such as ROW_NUMBER, and date/time functions are available. A request for a maximum or minimum is supported by selecting the complete stored reading row that contains the extreme value. Prefer ROW_NUMBER partitioned by the requested grouping and ordered by numeric_value, recorded_at, and reading_id. Do not return a computed aggregate row.
-
-Average, count, sum, totals, grouped scalar summaries, renamed columns, and any other result that cannot be represented as complete historical-reading records are deliberately unsupported in this milestone. They require the later A2UI milestone. Do not invent tables, columns, or evidence.
-
-Respond with only compact JSON in this shape:
-{"sql":"SELECT ...","explanation":"short explanation"}`;
+For highest/lowest reading requests, select the complete stored row, retaining its timestamp, room, metric, and condition. Per group, use ROW_NUMBER; break ties by latest recorded_at, then reading_id. Exclude the ranking column from the final output.
+MAX, MIN, and AVG are supported as numeric_value. For aggregate results, return every column; retain metadata that has one value within the group, otherwise return NULL under that column's name. Never select ungrouped, non-aggregated metadata alongside an aggregate. Do not invent output columns.
+Example for average air temperature per shift manager:
+SELECT NULL AS reading_id, NULL AS recorded_at, NULL AS room_id, NULL AS room_name, NULL AS metric_id, metric_name, unit, AVG(numeric_value) AS numeric_value, NULL AS text_value, shift_manager_name, NULL AS condition FROM historian_readings WHERE metric_name = 'Air temperature' GROUP BY shift_manager_name, metric_name, unit.`;
 
 const sqlGenerationSchema = z
   .object({
