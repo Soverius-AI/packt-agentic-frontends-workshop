@@ -116,3 +116,101 @@ test("human rejection creates no alarm; approval is audited and idempotent", () 
     repository.close();
   }
 });
+
+test("HTTP approval boundary validates, audits, and recovers the same decision", async () => {
+  const { createFacilityServer } = await import("../dist/server.js");
+  const { LiveTelemetry } = await import("../dist/live-telemetry.js");
+  const repository = new FacilityRepository(":memory:");
+  repository.initialize();
+  const server = createFacilityServer(
+    repository,
+    new LiveTelemetry(repository),
+    async () => {
+      throw new Error("Historian is not part of this approval test");
+    },
+  );
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const url = `http://127.0.0.1:${server.address().port}/api/alarm-approvals`;
+  const post = (body) =>
+    fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  const metric = repository
+    .getDashboard()
+    .rooms.flatMap((room) => room.metrics)
+    .find((metric) => !metric.activeAlarm);
+  const request = {
+    correlationId: '["thread-1","message-1","tool-call-1"]',
+    proposal: {
+      metricId: metric.id,
+      metricName: metric.name,
+      reason: "Operator requests investigation",
+    },
+    operatorId: "test-operator",
+    decision: "rejected",
+  };
+  const active = () =>
+    repository
+      .getDashboard()
+      .rooms.flatMap((room) => room.metrics)
+      .find((row) => row.id === metric.id).activeAlarm;
+  try {
+    assert.equal(active(), null);
+    assert.equal((await post({ ...request, decision: "maybe" })).status, 400);
+    assert.equal(
+      (
+        await post({
+          ...request,
+          proposal: { ...request.proposal, metricName: "Invented" },
+        })
+      ).status,
+      409,
+    );
+    assert.equal(
+      (
+        await post({
+          ...request,
+          proposal: { ...request.proposal, metricId: "absent" },
+        })
+      ).status,
+      404,
+    );
+    assert.equal(repository.getAlarmApprovalAudit().entries.length, 0);
+    assert.equal((await (await post(request)).json()).outcome, "not-executed");
+    assert.equal(active(), null);
+    const approved = {
+      ...request,
+      correlationId: '["thread-1","message-2","tool-call-2"]',
+      decision: "approved",
+    };
+    const first = await (await post(approved)).json();
+    assert.equal(first.outcome, "executed");
+    assert.equal(active().id, first.alarmId);
+    assert.deepEqual(await (await post(approved)).json(), first);
+    assert.equal(
+      (await post({ ...approved, decision: "rejected" })).status,
+      409,
+    );
+    const duplicate = await (
+      await post({ ...approved, correlationId: "another-proposal" })
+    ).json();
+    assert.equal(duplicate.outcome, "failed");
+    assert.equal(duplicate.alarmId, null);
+    repository.transitionAlarm(first.alarmId, "acknowledged", "test-operator");
+    repository.transitionAlarm(first.alarmId, "resolved", "test-operator");
+    assert.equal(active(), null);
+    assert.deepEqual(await (await post(approved)).json(), first);
+    assert.equal(
+      active(),
+      null,
+      "retrying a resolved decision must not create another alarm",
+    );
+    const audit = await (await fetch(url)).json();
+    assert.equal(audit.entries.length, 3);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    repository.close();
+  }
+});

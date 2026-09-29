@@ -1,5 +1,19 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import type { HumanInTheLoopToolCall, HumanInTheLoopToolRenderer } from '@copilotkit/angular';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
+import {
+  RenderToolCalls,
+  type HumanInTheLoopToolCall,
+  type HumanInTheLoopToolRenderer,
+} from '@copilotkit/angular';
 import {
   alarmApprovalAuditEntrySchema,
   alarmApprovalToolSchema,
@@ -12,12 +26,23 @@ import { FacilityStore } from '../../data/facility-store';
 @Component({
   selector: 'app-alarm-approval-card',
   template: `
-    <section class="approval-card" [attr.aria-labelledby]="headingId">
+    <section #card class="approval-card" tabindex="-1" [attr.aria-labelledby]="headingId">
       <p class="eyebrow">Human approval required</p>
       <h3 [id]="headingId">Raise an alarm?</h3>
 
-      @if (proposal(); as proposal) {
+      @if (toolCall().status === 'in-progress') {
+        <p role="status">Preparing the approval request…</p>
+      } @else if (proposalProblem(); as problem) {
+        <p role="alert">{{ problem }} No alarm was raised.</p>
+        @if (toolCall().status === 'executing' && !dismissed()) {
+          <button type="button" (click)="dismissProposal()">Dismiss proposal</button>
+        }
+      } @else if (proposal(); as proposal) {
         <dl>
+          <div>
+            <dt>Room</dt>
+            <dd>{{ roomName() }}</dd>
+          </div>
           <div>
             <dt>Metric</dt>
             <dd>{{ proposal.metricName }}</dd>
@@ -53,8 +78,6 @@ import { FacilityStore } from '../../data/facility-store';
         } @else {
           <p role="status">Preparing the approval request…</p>
         }
-      } @else {
-        <p role="alert">The alarm proposal is incomplete.</p>
       }
     </section>
   `,
@@ -149,13 +172,41 @@ import { FacilityStore } from '../../data/facility-store';
 export class AlarmApprovalCard implements HumanInTheLoopToolRenderer<AlarmApprovalToolInput> {
   readonly toolCall = input.required<HumanInTheLoopToolCall<AlarmApprovalToolInput>>();
   readonly #store = inject(FacilityStore);
-  readonly #correlationId = crypto.randomUUID();
-  protected readonly headingId = `alarm-approval-${this.#correlationId}`;
+  readonly #injector = inject(Injector);
+  private readonly card = viewChild.required<ElementRef<HTMLElement>>('card');
+  readonly #renderer = inject(RenderToolCalls);
+  readonly #correlationId = computed(() => {
+    const message = this.#renderer.message();
+    const calls = (message.toolCalls ?? []).filter((call) => call.function.name === 'review_alarm');
+    if (calls.length !== 1) return undefined;
+    return JSON.stringify([message.id, calls[0]!.id]);
+  });
+  protected readonly headingId = `alarm-approval-${crypto.randomUUID()}`;
   protected readonly busy = signal(false);
+  protected readonly dismissed = signal(false);
   protected readonly error = signal<string | undefined>(undefined);
   protected readonly recorded = signal<AlarmApprovalAuditEntry | undefined>(undefined);
   protected readonly proposal = computed(
     () => alarmApprovalToolSchema.safeParse(this.toolCall().args).data,
+  );
+  protected readonly proposalProblem = computed(() => {
+    const proposal = this.proposal();
+    if (!proposal) return 'The alarm proposal is incomplete or invalid.';
+    if (!this.#correlationId()) return 'Only one alarm proposal per message is supported.';
+    const metric = this.#store
+      .rooms()
+      .flatMap((room) => room.metrics)
+      .find((metric) => metric.id === proposal.metricId);
+    if (!metric || metric.name !== proposal.metricName)
+      return 'The proposed metric does not match the facility catalog.';
+    return undefined;
+  });
+  protected readonly roomName = computed(
+    () =>
+      this.#store
+        .rooms()
+        .find((room) => room.metrics.some((metric) => metric.id === this.proposal()?.metricId))
+        ?.name ?? 'Unknown room',
   );
   protected readonly record = computed(() => {
     const recorded = this.recorded();
@@ -172,17 +223,29 @@ export class AlarmApprovalCard implements HumanInTheLoopToolRenderer<AlarmApprov
   protected async decide(decision: AlarmApprovalDecision): Promise<void> {
     const toolCall = this.toolCall();
     const proposal = this.proposal();
-    if (toolCall.status !== 'executing' || !proposal || this.busy()) return;
+    const correlationId = this.#correlationId();
+    if (
+      !correlationId ||
+      toolCall.status !== 'executing' ||
+      !proposal ||
+      this.proposalProblem() ||
+      this.busy() ||
+      this.record()
+    )
+      return;
 
+    const card = this.card().nativeElement;
+    const hadFocus = card.contains(card.ownerDocument.activeElement);
     this.busy.set(true);
     this.error.set(undefined);
     try {
       const record = await this.#store.decideAlarmApproval({
-        correlationId: this.#correlationId,
+        correlationId,
         proposal,
         decision,
         operatorId: 'night-reception',
       });
+      this.restoreFocus(hadFocus);
       this.recorded.set(record);
       toolCall.respond(record);
     } catch (error) {
@@ -192,6 +255,29 @@ export class AlarmApprovalCard implements HumanInTheLoopToolRenderer<AlarmApprov
     } finally {
       this.busy.set(false);
     }
+  }
+
+  protected dismissProposal(): void {
+    const call = this.toolCall();
+    const problem = this.proposalProblem();
+    if (call.status !== 'executing' || !problem || this.dismissed()) return;
+    this.restoreFocus();
+    this.dismissed.set(true);
+    call.respond({ decision: 'rejected', outcome: 'not-executed', error: problem });
+  }
+
+  private restoreFocus(hadFocus?: boolean): void {
+    const card = this.card().nativeElement;
+    if (!(hadFocus ?? card.contains(card.ownerDocument.activeElement))) return;
+    afterNextRender(
+      () => {
+        const active = card.ownerDocument.activeElement;
+        if (card.isConnected && (active === card.ownerDocument.body || card.contains(active))) {
+          card.focus();
+        }
+      },
+      { injector: this.#injector },
+    );
   }
 
   protected outcomeLabel(record: AlarmApprovalAuditEntry): string {

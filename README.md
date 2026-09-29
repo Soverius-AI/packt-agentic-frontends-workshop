@@ -52,13 +52,15 @@ The application owns data validation and execution. Mastra agents do not receive
 
 ## Chapter 3: agentic UI
 
-The same reviewed SQL workflow is now a Mastra tool behind CopilotKit/AG-UI. The chat replaces the basic form. No A2UI or generated layouts are involved.
+Branch 03 includes branch 02 at `db7d404`, including deterministic preflight, Jev and the complete-column result contract. The same reviewed SQL workflow is now a Mastra tool behind CopilotKit/AG-UI. The chat replaces the basic form. No A2UI or generated layouts are involved.
 
 1. Ask **“Show the highest air temperature for each shift manager.”** The activity card reports the real tool start and completion/rejection. Results populate the existing table. It does not simulate percentages or individual SQL phases.
 2. Ask **“Switch to the reading log and filter to the Cooling room.”** Bounded frontend tools discover available options, change the view, and apply filters. This is the additional feature: the assistant operates the existing application.
-3. Ask **“Raise an alarm for the Cooling room air temperature because I want the operator to investigate.”** An approval card pauses the conversation. Reject it first, then ask again and approve. Use a metric without an existing active alarm. Both decisions appear in the audit; approving creates an alarm only after the facility service validates and records the decision.
+3. Ask **“Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.”** An approval card pauses the conversation. Reject it first, then ask again and approve. Use a metric without an existing active alarm. The card identifies the room from the facility catalog. Both valid decisions appear in the audit; approving creates an alarm only after the facility service validates and records the decision. Invalid proposals can be dismissed without a mutation. Retries use the same message/tool-call decision key, including after the card is recreated.
 
 The approval card is an explicit demo operator interaction. This local workshop has a fixed operator identity, not production authentication. Existing manual alarm controls remain available. The model has no direct alarm mutation tool.
+
+The chapter 3 presenter walkthrough is in the separate `ai-devcraft/00-start` presenter desk. It covers the chat connection, actual progress events, frontend tools, approval/rejection and the audit.
 
 ## Switch checkpoints
 

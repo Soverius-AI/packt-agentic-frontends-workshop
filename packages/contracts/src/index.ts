@@ -53,7 +53,7 @@ export type AlarmApprovalDecision = z.infer<typeof alarmApprovalDecisionSchema>;
 
 export const alarmApprovalRequestSchema = z
   .object({
-    correlationId: z.uuid(),
+    correlationId: z.string().min(1).max(500),
     proposal: alarmApprovalToolSchema,
     decision: alarmApprovalDecisionSchema,
     operatorId: z.string().trim().min(1).max(100),
@@ -63,7 +63,7 @@ export type AlarmApprovalRequest = z.infer<typeof alarmApprovalRequestSchema>;
 
 export const alarmApprovalAuditEntrySchema = z
   .object({
-    correlationId: z.uuid(),
+    correlationId: z.string().min(1).max(500),
     action: z.literal("raise-alarm"),
     metricId: z.string().min(1),
     metricName: z.string().min(1),
