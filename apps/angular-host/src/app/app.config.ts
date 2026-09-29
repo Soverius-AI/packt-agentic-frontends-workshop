@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { provideCopilotChatLabels, provideCopilotKit } from '@copilotkit/angular';
 
 import { investigationActivityType, investigationProgressSchema } from '@packt-workshop/contracts';
-import { InvestigationProgressCard } from './investigation-progress-card';
+import { InvestigationProgressCard } from './domains/facility/feat-dashboard/agent/investigation-progress-card';
 
 import { routes } from './app.routes';
 

@@ -3,15 +3,17 @@ import { inject, Service } from '@angular/core';
 import {
   alarmApprovalAuditEntrySchema,
   alarmApprovalAuditSchema,
+  type AlarmApprovalAudit,
+  type AlarmApprovalAuditEntry,
+  type AlarmApprovalRequest,
+  historianToolResultSchema,
+  type HistorianToolResult,
   facilityDashboardSchema,
   facilityReadingPageSchema,
   metricAlarmSchema,
   metricHistorySchema,
   metricUpdateEventSchema,
   type FacilityDashboard,
-  type AlarmApprovalAudit,
-  type AlarmApprovalAuditEntry,
-  type AlarmApprovalRequest,
   type FacilityReadingPage,
   type MetricAlarm,
   type MetricHistory,
@@ -20,8 +22,15 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 @Service()
-export class FacilityApi {
+export class FacilityClient {
   readonly #http = inject(HttpClient);
+
+  async investigate(question: string): Promise<HistorianToolResult> {
+    const response = await firstValueFrom(
+      this.#http.post<unknown>('/api/investigate', { question }),
+    );
+    return historianToolResultSchema.parse(response);
+  }
 
   async getDashboard(): Promise<FacilityDashboard> {
     const response = await firstValueFrom(this.#http.get<unknown>('/api/dashboard'));

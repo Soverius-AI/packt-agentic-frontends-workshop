@@ -6,7 +6,9 @@
     "dev": "ng serve --port 4300",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test --watch=false",
+    "lint": "eslint src"
   },
   "private": true,
   "packageManager": "pnpm@11.19.0",
@@ -21,13 +23,22 @@
     "@copilotkit/angular": "0.3.1",
     "@packt-workshop/contracts": "workspace:*",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "@ngrx/signals": "22.0.1"
   },
   "devDependencies": {
     "@angular/build": "^22.1.4",
     "@angular/cli": "^22.1.4",
     "@angular/compiler-cli": "^22.1.0",
     "prettier": "^3.8.1",
-    "typescript": "~6.0.2"
+    "typescript": "~6.0.2",
+    "vitest": "^4.1.1",
+    "jsdom": "^27.2.0",
+    "eslint": "^9.39.1",
+    "@eslint/js": "^9.39.1",
+    "typescript-eslint": "^8.48.0",
+    "angular-eslint": "22.5.0",
+    "@softarc/eslint-plugin-sheriff": "^0.19.6",
+    "@softarc/sheriff-core": "^0.19.6"
   }
 }

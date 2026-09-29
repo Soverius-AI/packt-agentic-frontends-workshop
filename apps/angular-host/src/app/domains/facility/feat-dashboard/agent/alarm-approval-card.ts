@@ -7,8 +7,7 @@ import {
   type AlarmApprovalDecision,
   type AlarmApprovalToolInput,
 } from '@packt-workshop/contracts';
-import { AlarmApprovalEvents } from './alarm-approval-events';
-import { FacilityApi } from './facility-api';
+import { FacilityStore } from '../../data/facility-store';
 
 @Component({
   selector: 'app-alarm-approval-card',
@@ -149,8 +148,7 @@ import { FacilityApi } from './facility-api';
 })
 export class AlarmApprovalCard implements HumanInTheLoopToolRenderer<AlarmApprovalToolInput> {
   readonly toolCall = input.required<HumanInTheLoopToolCall<AlarmApprovalToolInput>>();
-  readonly #api = inject(FacilityApi);
-  readonly #events = inject(AlarmApprovalEvents);
+  readonly #store = inject(FacilityStore);
   readonly #correlationId = crypto.randomUUID();
   protected readonly headingId = `alarm-approval-${this.#correlationId}`;
   protected readonly busy = signal(false);
@@ -179,14 +177,13 @@ export class AlarmApprovalCard implements HumanInTheLoopToolRenderer<AlarmApprov
     this.busy.set(true);
     this.error.set(undefined);
     try {
-      const record = await this.#api.decideAlarmApproval({
+      const record = await this.#store.decideAlarmApproval({
         correlationId: this.#correlationId,
         proposal,
         decision,
         operatorId: 'night-reception',
       });
       this.recorded.set(record);
-      this.#events.notify(record);
       toolCall.respond(record);
     } catch (error) {
       this.error.set(
