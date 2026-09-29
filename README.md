@@ -102,11 +102,17 @@ Unit 3 is a **15-minute demonstration**, with each feature immediately followed 
 
 | Time | Feature | Show, then explain |
 | --- | --- | --- |
-| 0–4 min | Chat integration | Question and table result → Angular configuration, chat component and Mastra connection |
+| 0–4 min | Frontend tools | Change view and filter, then return to Snapshot → chat configuration and registerFrontendTool handler |
 | 4–8 min | Activity display | Workflow step activity → workflow writer, streamed forwarding and UI renderer |
 | 8–15 min | Human-in-the-loop | Reject, then approve a new alarm proposal → registration, approval component and respond() |
 
-Prepare the application branch, open the code and check the alarm state before the timed unit; the Setup menu includes these instructions. Use the existing successful query for the first two features:
+Prepare the application branch, open the code and check the alarm state before the timed unit; the Setup menu includes these instructions. Start with these frontend commands:
+
+> Open the reading log and set the room filter to Cooling room.
+
+> Go back to the snapshot view.
+
+For the second feature, introduce the SQL workflow and its activity display:
 
 > Show the highest air temperature for each shift manager.
 

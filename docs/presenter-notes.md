@@ -103,27 +103,33 @@ Transition: “Now we have the backend workflow. Next, we add CopilotKit and AG-
 
 Prepare branch 03 and the demo alarm before the timed unit using the Setup menu. Each feature follows demonstrate → explain its integration code.
 
-### Chat integration · 4 min
+### Frontend tools · 4 min
 
-**DEMO — Ask the existing backend through chat**
+**DEMO — Change the view and a filter**
 
-0:00–2:00. Show the Factory assistant replacing Unit 2’s form. Ask the question below and show the populated table. Say: “The backend is the one we already built. CopilotKit connects the conversation to it.” Keep the SQL and Jev internals in Unit 2.
+0:00–1:00. Start with a fresh chat in Snapshot. Enter the prompt below. Point to the selected Reading log tab and the Room field changing to Cooling room. Say: “The agent calls a tool registered in Angular. Its handler updates the same store as the regular controls.” This uses the existing reading-log API; it does not generate SQL or show the workflow progress card.
 
-> Show the highest air temperature for each shift manager.
+> Open the reading log and set the room filter to Cooling room.
 
-**CODE — Show the Angular connection**
+**DEMO — Return to Snapshot through chat**
 
-2:00–3:00. Open `apps/angular-host/src/app/app.config.ts` and point to provideCopilotKit and runtimeUrl. Then open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts` and point to copilot-chat with agentId default. Leave the activity registration for the next feature.
+1:00–2:00. Enter the prompt below. Show the Snapshot tab becoming active and the live overview returning. This is the small set_view frontend tool. Existing reading-log filters remain preserved.
 
-**CODE — Show the Mastra connection**
+> Go back to the snapshot view.
 
-3:00–4:00. In `apps/facility-service/src/copilot-runtime.ts`, show createWorkshopCopilotRuntime: the Mastra client, agent registration and /api/copilotkit listener. The main agent exposes the existing historian workflow as a tool. Finish by pointing back to the table; move on at minute 4.
+**CODE — Show the chat connection**
+
+2:00–3:00. In `apps/angular-host/src/app/app.config.ts`, briefly point to provideCopilotKit and runtimeUrl. Then show copilot-chat with agentId default in `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts`. The backend model chooses a tool; Angular executes the frontend handler.
+
+**CODE — Follow the frontend handler**
+
+3:00–4:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts`, show registerFrontendTool for set_view: name, parameters, handler and store.configureFacilityView. Then point to update_filters directly below it. The list_rooms tool supplies valid room IDs; connectAgentContext above shares the active view and filters. Finish here and move to workflow activity at minute 4.
 
 ### Activity display · 4 min
 
 **DEMO — Watch the investigation run**
 
-4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.
+4:00–5:00. Now ask the historian question below and focus on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.
 
 > Show the highest air temperature for each shift manager.
 

@@ -367,29 +367,36 @@
     {
       "id": "08",
       "unit": "03",
-      "name": "Chat integration · 4 min",
+      "name": "Frontend tools · 4 min",
       "flow": [
         "Demo · 2 min",
-        "Chat → existing backend → table",
+        "Chat → frontend tool → view / filters",
         "Code · 2 min"
       ],
       "actions": [
         {
           "label": "DEMO",
-          "title": "Ask the existing backend through chat",
-          "body": "0:00–2:00. Show the Factory assistant replacing Unit 2’s form. Ask the question below and show the populated table. Say: “The backend is the one we already built. CopilotKit connects the conversation to it.” Keep the SQL and Jev internals in Unit 2.",
-          "command": "Show the highest air temperature for each shift manager.",
+          "title": "Change the view and a filter",
+          "body": "0:00–1:00. Start with a fresh chat in Snapshot. Enter the prompt below. Point to the selected Reading log tab and the Room field changing to Cooling room. Say: “The agent calls a tool registered in Angular. Its handler updates the same store as the regular controls.” This uses the existing reading-log API; it does not generate SQL or show the workflow progress card.",
+          "command": "Open the reading log and set the room filter to Cooling room.",
+          "copyLabel": "Copy prompt"
+        },
+        {
+          "label": "DEMO",
+          "title": "Return to Snapshot through chat",
+          "body": "1:00–2:00. Enter the prompt below. Show the Snapshot tab becoming active and the live overview returning. This is the small set_view frontend tool. Existing reading-log filters remain preserved.",
+          "command": "Go back to the snapshot view.",
           "copyLabel": "Copy prompt"
         },
         {
           "label": "CODE",
-          "title": "Show the Angular connection",
-          "body": "2:00–3:00. Open `apps/angular-host/src/app/app.config.ts` and point to provideCopilotKit and runtimeUrl. Then open `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts` and point to copilot-chat with agentId default. Leave the activity registration for the next feature."
+          "title": "Show the chat connection",
+          "body": "2:00–3:00. In `apps/angular-host/src/app/app.config.ts`, briefly point to provideCopilotKit and runtimeUrl. Then show copilot-chat with agentId default in `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/chat.component.ts`. The backend model chooses a tool; Angular executes the frontend handler."
         },
         {
           "label": "CODE",
-          "title": "Show the Mastra connection",
-          "body": "3:00–4:00. In `apps/facility-service/src/copilot-runtime.ts`, show createWorkshopCopilotRuntime: the Mastra client, agent registration and /api/copilotkit listener. The main agent exposes the existing historian workflow as a tool. Finish by pointing back to the table; move on at minute 4."
+          "title": "Follow the frontend handler",
+          "body": "3:00–4:00. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts`, show registerFrontendTool for set_view: name, parameters, handler and store.configureFacilityView. Then point to update_filters directly below it. The list_rooms tool supplies valid room IDs; connectAgentContext above shares the active view and filters. Finish here and move to workflow activity at minute 4."
         }
       ],
       "files": [
@@ -404,18 +411,26 @@
           "end": "  styles:"
         },
         {
-          "path": "apps/facility-service/src/copilot-runtime.ts",
-          "start": "export const createWorkshopCopilotRuntime",
-          "end": null
+          "path": "apps/angular-host/src/app/domains/facility/feat-dashboard/agent/connect-facility-agent.ts",
+          "start": "  registerFrontendTool({\n    name: 'set_view',",
+          "end": "  registerFrontendTool({\n    name: 'clear_filters',"
         }
       ],
       "prompts": [
         {
-          "title": "Chat to backend",
-          "prompt": "Show the highest air temperature for each shift manager.",
-          "before": "Enter this in the Factory assistant on branch 03.",
-          "expected": "The existing historian workflow returns complete readings into the table.",
-          "inspect": "Show the user question, table result, then chat configuration and server connection.",
+          "title": "Change view and filter",
+          "prompt": "Open the reading log and set the room filter to Cooling room.",
+          "before": "Use a fresh chat on branch 03, starting in Snapshot.",
+          "expected": "Reading log becomes active and Room changes to Cooling room. No SQL workflow progress card appears.",
+          "inspect": "Point to the actual tab and filter field, then show the frontend tool handler.",
+          "optional": false
+        },
+        {
+          "title": "Return to Snapshot",
+          "prompt": "Go back to the snapshot view.",
+          "before": "Use the same chat after the filtering prompt.",
+          "expected": "Snapshot becomes active. The reading-log filters are preserved.",
+          "inspect": "Show the live overview returning, then set_view and store.configureFacilityView.",
           "optional": false
         }
       ],
@@ -436,7 +451,7 @@
         {
           "label": "DEMO",
           "title": "Watch the investigation run",
-          "body": "4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.",
+          "body": "4:00–5:00. Now ask the historian question below and focus on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.",
           "command": "Show the highest air temperature for each shift manager.",
           "copyLabel": "Copy prompt"
         },
