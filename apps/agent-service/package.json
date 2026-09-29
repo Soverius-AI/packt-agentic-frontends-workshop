@@ -6,7 +6,8 @@
   "scripts": {
     "build": "MASTRA_TELEMETRY_DISABLED=1 mastra build --studio",
     "dev": "MASTRA_TELEMETRY_DISABLED=1 mastra dev --env ../../.env",
-    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env"
+    "start": "MASTRA_TELEMETRY_DISABLED=1 mastra start --env ../../.env",
+    "test": "node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.101",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "mastra": "1.26.1",
+    "tsx": "4.23.12",
     "typescript": "~6.0.2"
   }
 }

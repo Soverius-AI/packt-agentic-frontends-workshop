@@ -20,7 +20,7 @@ const base = {
   question: "Readings",
   sql: "SELECT * FROM historian_readings",
   explanation: "Reading rows",
-  review: { approved: true, summary: "Accepted", concerns: [] },
+  review: { approved: true, concerns: [] },
   policyVersion: "test",
 };
 

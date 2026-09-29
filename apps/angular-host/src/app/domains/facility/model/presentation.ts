@@ -1,7 +1,7 @@
 import type {
   AlarmApprovalAuditEntry,
   MetricSummary,
-  FacilityReadingEntry,
+  HistorianEntry,
   MetricHistory,
   MetricReading,
 } from '@packt-workshop/contracts';
@@ -15,9 +15,9 @@ export function metricValue(metric: MetricSummary): string {
   return metric.currentTextValue ?? '—';
 }
 
-export function readingValue(reading: FacilityReadingEntry): string {
+export function readingValue(reading: HistorianEntry): string {
   const value =
-    reading.numericValue === null
+    reading.numericValue == null
       ? (reading.textValue ?? '—')
       : new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 }).format(reading.numericValue);
   return reading.unit ? `${value} ${reading.unit}` : value;

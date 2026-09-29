@@ -84,7 +84,7 @@ export const FacilityStore = signalStore(
     const currentRows = computed(() =>
       rooms().flatMap((room) => room.metrics.map((metric) => ({ room, metric }))),
     );
-    const displayedReadingPage = computed<FacilityReadingPage | undefined>(() => {
+    const displayedReadingPage = computed(() => {
       const result = store.historianResult();
       if (store.displayMode() !== 'historian-result' || !result) return store.readingPage();
       return {

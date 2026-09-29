@@ -50,7 +50,7 @@ const result: HistorianSelection = {
   question: 'Latest readings',
   sql: 'SELECT * FROM historian_readings',
   explanation: 'All readings',
-  review: { approved: true, summary: 'Approved', concerns: [] },
+  review: { approved: true, concerns: [] },
   policyVersion: 'test',
   entries: [],
   rowCount: 0,

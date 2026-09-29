@@ -1,11 +1,19 @@
+import {
+  HistorianPolicyError,
+  validateHistorianStatement,
+} from "@packt-workshop/contracts";
+export {
+  HistorianPolicyError,
+  validateHistorianStatement,
+} from "@packt-workshop/contracts";
 import { Worker } from "node:worker_threads";
 import { constants, DatabaseSync } from "node:sqlite";
 import type {
-  FacilityReadingEntry,
+  HistorianEntry,
   HistorianExecutionRequest,
   HistorianToolResult,
 } from "@packt-workshop/contracts";
-import { facilityReadingEntrySchema } from "@packt-workshop/contracts";
+import { historianEntrySchema } from "@packt-workshop/contracts";
 
 export const HISTORIAN_POLICY_VERSION = "historian-v1";
 export const HISTORIAN_ROW_LIMIT = 200;
@@ -25,19 +33,6 @@ const HISTORIAN_COLUMNS = new Set([
   "shift_manager_name",
   "condition",
 ]);
-const HISTORIAN_RESULT_COLUMNS = [
-  "reading_id",
-  "recorded_at",
-  "room_id",
-  "room_name",
-  "metric_id",
-  "metric_name",
-  "unit",
-  "numeric_value",
-  "text_value",
-  "shift_manager_name",
-  "condition",
-] as const;
 const VIEW_SOURCE_TABLES = new Set([
   "metric_readings",
   "metrics",
@@ -46,6 +41,7 @@ const VIEW_SOURCE_TABLES = new Set([
 ]);
 const ALLOWED_FUNCTIONS = new Set([
   "abs",
+  "avg",
   "coalesce",
   "date",
   "datetime",
@@ -68,164 +64,6 @@ const ALLOWED_FUNCTIONS = new Set([
   "unixepoch",
   "upper",
 ]);
-const FORBIDDEN_KEYWORDS = new Set([
-  "ALTER",
-  "ANALYZE",
-  "ATTACH",
-  "BEGIN",
-  "COMMIT",
-  "CREATE",
-  "DELETE",
-  "DETACH",
-  "DROP",
-  "EXPLAIN",
-  "INSERT",
-  "PRAGMA",
-  "RECURSIVE",
-  "REINDEX",
-  "RELEASE",
-  "REPLACE",
-  "ROLLBACK",
-  "SAVEPOINT",
-  "TRANSACTION",
-  "UPDATE",
-  "VACUUM",
-]);
-
-export class HistorianPolicyError extends Error {
-  constructor(
-    readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
-type SqlScan = {
-  tokens: string[];
-  semicolons: number[];
-};
-
-function scanSql(sql: string): SqlScan {
-  const tokens: string[] = [];
-  const semicolons: number[] = [];
-  let index = 0;
-
-  const skipQuoted = (quote: string, closingQuote = quote): void => {
-    index += 1;
-    while (index < sql.length) {
-      if (sql[index] === closingQuote) {
-        if (sql[index + 1] === closingQuote && closingQuote !== "]") {
-          index += 2;
-          continue;
-        }
-        index += 1;
-        return;
-      }
-      index += 1;
-    }
-    throw new HistorianPolicyError(
-      "UNTERMINATED_LITERAL",
-      "The SQL contains an unterminated string or quoted identifier.",
-    );
-  };
-
-  while (index < sql.length) {
-    const character = sql[index]!;
-    const next = sql[index + 1];
-    if (/\s/.test(character)) {
-      index += 1;
-      continue;
-    }
-    if (character === "-" && next === "-") {
-      index += 2;
-      while (index < sql.length && sql[index] !== "\n") index += 1;
-      continue;
-    }
-    if (character === "/" && next === "*") {
-      const end = sql.indexOf("*/", index + 2);
-      if (end === -1) {
-        throw new HistorianPolicyError(
-          "UNTERMINATED_COMMENT",
-          "The SQL contains an unterminated block comment.",
-        );
-      }
-      index = end + 2;
-      continue;
-    }
-    if (character === "'" || character === '"' || character === "`") {
-      skipQuoted(character);
-      continue;
-    }
-    if (character === "[") {
-      skipQuoted("[", "]");
-      continue;
-    }
-    if (character === ";") {
-      semicolons.push(index);
-      index += 1;
-      continue;
-    }
-    if (/[A-Za-z_]/.test(character)) {
-      const start = index;
-      index += 1;
-      while (index < sql.length && /[A-Za-z0-9_$]/.test(sql[index]!)) {
-        index += 1;
-      }
-      tokens.push(sql.slice(start, index).toUpperCase());
-      continue;
-    }
-    index += 1;
-  }
-  return { tokens, semicolons };
-}
-
-export function validateHistorianStatement(sql: string): string {
-  const normalized = sql.trim();
-  if (!normalized) {
-    throw new HistorianPolicyError("EMPTY_SQL", "The SQL statement is empty.");
-  }
-  if (normalized.length > 12_000) {
-    throw new HistorianPolicyError(
-      "SQL_TOO_LONG",
-      "The SQL statement exceeds the 12,000-character limit.",
-    );
-  }
-
-  const { tokens, semicolons } = scanSql(normalized);
-  const firstToken = tokens[0];
-  if (firstToken !== "SELECT" && firstToken !== "WITH") {
-    throw new HistorianPolicyError(
-      "READ_ONLY_STATEMENT_REQUIRED",
-      "Only one SELECT or WITH ... SELECT statement is permitted.",
-    );
-  }
-  const forbidden = tokens.find((token) => FORBIDDEN_KEYWORDS.has(token));
-  if (forbidden) {
-    throw new HistorianPolicyError(
-      "FORBIDDEN_OPERATION",
-      `The SQL operation ${forbidden} is not permitted.`,
-    );
-  }
-  if (semicolons.length > 1) {
-    throw new HistorianPolicyError(
-      "MULTIPLE_STATEMENTS",
-      "Exactly one SQL statement is permitted.",
-    );
-  }
-  if (semicolons.length === 1) {
-    const semicolon = semicolons[0]!;
-    if (normalized.slice(semicolon + 1).trim()) {
-      throw new HistorianPolicyError(
-        "MULTIPLE_STATEMENTS",
-        "Exactly one SQL statement is permitted.",
-      );
-    }
-    return normalized.slice(0, semicolon).trim();
-  }
-  return normalized;
-}
-
 type ExecutedHistorianQuery = Pick<
   Extract<HistorianToolResult, { status: "executed" }>,
   "entries" | "rowCount" | "truncated" | "durationMs"
@@ -288,14 +126,13 @@ export function executeHistorianSql(
     }
     const columnNames = statement.columns().map((column) => column.name);
     if (
-      columnNames.length !== HISTORIAN_RESULT_COLUMNS.length ||
-      columnNames.some(
-        (column, index) => column !== HISTORIAN_RESULT_COLUMNS[index],
-      )
+      columnNames.length !== HISTORIAN_COLUMNS.size ||
+      new Set(columnNames).size !== columnNames.length ||
+      columnNames.some((column) => !HISTORIAN_COLUMNS.has(column))
     ) {
       throw new HistorianPolicyError(
         "UNSUPPORTED_RESULT_SHAPE",
-        `Historian queries must return complete reading records with these columns in order: ${HISTORIAN_RESULT_COLUMNS.join(", ")}. Computed result shapes such as averages and counts require a later A2UI milestone.`,
+        `Historian queries must return all and only these table columns: ${[...HISTORIAN_COLUMNS].join(", ")}. Alias aggregate values to existing columns and use NULL for metadata with no single value.`,
       );
     }
     const objects = statement.all() as Record<
@@ -334,7 +171,7 @@ export function executeHistorianSql(
 
 function parseHistorianReading(
   row: Record<string, null | number | bigint | string | Uint8Array>,
-): FacilityReadingEntry {
+): HistorianEntry {
   for (const value of Object.values(row)) {
     if (value instanceof Uint8Array) {
       throw new HistorianPolicyError(
@@ -347,7 +184,7 @@ function parseHistorianReading(
   const id = row["reading_id"];
   const numericValue = row["numeric_value"];
   try {
-    return facilityReadingEntrySchema.parse({
+    const entry = {
       id: typeof id === "bigint" ? Number(id) : id,
       recordedAt: row["recorded_at"],
       roomId: row["room_id"],
@@ -360,7 +197,12 @@ function parseHistorianReading(
       textValue: row["text_value"],
       shiftManagerName: row["shift_manager_name"],
       condition: row["condition"],
-    });
+    };
+    return historianEntrySchema.parse(
+      Object.fromEntries(
+        Object.entries(entry).filter(([, value]) => value != null),
+      ),
+    );
   } catch {
     throw new HistorianPolicyError(
       "UNSUPPORTED_RESULT_SHAPE",

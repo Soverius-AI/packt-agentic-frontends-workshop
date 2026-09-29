@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import type { FacilityReadingEntry } from '@packt-workshop/contracts';
+import type { HistorianEntry } from '@packt-workshop/contracts';
 import { timeLabel, readingValue } from '../model/presentation';
 @Component({
   selector: 'app-reading-table',
@@ -9,7 +9,7 @@ import { timeLabel, readingValue } from '../model/presentation';
         <caption>
           {{
             historian()
-              ? 'Stored readings selected by the reviewed historian query'
+              ? 'Results of the reviewed historian query'
               : 'Persisted metric readings matching the historical filters'
           }}
         </caption>
@@ -29,10 +29,14 @@ import { timeLabel, readingValue } from '../model/presentation';
               <td class="empty-table" colspan="6">Loading persisted readings…</td>
             </tr>
           } @else {
-            @for (entry of entries(); track entry.id) {
+            @for (entry of entries(); track entry) {
               <tr class="condition-{{ entry.condition }}">
                 <td>
-                  <time [attr.datetime]="entry.recordedAt">{{ timeLabel(entry.recordedAt) }}</time>
+                  @if (entry.recordedAt) {
+                    <time [attr.datetime]="entry.recordedAt">{{
+                      timeLabel(entry.recordedAt)
+                    }}</time>
+                  }
                 </td>
                 <td class="shift-manager">{{ entry.shiftManagerName }}</td>
                 <td class="room-cell">
@@ -43,7 +47,9 @@ import { timeLabel, readingValue } from '../model/presentation';
                 </th>
                 <td class="reading-entry-value">{{ readingValue(entry) }}</td>
                 <td>
-                  <span class="condition-badge">{{ entry.condition }}</span>
+                  @if (entry.condition) {
+                    <span class="condition-badge">{{ entry.condition }}</span>
+                  }
                 </td>
               </tr>
             } @empty {
@@ -80,7 +86,7 @@ import { timeLabel, readingValue } from '../model/presentation';
   `,
 })
 export class ReadingTable {
-  readonly entries = input.required<readonly FacilityReadingEntry[]>();
+  readonly entries = input.required<readonly HistorianEntry[]>();
   readonly loading = input(false);
   readonly historian = input(false);
   protected readonly timeLabel = timeLabel;
