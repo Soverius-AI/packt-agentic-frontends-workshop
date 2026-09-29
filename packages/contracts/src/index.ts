@@ -519,3 +519,11 @@ export const investigationProgressSchema = z.object({
   message: z.string(),
 });
 export type InvestigationProgress = z.infer<typeof investigationProgressSchema>;
+
+export const historianProgressEventSchema = z.object({
+  type: z.literal("data-historian-progress"),
+  data: z.object({
+    id: z.string().min(1),
+    content: investigationProgressSchema,
+  }),
+});

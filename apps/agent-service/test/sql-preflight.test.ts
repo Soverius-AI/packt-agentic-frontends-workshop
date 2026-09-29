@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { ToolStream } from "@mastra/core/tools";
+import { historianProgressEventSchema } from "@packt-workshop/contracts";
 import { RequestContext } from "@mastra/core/request-context";
 import {
   HistorianPolicyError,
@@ -132,4 +134,65 @@ test("scanner exposes the same policy error class for both services", () => {
     () => validateHistorianStatement("INSERT INTO metrics VALUES (1)"),
     HistorianPolicyError,
   );
+});
+
+test("workflow progress reaches the tool writer in order with visible two-second checks", async () => {
+  const { workflow } = setup(safeSql);
+  const tool = createQueryHistorianTool(workflow);
+  const events: { message: string; status: string; id: string; at: number }[] =
+    [];
+  const writer = new ToolStream(
+    {
+      prefix: "tool",
+      callId: "demo",
+      name: "query_historian",
+      runId: "agent-run",
+    },
+    async (chunk) => {
+      const event = historianProgressEventSchema.safeParse(chunk);
+      if (event.success)
+        events.push({
+          ...event.data.data.content,
+          id: event.data.data.id,
+          at: performance.now(),
+        });
+    },
+  );
+  const result = await tool.execute!(
+    { question },
+    { requestContext: new RequestContext(), writer },
+  );
+  assert.equal(result.status, "executed");
+  assert.deepEqual(
+    events.map((e) => e.message),
+    [
+      "Generating SQL…",
+      "Checking SQL deterministically…",
+      "Reviewing SQL with Jev…",
+      "Validating and executing the query…",
+      "Investigation complete · 0 readings returned",
+    ],
+  );
+  assert.ok(events[2]!.at - events[1]!.at >= 1_900);
+  assert.ok(events[3]!.at - events[2]!.at >= 1_900);
+  assert.equal(events.at(-1)!.status, "completed");
+  assert.equal(new Set(events.map((e) => e.id)).size, 1);
+});
+
+test("streamed preflight rejection never reports review or execution", async () => {
+  const { workflow } = setup("DROP TABLE metrics");
+  const stream = (await workflow.createRun()).stream({
+    inputData: { question },
+  });
+  const messages: string[] = [];
+  for await (const chunk of stream.fullStream) {
+    const event = historianProgressEventSchema.safeParse(chunk);
+    if (event.success) messages.push(event.data.data.content.message);
+  }
+  assert.equal((await stream.result).status, "success");
+  assert.deepEqual(messages, [
+    "Generating SQL…",
+    "Checking SQL deterministically…",
+    "Query rejected by the deterministic check",
+  ]);
 });

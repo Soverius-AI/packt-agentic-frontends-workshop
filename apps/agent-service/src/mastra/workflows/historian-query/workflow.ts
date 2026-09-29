@@ -1,9 +1,12 @@
+import { setTimeout as delay } from "node:timers/promises";
+import type { ToolStream } from "@mastra/core/tools";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import {
   HistorianPolicyError,
   validateHistorianStatement,
   type HistorianToolResult,
   type SqlReview,
+  type InvestigationProgress,
 } from "@packt-workshop/contracts";
 import {
   generatedSqlSchema,
@@ -62,10 +65,13 @@ function createGenerateSqlStep(generateSqlProposal: SqlGenerationFunction) {
       "Use the dedicated SQL generator agent to turn the operator question into one structured SQLite proposal.",
     inputSchema: queryHistorianInputSchema,
     outputSchema: generatedSqlSchema,
-    execute: async ({ inputData }) => ({
-      question: inputData.question,
-      ...(await generateSqlProposal(inputData.question)),
-    }),
+    execute: async ({ inputData, writer, runId }) => {
+      await reportProgress(writer, runId, "Generating SQL…");
+      return {
+        question: inputData.question,
+        ...(await generateSqlProposal(inputData.question)),
+      };
+    },
   });
 }
 
@@ -76,13 +82,22 @@ function createDeterministicSqlCheck() {
       "Deterministically reject write operations and multiple statements before calling the SQL reviewer. This is an early check, not execution authorization.",
     inputSchema: generatedSqlSchema,
     outputSchema: generatedSqlSchema,
-    execute: async ({ inputData, bail }) => {
+    execute: async ({ inputData, bail, writer, runId, abortSignal }) => {
+      await reportProgress(writer, runId, "Checking SQL deterministically…");
+      // Presentation pause: keep this fast check visible for two seconds.
+      await delay(2_000, undefined, { signal: abortSignal });
       try {
         validateHistorianStatement(inputData.sql);
         // Review and execute the exact proposal; do not rewrite it here.
         return inputData;
       } catch (error) {
         if (!(error instanceof HistorianPolicyError)) throw error;
+        await reportProgress(
+          writer,
+          runId,
+          "Query rejected by the deterministic check",
+          "rejected",
+        );
         return bail<HistorianToolResult>({
           ...inputData,
           status: "rejected",
@@ -107,7 +122,10 @@ function createAgenticSqlCheck(reviewSqlProposal: SqlReviewFunction) {
       "Ask Jev about query safety, human intent, and stored reading columns.",
     inputSchema: generatedSqlSchema,
     outputSchema: reviewedSqlSchema,
-    execute: async ({ inputData }) => {
+    execute: async ({ inputData, writer, runId, abortSignal }) => {
+      await reportProgress(writer, runId, "Reviewing SQL with Jev…");
+      // Presentation pause: keep the agentic review visible for two seconds.
+      await delay(2_000, undefined, { signal: abortSignal });
       let review: SqlReview;
       try {
         review = await reviewSqlProposal(inputData);
@@ -134,8 +152,21 @@ function createValidateAndExecuteStep(
       "Apply the reviewer decision, then ask the facility-owned deterministic policy to validate and execute the exact SQL atomically.",
     inputSchema: reviewedSqlSchema,
     outputSchema: queryHistorianOutputSchema,
-    execute: async ({ inputData, abortSignal }) => {
-      if (!inputData.review.approved) return reviewerRejection(inputData);
+    execute: async ({ inputData, abortSignal, writer, runId }) => {
+      if (!inputData.review.approved) {
+        await reportProgress(
+          writer,
+          runId,
+          "Query rejected by Jev",
+          "rejected",
+        );
+        return reviewerRejection(inputData);
+      }
+      await reportProgress(
+        writer,
+        runId,
+        "Validating and executing the query…",
+      );
 
       const response = await request(`${facilityBaseUrl}/api/historian/query`, {
         method: "POST",
@@ -148,7 +179,16 @@ function createValidateAndExecuteStep(
           `Historian service rejected the request with HTTP ${response.status}.`,
         );
       }
-      return queryHistorianOutputSchema.parse(await response.json());
+      const result = queryHistorianOutputSchema.parse(await response.json());
+      await reportProgress(
+        writer,
+        runId,
+        result.status === "executed"
+          ? `Investigation complete · ${result.rowCount} readings returned`
+          : `Query stopped · ${result.message}`,
+        result.status === "executed" ? "completed" : "rejected",
+      );
+      return result;
     },
   });
 }
@@ -162,3 +202,15 @@ const reviewerRejection = (input: ReviewedSql): HistorianToolResult => ({
   ...input,
   policyVersion: POLICY_VERSION,
 });
+
+async function reportProgress(
+  writer: ToolStream,
+  runId: string,
+  message: string,
+  status: InvestigationProgress["status"] = "running",
+): Promise<void> {
+  await writer.custom({
+    type: "data-historian-progress",
+    data: { id: runId, content: { status, message } },
+  });
+}

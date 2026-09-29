@@ -1,76 +1,73 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EventType } from "@ag-ui/core";
-import { investigationProgressEvents } from "../dist/investigation-progress.js";
+import {
+  workflowActivity,
+  withWorkflowActivities,
+} from "../dist/investigation-progress.js";
 import { FacilityRepository } from "../dist/repository.js";
 
-const start = (id = "q1", toolCallName = "query_historian") => ({
-  type: EventType.TOOL_CALL_START,
-  toolCallId: id,
-  toolCallName,
+const progress = (id, message, status = "running") => ({
+  type: "data-historian-progress",
+  data: { id, content: { status, message } },
 });
-const result = (id, content) => ({
-  type: EventType.TOOL_CALL_RESULT,
-  messageId: `result-${id}`,
-  toolCallId: id,
-  content: JSON.stringify(content),
-  role: "tool",
-});
-const base = {
-  question: "Readings",
-  sql: "SELECT * FROM historian_readings",
-  explanation: "Reading rows",
-  review: { approved: true, concerns: [] },
-  policyVersion: "test",
-};
 
-test("progress follows real SQL results and ignores unrelated tools", () => {
-  const track = investigationProgressEvents();
-  assert.deepEqual(track(start("catalog", "list_metrics")), []);
-  const running = track(start())[0];
-  assert.equal(running.content.status, "running");
-  const completed = track(
-    result("q1", {
-      ...base,
-      status: "executed",
-      entries: [],
-      rowCount: 0,
-      truncated: false,
-      durationMs: 1,
+test("workflow activities preserve their messages and replace the same card", () => {
+  const generating = workflowActivity(progress("run-1", "Generating SQL…"));
+  const reviewing = workflowActivity(
+    progress("run-1", "Reviewing SQL with Jev…"),
+  );
+  const rejected = workflowActivity(
+    progress("run-1", "Query rejected by Jev", "rejected"),
+  );
+  assert.equal(generating.type, EventType.ACTIVITY_SNAPSHOT);
+  assert.equal(generating.messageId, reviewing.messageId);
+  assert.equal(reviewing.content.message, "Reviewing SQL with Jev…");
+  assert.equal(rejected.content.status, "rejected");
+  assert.equal(generating.replace, true);
+  assert.equal(
+    workflowActivity({ type: "tool-output", payload: {} }),
+    undefined,
+  );
+  assert.equal(
+    workflowActivity({
+      type: "data-historian-progress",
+      data: { sql: "private" },
     }),
-  )[0];
-  assert.equal(completed.messageId, running.messageId);
-  assert.equal(completed.content.status, "completed");
-  assert.deepEqual(track({ type: EventType.RUN_FINISHED }), []);
+    undefined,
+  );
 });
 
-test("rejection, malformed results and interrupted runs never show success", () => {
-  const track = investigationProgressEvents();
-  track(start("rejected"));
-  assert.equal(
-    track(
-      result("rejected", {
-        ...base,
-        status: "rejected",
-        stage: "reviewer",
-        code: "UNSUPPORTED",
-        message: "Unsupported shape",
-      }),
-    )[0].content.status,
-    "rejected",
-  );
-  track(start("malformed"));
-  assert.equal(
-    track(result("malformed", { ok: true }))[0].content.status,
-    "failed",
-  );
-  track(start("interrupted"));
-  assert.equal(
-    track({ type: EventType.RUN_ERROR, message: "Disconnected" })[0].content
-      .status,
-    "failed",
-  );
-  assert.deepEqual(track({ type: EventType.RUN_FINISHED }), []);
+test("remote stream forwards workflow activities and retains normal chunks without crossing runs", async () => {
+  const remote = {
+    async stream(id) {
+      return {
+        async processDataStream({ onChunk }) {
+          await onChunk({ type: "text-delta", payload: { text: "hello" } });
+          await onChunk(progress(id, "Checking SQL deterministically…"));
+          await onChunk(progress(id, "Complete", "completed"));
+        },
+      };
+    },
+  };
+  const first = [],
+    second = [],
+    received = [];
+  const consume = async (id, activities) => {
+    const response = await withWorkflowActivities(remote, (event) =>
+      activities.push(event),
+    ).stream(id);
+    await response.processDataStream({
+      onChunk: async (chunk) => received.push(chunk),
+    });
+  };
+  await Promise.all([consume("one", first), consume("two", second)]);
+  assert.equal(first.length, 2);
+  assert.equal(second.length, 2);
+  assert.equal(first[0].messageId, "historian-one");
+  assert.equal(second[0].messageId, "historian-two");
+  assert.equal(received.length, 6);
+  assert.equal(received.filter((c) => c.type === "text-delta").length, 2);
 });
 
 test("human rejection creates no alarm; approval is audited and idempotent", () => {

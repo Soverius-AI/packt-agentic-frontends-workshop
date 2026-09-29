@@ -1,5 +1,8 @@
 import { createTool } from "@mastra/core/tools";
-import type { HistorianToolResult } from "@packt-workshop/contracts";
+import {
+  historianProgressEventSchema,
+  type HistorianToolResult,
+} from "@packt-workshop/contracts";
 import type { createHistorianQueryWorkflow } from "../../../workflows/historian-query/workflow";
 import {
   queryHistorianInputSchema,
@@ -61,17 +64,33 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
     }),
     execute: async (input, context): Promise<HistorianToolResult> => {
       const run = await workflow.createRun();
-      const result = await run.start({
+      const stream = run.stream({
         inputData: input,
         requestContext: context.requestContext,
       });
 
-      if (result.status !== "success") {
-        if (result.status === "failed") throw result.error;
-        throw new Error(`Historian workflow stopped with ${result.status}.`);
-      }
+      try {
+        for await (const chunk of stream.fullStream) {
+          const activity = historianProgressEventSchema.safeParse(chunk);
+          if (activity.success) await context.writer?.custom(activity.data);
+        }
+        const result = await stream.result;
+        if (result.status !== "success") {
+          if (result.status === "failed") throw result.error;
+          throw new Error(`Historian workflow stopped with ${result.status}.`);
+        }
 
-      return queryHistorianOutputSchema.parse(result.result);
+        return queryHistorianOutputSchema.parse(result.result);
+      } catch (error) {
+        await context.writer?.custom({
+          type: "data-historian-progress",
+          data: {
+            id: run.runId,
+            content: { status: "failed", message: "Investigation failed" },
+          },
+        });
+        throw error;
+      }
     },
   });
 }

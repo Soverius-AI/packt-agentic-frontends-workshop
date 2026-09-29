@@ -25,3 +25,11 @@ Separate standards and specification reviews found ambiguous room identification
 The rehearsal leaves its demo alarm and audit in the local database. Resolve the Packaging hall demo alarm through the normal UI before repeating the approval demo; retain the audit. Model wording and generated SQL can vary.
 
 These are local checks, not hosted CI or a full accessibility audit. The fixed workshop operator is not production authentication. The standalone presenter desk remains exclusively on branch `ai-devcraft/00-start`.
+
+## Workflow-owned activity update
+
+- Each workflow step emits progress through Mastra's writer. The tool uses `run.stream()` and forwards only the typed progress events. The runtime maps these to AG-UI activity snapshots on one card per workflow run.
+- Deterministic preflight and Jev review each pause for two seconds after publishing their activity. These are explicit presentation delays, not measured computation time.
+- 41 agent-service tests passed, including event order, both delay durations, streamed rejection and unchanged SQL safety gates. Four facility tests passed, including custom-event forwarding, isolation between runs and the existing approval HTTP boundary.
+- Contracts, facility and Angular builds passed. Mastra production packaging passed with network access after its sandboxed dependency installation failed. Agent TypeScript checking passed.
+- Live browser: observed Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The visible check states lasted about 2.18 s and 2.15 s respectively; the final result contained three complete readings.

@@ -1,10 +1,16 @@
-import type { Message, RunAgentInput } from "@ag-ui/core";
+import {
+  EventType,
+  type BaseEvent,
+  type ActivitySnapshotEvent,
+  type Message,
+  type RunAgentInput,
+} from "@ag-ui/core";
 import type { AbstractAgent } from "@ag-ui/client";
 import { CopilotRuntime } from "@copilotkit/runtime/v2";
 import { createCopilotNodeListener } from "@copilotkit/runtime/v2/node";
 import { MastraClient } from "@mastra/client-js";
-import { concatMap, defer } from "rxjs";
-import { investigationProgressEvents } from "./investigation-progress.js";
+import { Observable } from "rxjs";
+import { withWorkflowActivities } from "./investigation-progress.js";
 import { createRequire } from "node:module";
 
 // The bridge's ESM bundle imports named exports from a CommonJS dependency.
@@ -40,10 +46,12 @@ export function withoutHistorianPayloads(messages: Message[]): Message[] {
   );
 }
 
-// MastraAgent.clone() drops attached middleware; keep this boundary on every clone.
+// Keep the workflow event adapter on every bridge clone.
 export class HistorianBridge extends MastraAgent {
   constructor(
-    private readonly options: ConstructorParameters<typeof MastraAgent>[0],
+    private readonly options: ConstructorParameters<typeof MastraAgent>[0] & {
+      agent: ReturnType<MastraClient["getAgent"]>;
+    },
   ) {
     super(options);
   }
@@ -53,14 +61,50 @@ export class HistorianBridge extends MastraAgent {
   }
 
   override run(input: RunAgentInput): ReturnType<AbstractAgent["run"]> {
-    return defer(() => {
-      const progress = investigationProgressEvents();
-      return super
-        .run({
-          ...input,
-          messages: withoutHistorianPayloads(input.messages),
-        })
-        .pipe(concatMap((event) => [...progress(event), event]));
+    return new Observable<BaseEvent>((subscriber) => {
+      const pending = new Map<string, ActivitySnapshotEvent>();
+      const emit = (activity: ActivitySnapshotEvent) => {
+        if (activity.content.status === "running")
+          pending.set(activity.messageId, activity);
+        else pending.delete(activity.messageId);
+        subscriber.next(activity);
+      };
+      const failPending = () => {
+        for (const activity of pending.values()) {
+          subscriber.next({
+            ...activity,
+            content: {
+              status: "failed",
+              message: "Investigation ended without a result",
+            },
+          });
+        }
+        pending.clear();
+      };
+      const bridge = new MastraAgent({
+        ...this.options,
+        agent: withWorkflowActivities(this.options.agent, emit),
+      });
+      return bridge
+        .run({ ...input, messages: withoutHistorianPayloads(input.messages) })
+        .subscribe({
+          next: (event) => {
+            if (
+              event.type === EventType.RUN_ERROR ||
+              event.type === EventType.RUN_FINISHED
+            )
+              failPending();
+            subscriber.next(event);
+          },
+          error: (error) => {
+            failPending();
+            subscriber.error(error);
+          },
+          complete: () => {
+            failPending();
+            subscriber.complete();
+          },
+        });
     });
   }
 }
