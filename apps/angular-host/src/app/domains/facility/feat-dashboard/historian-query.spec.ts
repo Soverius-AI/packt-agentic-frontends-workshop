@@ -10,7 +10,7 @@ const base = {
   sql: 'SELECT * FROM historian_readings',
   explanation: 'Select complete readings',
   policyVersion: 'test',
-  review: { approved: true, summary: 'Reviewed', concerns: [] },
+  review: { approved: true, concerns: [] },
 };
 
 describe('Backend-only historian form', () => {
@@ -47,7 +47,7 @@ describe('Backend-only historian form', () => {
     expect(investigate).toHaveBeenCalledExactlyOnceWith('Latest readings');
     if (result.status === 'executed') {
       expect(showHistorianResult).toHaveBeenCalledWith({ ...result, id: expect.any(String) });
-      expect(host.textContent).toContain('0 readings found');
+      expect(host.textContent).toContain('0 rows found');
     } else {
       expect(showHistorianResult).not.toHaveBeenCalled();
       expect(host.querySelector('[role="alert"]')?.textContent).toContain('Unsupported query');

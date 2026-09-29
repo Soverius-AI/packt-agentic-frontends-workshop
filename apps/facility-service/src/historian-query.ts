@@ -9,11 +9,11 @@ export {
 import { Worker } from "node:worker_threads";
 import { constants, DatabaseSync } from "node:sqlite";
 import type {
-  FacilityReadingEntry,
+  HistorianEntry,
   HistorianExecutionRequest,
   HistorianToolResult,
 } from "@packt-workshop/contracts";
-import { facilityReadingEntrySchema } from "@packt-workshop/contracts";
+import { historianEntrySchema } from "@packt-workshop/contracts";
 
 export const HISTORIAN_POLICY_VERSION = "historian-v1";
 export const HISTORIAN_ROW_LIMIT = 200;
@@ -33,19 +33,6 @@ const HISTORIAN_COLUMNS = new Set([
   "shift_manager_name",
   "condition",
 ]);
-const HISTORIAN_RESULT_COLUMNS = [
-  "reading_id",
-  "recorded_at",
-  "room_id",
-  "room_name",
-  "metric_id",
-  "metric_name",
-  "unit",
-  "numeric_value",
-  "text_value",
-  "shift_manager_name",
-  "condition",
-] as const;
 const VIEW_SOURCE_TABLES = new Set([
   "metric_readings",
   "metrics",
@@ -54,6 +41,7 @@ const VIEW_SOURCE_TABLES = new Set([
 ]);
 const ALLOWED_FUNCTIONS = new Set([
   "abs",
+  "avg",
   "coalesce",
   "date",
   "datetime",
@@ -138,14 +126,13 @@ export function executeHistorianSql(
     }
     const columnNames = statement.columns().map((column) => column.name);
     if (
-      columnNames.length !== HISTORIAN_RESULT_COLUMNS.length ||
-      columnNames.some(
-        (column, index) => column !== HISTORIAN_RESULT_COLUMNS[index],
-      )
+      columnNames.length !== HISTORIAN_COLUMNS.size ||
+      new Set(columnNames).size !== columnNames.length ||
+      columnNames.some((column) => !HISTORIAN_COLUMNS.has(column))
     ) {
       throw new HistorianPolicyError(
         "UNSUPPORTED_RESULT_SHAPE",
-        `Historian queries must return complete reading records with these columns in order: ${HISTORIAN_RESULT_COLUMNS.join(", ")}. Computed result shapes such as averages and counts require a later A2UI milestone.`,
+        `Historian queries must return all and only these table columns: ${[...HISTORIAN_COLUMNS].join(", ")}. Alias aggregate values to existing columns and use NULL for metadata with no single value.`,
       );
     }
     const objects = statement.all() as Record<
@@ -184,7 +171,7 @@ export function executeHistorianSql(
 
 function parseHistorianReading(
   row: Record<string, null | number | bigint | string | Uint8Array>,
-): FacilityReadingEntry {
+): HistorianEntry {
   for (const value of Object.values(row)) {
     if (value instanceof Uint8Array) {
       throw new HistorianPolicyError(
@@ -197,7 +184,7 @@ function parseHistorianReading(
   const id = row["reading_id"];
   const numericValue = row["numeric_value"];
   try {
-    return facilityReadingEntrySchema.parse({
+    const entry = {
       id: typeof id === "bigint" ? Number(id) : id,
       recordedAt: row["recorded_at"],
       roomId: row["room_id"],
@@ -210,7 +197,12 @@ function parseHistorianReading(
       textValue: row["text_value"],
       shiftManagerName: row["shift_manager_name"],
       condition: row["condition"],
-    });
+    };
+    return historianEntrySchema.parse(
+      Object.fromEntries(
+        Object.entries(entry).filter(([, value]) => value != null),
+      ),
+    );
   } catch {
     throw new HistorianPolicyError(
       "UNSUPPORTED_RESULT_SHAPE",

@@ -1,6 +1,8 @@
 # AI DevCraft: incident-management demos
 
-Chapter 2 baseline: `ai-devcraft/02-backend-agents`.
+Presentation starting point: `ai-devcraft/00-start`. See [Start here](docs/start-here.md) to create the second worktree, then follow the [Presenter notes](docs/presenter-notes.md).
+
+This branch captures the working chapter 2 baseline from `ai-devcraft/02-backend-agents`.
 Derived from the Packt `06-sql-tool` checkpoint (`2115c3d`). This isolated demo uses the Angular incident-management app, Mastra, and the existing reviewed SQL historian. There is no CopilotKit or A2UI integration in this branch. The original Packt repository and its React examples are unchanged.
 
 ## Run
@@ -22,13 +24,29 @@ These ports are separate from the original Packt demo. `pnpm reset:demo` resets 
 
 Ask **“Show the highest air temperature for each shift manager.”**
 
-The ordinary request form calls `POST /api/investigate`. The facility service starts the Mastra `historianQueryWorkflow`. A generator proposes SQL, a deterministic preflight rejects prohibited statements, a separate agent reviews the meaning, and the facility service applies its full deterministic policy before executing against the read-only historian.
+The ordinary request form calls `POST /api/investigate`. The facility service starts the Mastra `historianQueryWorkflow`. A generator proposes SQL, a deterministic preflight rejects prohibited statements, Jev reviews the meaning through OpenRouter’s Decisions API, and the facility service applies its full deterministic policy before executing against the read-only historian.
 
-The workflow is **Generate SQL → Preflight SQL → Review SQL → Validate and execute**. Preflight uses the same SQL-aware lexical scanner as the execution boundary. It rejects write/schema operations and multiple statements, while distinguishing keywords from quoted text and comments. Rejection stops the workflow before the reviewer or database is called; the form explains that review was not run. The reviewer model is unchanged.
+The workflow is **Generate SQL → Preflight SQL → Review SQL → Validate and execute**. Preflight uses the same SQL-aware lexical scanner as the execution boundary. It rejects write/schema operations and multiple statements, while distinguishing keywords from quoted text and comments. Rejection stops the workflow before the reviewer or database is called; the form explains that review was not run. The agentic check now uses Jev (`typesafe/jev-1.13`); SQL generation still uses `OPENROUTER_MODEL`.
 
-Preflight is an early statement-policy check, not a proof against every possible SQL injection. SQLite authorization, read-only access, result-shape checks, and execution limits remain mandatory. Complete readings appear in the existing table. Open **Query and review** to inspect the SQL and reviewer verdict.
+Preflight is an early statement-policy check, not a proof against every possible SQL injection. SQLite authorization, read-only access, result-shape checks, and execution limits remain mandatory. Readings and aggregate results appear in the existing table. Open **Query and review** to inspect the SQL and reviewer verdict.
 
-Try **“Show critical readings in the Cooling room”** next. A request for a computed average should be rejected: this baseline deliberately supports complete reading records, not generated summary layouts.
+### Jev review
+
+Jev receives the question and SQL, with three Noul questions:
+
+- **Safety:** Is it a single read-only query against the historian?
+- **Intent:** Does it answer the human's question?
+- **Columns:** Does the result contain all and only the table columns? MAX, MIN, and AVG are allowed when aliased to an existing column, such as `numeric_value`.
+
+The generator returns all table columns automatically. Highest/lowest reading queries retain the complete stored row. Aggregate queries retain metadata with a single value per group and return NULL where no single value applies; those cells remain blank. Missing or invented output columns are rejected.
+
+Noul returns a yes-probability from 0 to 1. All three answers must satisfy `noul > 0.5`; a tie is rejected. There are no Choice options or separate confidence checks. This threshold is a simple demo decision rule, not an accuracy guarantee. Database access and result shape are still enforced by deterministic validation.
+
+The reviewer takes only `apiKey` and calls `typesafe/jev-1.13` through OpenRouter. Invalid responses and API errors stop execution. For the talk, open `workflow.ts`, then `agents/jev-sql-reviewer.ts` to show the three questions and decision. **Query and review** displays failed checks; the review contains only `approved` and `concerns`, with no summary.
+
+Reference: [TypeSafe Noul](https://docs.typesafe.ai/primitives/noul).
+
+Try **“Show critical readings in the Cooling room”** next. Try **“Show the average air temperature for each shift manager.”** The aggregate appears in the existing Value column.
 
 The application owns data validation and execution. Mastra agents do not receive a writable database handle. Existing manual alarm buttons remain ordinary application operations; the AI cannot raise alarms in this branch.
 

@@ -107,9 +107,9 @@ import { MetricHistory } from '../ui/metric-history';
                       </button>
                     </div>
                     <small>
-                      {{ result.entries.length }} complete reading
-                      {{ result.entries.length === 1 ? 'record' : 'records' }} selected by the
-                      reviewed SQL{{ result.truncated ? ' (result truncated)' : '' }}.
+                      {{ result.entries.length }}
+                      {{ result.entries.length === 1 ? 'row' : 'rows' }} returned by the reviewed
+                      SQL{{ result.truncated ? ' (result truncated)' : '' }}.
                     </small>
                   </section>
                 } @else {

@@ -29,7 +29,6 @@ function setup(sql: string, approved = true) {
         assert.equal(proposal.sql, sql);
         return {
           approved,
-          summary: approved ? "Matches request" : "Wrong metric",
           concerns: [],
         };
       },
@@ -74,7 +73,7 @@ for (const sql of [
     assert.equal(output.status, "rejected");
     if (output.status !== "rejected") throw new Error("Expected rejection");
     assert.equal(output.stage, "preflight");
-    assert.match(output.review.summary, /review was not run/i);
+    assert.deepEqual(output.review, { approved: false, concerns: [] });
     assert.deepEqual(calls, ["generate"]);
   });
 }

@@ -47,7 +47,7 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
   return createTool({
     id: "query_historian",
     description:
-      "Call once for the complete historian request. Copy the operator's entire message verbatim into question; never paraphrase or split it. This starts the historian-query workflow, which generates SQL, applies deterministic preflight, reviews it, and applies deterministic facility policy before returning complete reading records for the existing grid.",
+      "Call once for the complete historian request. Copy the operator's entire message verbatim into question; never paraphrase or split it. This starts the historian-query workflow, which generates SQL, applies deterministic preflight, reviews it, and applies deterministic facility policy before returning readings or aggregates in the existing table columns.",
     inputSchema: queryHistorianInputSchema,
     outputSchema: queryHistorianOutputSchema,
     toModelOutput: (result) => ({

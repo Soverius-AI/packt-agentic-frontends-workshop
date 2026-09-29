@@ -57,18 +57,74 @@ test("database authorizer rejects direct table access and disallowed functions",
   const path = fixture(t);
   for (const sql of [
     "SELECT * FROM metrics",
-    "SELECT AVG(numeric_value) FROM historian_readings",
+    "SELECT randomblob(1000) FROM historian_readings",
   ]) {
     assert.throws(() => executeHistorianSql(path, sql), HistorianPolicyError);
   }
 });
 
-test("execution rejects an incomplete result shape even after lexical preflight", (t) => {
+test("execution rejects invented output columns even after lexical preflight", (t) => {
+  assert.throws(
+    () =>
+      executeHistorianSql(
+        fixture(t),
+        "SELECT numeric_value AS invented_value FROM historian_readings",
+      ),
+    (error) =>
+      error instanceof HistorianPolicyError &&
+      error.code === "UNSUPPORTED_RESULT_SHAPE",
+  );
+});
+
+for (const [aggregate, expected] of [
+  ["AVG", 24],
+  ["MIN", 18],
+  ["MAX", 30],
+]) {
+  test(`${aggregate} returns a value in the existing numeric column`, (t) => {
+    const path = fixture(t);
+    const db = new DatabaseSync(path);
+    db.exec(
+      "INSERT INTO metrics SELECT 2, recorded_at, room_id, room_name, metric_id, metric_name, unit, 30, text_value, shift_manager_name, condition FROM metrics",
+    );
+    db.close();
+    const result = executeHistorianSql(
+      path,
+      `SELECT NULL AS reading_id, NULL AS recorded_at, room_id, room_name, metric_id, metric_name, unit, ${aggregate}(numeric_value) AS numeric_value, NULL AS text_value, shift_manager_name, NULL AS condition FROM historian_readings GROUP BY room_id, room_name, metric_id, metric_name, unit, shift_manager_name`,
+    );
+    assert.deepEqual(result.entries, [
+      {
+        roomId: "cooling",
+        roomName: "Cooling room",
+        metricId: "temperature",
+        metricName: "Air temperature",
+        shiftManagerName: "Pat",
+        unit: "°C",
+        numericValue: expected,
+      },
+    ]);
+  });
+}
+
+test("rejects missing table columns", (t) => {
   assert.throws(
     () =>
       executeHistorianSql(
         fixture(t),
         "SELECT numeric_value FROM historian_readings",
+      ),
+    (error) =>
+      error instanceof HistorianPolicyError &&
+      error.code === "UNSUPPORTED_RESULT_SHAPE",
+  );
+});
+
+test("rejects an aggregate with an invented output name", (t) => {
+  assert.throws(
+    () =>
+      executeHistorianSql(
+        fixture(t),
+        "SELECT AVG(numeric_value) AS average_temperature FROM historian_readings",
       ),
     (error) =>
       error instanceof HistorianPolicyError &&

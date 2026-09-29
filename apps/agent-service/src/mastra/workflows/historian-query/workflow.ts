@@ -18,22 +18,11 @@ import {
   type SqlGenerationFunction,
 } from "./agents/sql-generator-agent";
 import {
-  createSqlReviewerAgent,
-  createSqlReviewFunction,
+  createJevSqlReviewFunction,
   type SqlReviewFunction,
-} from "./agents/sql-reviewer-agent";
+} from "./agents/jev-sql-reviewer";
 
 const POLICY_VERSION = "historian-v1";
-
-const reviewerRejection = (input: ReviewedSql): HistorianToolResult => ({
-  status: "rejected",
-  stage: "reviewer",
-  code: "REVIEW_REJECTED",
-  message:
-    "The historian query was not executed because the reviewer rejected it.",
-  ...input,
-  policyVersion: POLICY_VERSION,
-});
 
 export function createHistorianQueryWorkflow(
   apiKey: string,
@@ -50,10 +39,24 @@ export function createHistorianQueryWorkflow(
     dependencies.generateSql ??
     createSqlGenerationFunction(createSqlGeneratorAgent(apiKey, model));
   const reviewSqlProposal =
-    dependencies.reviewSql ??
-    createSqlReviewFunction(createSqlReviewerAgent(apiKey, model));
+    dependencies.reviewSql ?? createJevSqlReviewFunction(apiKey);
 
-  const generateSql = createStep({
+  return createWorkflow({
+    id: "historian-query",
+    description:
+      "Call once with the operator's complete historian question. Generate one SQL proposal, preflight its statement policy, review its meaning and fixed-grid result shape, then deterministically validate and execute it against the read-only facility historian.",
+    inputSchema: queryHistorianInputSchema,
+    outputSchema: queryHistorianOutputSchema,
+  })
+    .then(createGenerateSqlStep(generateSqlProposal))
+    .then(createDeterministicSqlCheck())
+    .then(createAgenticSqlCheck(reviewSqlProposal))
+    .then(createValidateAndExecuteStep(facilityBaseUrl, request))
+    .commit();
+}
+
+function createGenerateSqlStep(generateSqlProposal: SqlGenerationFunction) {
+  return createStep({
     id: "generate-sql",
     description:
       "Use the dedicated SQL generator agent to turn the operator question into one structured SQLite proposal.",
@@ -64,8 +67,10 @@ export function createHistorianQueryWorkflow(
       ...(await generateSqlProposal(inputData.question)),
     }),
   });
+}
 
-  const preflightSql = createStep({
+function createDeterministicSqlCheck() {
+  return createStep({
     id: "preflight-sql",
     description:
       "Deterministically reject write operations and multiple statements before calling the SQL reviewer. This is an early check, not execution authorization.",
@@ -86,8 +91,6 @@ export function createHistorianQueryWorkflow(
           message: `SQL preflight rejected the proposal: ${error.message}`,
           review: {
             approved: false,
-            summary:
-              "SQL review was not run because deterministic preflight rejected the proposal.",
             concerns: [],
           },
           policyVersion: POLICY_VERSION,
@@ -95,11 +98,13 @@ export function createHistorianQueryWorkflow(
       }
     },
   });
+}
 
-  const reviewSql = createStep({
+function createAgenticSqlCheck(reviewSqlProposal: SqlReviewFunction) {
+  return createStep({
     id: "review-sql",
     description:
-      "Ask the separate reviewer agent whether the generated SQL answers the original question.",
+      "Ask Jev about query safety, human intent, and stored reading columns.",
     inputSchema: generatedSqlSchema,
     outputSchema: reviewedSqlSchema,
     execute: async ({ inputData }) => {
@@ -109,7 +114,6 @@ export function createHistorianQueryWorkflow(
       } catch (error) {
         review = {
           approved: false,
-          summary: "The SQL reviewer could not produce a valid verdict.",
           concerns: [
             error instanceof Error ? error.message : "Unknown review error.",
           ],
@@ -118,8 +122,13 @@ export function createHistorianQueryWorkflow(
       return { ...inputData, review };
     },
   });
+}
 
-  const validateAndExecute = createStep({
+function createValidateAndExecuteStep(
+  facilityBaseUrl: string,
+  request: typeof globalThis.fetch,
+) {
+  return createStep({
     id: "deterministic-validate-and-execute",
     description:
       "Apply the reviewer decision, then ask the facility-owned deterministic policy to validate and execute the exact SQL atomically.",
@@ -142,17 +151,14 @@ export function createHistorianQueryWorkflow(
       return queryHistorianOutputSchema.parse(await response.json());
     },
   });
-
-  return createWorkflow({
-    id: "historian-query",
-    description:
-      "Call once with the operator's complete historian question. Generate one SQL proposal, preflight its statement policy, review its meaning and fixed-grid result shape, then deterministically validate and execute it against the read-only facility historian.",
-    inputSchema: queryHistorianInputSchema,
-    outputSchema: queryHistorianOutputSchema,
-  })
-    .then(generateSql)
-    .then(preflightSql)
-    .then(reviewSql)
-    .then(validateAndExecute)
-    .commit();
 }
+
+const reviewerRejection = (input: ReviewedSql): HistorianToolResult => ({
+  status: "rejected",
+  stage: "reviewer",
+  code: "REVIEW_REJECTED",
+  message:
+    "The historian query was not executed because the reviewer rejected it.",
+  ...input,
+  policyVersion: POLICY_VERSION,
+});
