@@ -103,7 +103,7 @@ Transition: “Now we have the backend workflow. Next, we add CopilotKit and AG-
 
 ## Chapter 3 — CopilotKit and human approval
 
-Branch 03 includes chapter 02. Use presenter desk sections 08–13.
+Branch 03 includes chapter 02. Use the Unit 3 · Agentic UI group in the presenter desk (sections 1–6).
 
 ### Chapter 3: switch to CopilotKit
 

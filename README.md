@@ -8,7 +8,7 @@ Murat, start here. This branch, `ai-devcraft/00-start`, contains the presenter w
 | `ai-devcraft/02-backend-agents` | Angular + Mastra, dynamic SQL, deterministic checks and Jev review; no CopilotKit or AG-UI |
 | `ai-devcraft/03-agentic-ui` | CopilotKit/AG-UI, activity progress and human approval |
 
-Branch 03 includes the latest chapter 02 Jev workflow and complete result columns. Desk sections 00–07 cover chapter 2; sections 08–13 cover chapter 3. There is no branch 01 here; agentic coding is a separate example.
+Branch 03 includes the latest chapter 02 Jev workflow and complete result columns. The desk has separate Setup, Unit 2 · Backend agents, and Unit 3 · Agentic UI groups. There is no branch 01 here; agentic coding is a separate example.
 
 ## 1. Get the presenter desk
 
@@ -24,7 +24,7 @@ node presenter/serve.mjs
 
 Open **http://localhost:4410**. No dependency installation or API key is needed for the desk. Leave this terminal running.
 
-Use the left menu to select a section. Previous/Next and the arrow keys move through its actions. The desk shows what to say, which code to open, what to demonstrate, and the expected results. Commands and prompts have copy buttons. Your place is remembered in the browser.
+The left menu groups Setup, Unit 2 · Backend agents, and Unit 3 · Agentic UI. Section numbers restart within each group. Use the menu to select a section. Previous/Next and the arrow keys move through its actions. The desk shows what to say, which code to open, what to demonstrate, and the expected results. Commands and prompts have copy buttons. Your place is remembered in the browser.
 
 If you already have the repository, run `git fetch origin` and check out `ai-devcraft/00-start` in a free, clean checkout instead of cloning again. Do not use `--single-branch`: the demo needs the branch 02 remote reference as well.
 
@@ -98,11 +98,11 @@ pnpm dev
 
 On later rehearsals, use `git switch ai-devcraft/live-ui` instead of creating it again. To return to chapter 2, stop the app, run `git switch ai-devcraft/live-demo`, reinstall dependencies and restart. Save your changes before switching. The ignored `.env` and databases stay with the application worktree.
 
-Start with desk section 08. In chat, repeat the successful SQL question, show its activity and populated table, then demonstrate changing the view with frontend tools. For human approval, use:
+Start with Unit 3 → Switch to CopilotKit. In chat, repeat the successful SQL question, show its activity and populated table, then demonstrate changing the view with frontend tools. For human approval, use:
 
 > Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.
 
-Pause at the approval card. Reject first and show the audit and resumed chat. Request a new proposal, approve it and show one alarm raised plus the audit. Check the metric is not already raised before rehearsal; resolve your prior demo alarm through the normal UI if needed. Do not delete the audit. Sections 09, 10, 11 and 13 include the code walkthrough.
+Pause at the approval card. Reject first and show the audit and resumed chat. Request a new proposal, approve it and show one alarm raised plus the audit. Check the metric is not already raised before rehearsal; resolve your prior demo alarm through the normal UI if needed. Do not delete the audit. Unit 3 sections 2, 3, 4 and 6 include the code walkthrough.
 
 The alarm flow uses a fixed demo operator. It demonstrates approval and audited execution, not production authentication.
 

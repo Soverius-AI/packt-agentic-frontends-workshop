@@ -45,7 +45,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Keep the presenter desk on branch 00 and run the app from the second worktree. Use git worktree list to locate an existing rehearsal folder; do not delete it or discard its changes. Stop only the conflicting server before restarting on the same port.",
       "recoveryCommand": "git worktree list",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "setup"
     },
     {
       "id": "01",
@@ -90,7 +91,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "02",
@@ -134,7 +136,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "03",
@@ -173,7 +176,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "04",
@@ -212,7 +216,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "05",
@@ -252,7 +257,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "06",
@@ -300,7 +306,8 @@ window.workshopPresenter = {
       ],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "07",
@@ -353,11 +360,12 @@ window.workshopPresenter = {
       ],
       "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
       "recoveryCommand": "pnpm dev",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "02"
     },
     {
       "id": "08",
-      "name": "Chapter 3: switch to CopilotKit",
+      "name": "Switch to CopilotKit",
       "flow": [
         "Branch 02",
         "Branch 03",
@@ -386,7 +394,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
     },
     {
       "id": "09",
@@ -443,7 +452,8 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
     },
     {
       "id": "10",
@@ -503,7 +513,8 @@ window.workshopPresenter = {
       ],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
     },
     {
       "id": "11",
@@ -552,7 +563,8 @@ window.workshopPresenter = {
       ],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
     },
     {
       "id": "12",
@@ -610,7 +622,8 @@ window.workshopPresenter = {
       ],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
     },
     {
       "id": "13",
@@ -671,7 +684,22 @@ window.workshopPresenter = {
       "prompts": [],
       "recovery": "Inspect the actual tool result and browser error. Keep the desk running. If the model provider is unavailable, use a rehearsed Studio run and identify it as recorded. Do not reset the database during the talk.",
       "recoveryCommand": "git status --short",
-      "source": "presenter/guide.json"
+      "source": "presenter/guide.json",
+      "unit": "03"
+    }
+  ],
+  "units": [
+    {
+      "id": "setup",
+      "name": "Setup"
+    },
+    {
+      "id": "02",
+      "name": "Unit 2 · Backend agents"
+    },
+    {
+      "id": "03",
+      "name": "Unit 3 · Agentic UI"
     }
   ]
 };

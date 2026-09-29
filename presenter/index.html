@@ -100,6 +100,18 @@
         font-size: 13px;
         margin: 10px 0 25px;
       }
+      .menu-unit + .menu-unit {
+        border-top: 1px solid var(--line);
+        margin-top: 16px;
+        padding-top: 16px;
+      }
+      .menu-unit h2 {
+        margin: 0 10px 8px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
       .milestone {
         display: flex;
         align-items: center;
@@ -504,8 +516,19 @@
         }
         #milestones {
           display: flex;
-          gap: 6px;
+          gap: 16px;
           overflow: auto;
+          align-items: flex-start;
+        }
+        .menu-unit {
+          min-width: 240px;
+        }
+        .menu-unit + .menu-unit {
+          border-top: 0;
+          border-left: 1px solid var(--line);
+          margin-top: 0;
+          padding-top: 0;
+          padding-left: 16px;
         }
         .milestone {
           min-width: 160px;
@@ -778,32 +801,37 @@
         } catch {}
         history.replaceState(null, "", `#${m.id}/${action}`);
         $("milestones").replaceChildren(
-          ...data.milestones.map((entry, index) => {
-            const el = button(
-              "",
-              () => {
-                chapter = index;
-                action = 0;
-                render();
-                focusAction();
-              },
-              "milestone",
-            );
-            el.innerHTML =
-              '<span class="number">' +
-              entry.id +
-              "</span><span>" +
-              esc(entry.name) +
-              "</span>";
-            el.setAttribute("aria-current", String(index === chapter));
-            return el;
+          ...data.units.map((unit) => {
+            const group = document.createElement("section");
+            group.className = "menu-unit";
+            const heading = document.createElement("h2");
+            heading.id = `menu-unit-${unit.id}`;
+            heading.textContent = unit.name;
+            group.setAttribute("aria-labelledby", heading.id);
+            group.append(heading);
+            data.milestones
+              .filter((entry) => entry.unit === unit.id)
+              .forEach((entry, sectionIndex) => {
+                const index = data.milestones.indexOf(entry);
+                const el = button("", () => {
+                  chapter = index;
+                  action = 0;
+                  render();
+                  focusAction();
+                }, "milestone");
+                el.innerHTML = '<span class="number">' +
+                  String(sectionIndex + 1).padStart(2, "0") +
+                  '</span><span>' + esc(entry.name) + '</span>';
+                el.setAttribute("aria-current", String(index === chapter));
+                group.append(el);
+              });
+            return group;
           }),
         );
-        $("chapter").textContent =
-          "Section " +
-          m.id +
-          " / " +
-          String(data.milestones.length - 1).padStart(2, "0");
+        const unit = data.units.find((unit) => unit.id === m.unit);
+        const sections = data.milestones.filter((entry) => entry.unit === m.unit);
+        $("chapter").textContent = unit.name + " · Section " +
+          (sections.indexOf(m) + 1) + " / " + sections.length;
         $("title").textContent = m.name;
         $("flow").innerHTML = m.flow
           .map((phrase) => "<span>" + esc(phrase) + "</span>")
@@ -900,7 +928,7 @@
           ? "· " + m.files.length + (m.files.length === 1 ? " file" : " files")
           : "";
         $("code-hint").textContent = m.files.length
-          ? "Reference code from chapter 2. Start with the excerpt, then open the full file when needed."
+          ? `Reference code from Unit ${Number(m.unit)}. Start with the excerpt, then open the full file when needed.`
           : "Follow the action above. No source file is needed for this step.";
         for (const file of m.files) {
           const details = document.createElement("details");
