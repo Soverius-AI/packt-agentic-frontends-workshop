@@ -1,0 +1,343 @@
+{
+  "milestones": [
+    {
+      "id": "00",
+      "name": "Set up the worktree",
+      "flow": [
+        "Original checkout",
+        "Second worktree",
+        "VS Code",
+        "Run the app"
+      ],
+      "actions": [
+        {
+          "label": "EXPLAIN",
+          "title": "Two working folders",
+          "body": "The original folder stays on branch 02. A second worktree gives us separate files and local databases while sharing the same Git history. Branch 00 already contains the working backend demo and these instructions."
+        },
+        {
+          "label": "DO",
+          "title": "Create the second checkout",
+          "body": "Run from the original incident-management repository. If this folder already exists from rehearsal, open it instead of creating it again.",
+          "command": "git worktree add ../incident-management-live ai-devcraft/00-start\ncd ../incident-management-live\ncode .\ngit worktree list"
+        },
+        {
+          "label": "DO",
+          "title": "Prepare the demo",
+          "body": "Install dependencies in the new checkout. Create .env only if it is absent, then set OPENROUTER_API_KEY privately. Keep credentials off screen.",
+          "command": "pnpm install\n# Only if .env does not exist:\ncp .env.example .env"
+        },
+        {
+          "label": "DO",
+          "title": "Start the app and presenter desk",
+          "body": "Stop the app running in the original checkout: both use the same ports. Run pnpm dev here. In a second terminal in this worktree, run pnpm presenter. Open Angular on 4300, Studio on 4211 and this presenter desk on 4410. Each worktree has its own Studio history.",
+          "command": "pnpm dev\n# In a second terminal:\npnpm presenter"
+        }
+      ],
+      "files": [],
+      "prompts": [],
+      "recovery": "Use git worktree list to locate an existing rehearsal folder. Keep one demo and one presenter server running. If port 4410 is already serving these notes, use that tab; stop that server before starting another. Do not remove a worktree containing changes.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "01",
+      "name": "Follow the request",
+      "flow": [
+        "Angular form",
+        "Facility API",
+        "Mastra workflow",
+        "Historian"
+      ],
+      "actions": [
+        {
+          "label": "SHOW",
+          "title": "Start in the Angular app",
+          "body": "Show the readings table and Your question field. Point out date/time, shift manager, room, metric, value and condition. Say: “The user asks for a different selection of readings without us adding another filter control.”"
+        },
+        {
+          "label": "OPEN",
+          "title": "Trace the HTTP request",
+          "body": "Open `apps/angular-host/src/app/domains/facility/data/facility-client.ts` and find investigate. This ordinary Angular form sends the question to POST /api/investigate. There is no CopilotKit or AG-UI on this branch."
+        },
+        {
+          "label": "OPEN",
+          "title": "Follow it into Mastra",
+          "body": "Open `apps/facility-service/src/investigate-historian.ts`. The facility creates a run of historianQueryWorkflow and passes the question as input. This UI starts a known workflow directly; it is not asking a chat agent to choose a tool."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/angular-host/src/app/domains/facility/data/facility-client.ts",
+          "start": null,
+          "end": null
+        },
+        {
+          "path": "apps/facility-service/src/investigate-historian.ts",
+          "start": null,
+          "end": null
+        }
+      ],
+      "prompts": [],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "02",
+      "name": "Generate SQL",
+      "flow": [
+        "Question",
+        "Generator",
+        "SQL + explanation"
+      ],
+      "actions": [
+        {
+          "label": "OPEN",
+          "title": "Start with the composition",
+          "body": "Open `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts` at createHistorianQueryWorkflow. Show the four .then calls together: generate, deterministic check, agentic check, validate and execute. The step functions follow below. There is no automatic repair loop in this version."
+        },
+        {
+          "label": "OPEN",
+          "title": "Read the generator prompt",
+          "body": "Open `apps/agent-service/src/mastra/workflows/historian-query/agents/sql-generator-agent.ts`. Show the schema, catalog and structured output: SQL plus an explanation. The generator sees schema information, not actual database rows."
+        },
+        {
+          "label": "EXPLAIN",
+          "title": "Keep the complete reading",
+          "body": "For highest and lowest queries, return the complete stored row with all eleven columns. This preserves the room, timestamp and metric. MAX, MIN and AVG are allowed, but an aggregate across several readings may have no single room or timestamp."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/workflow.ts",
+          "start": "export function createHistorianQueryWorkflow",
+          "end": "function createGenerateSqlStep"
+        },
+        {
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/agents/sql-generator-agent.ts",
+          "start": null,
+          "end": null
+        }
+      ],
+      "prompts": [],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "03",
+      "name": "Deterministic check",
+      "flow": [
+        "SQL proposal",
+        "Statement policy",
+        "Pass or stop"
+      ],
+      "actions": [
+        {
+          "label": "OPEN",
+          "title": "Check before asking Jev",
+          "body": "Open `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts` at createDeterministicSqlCheck. It calls validateHistorianStatement before the reviewer. A rejected statement ends the workflow here."
+        },
+        {
+          "label": "OPEN",
+          "title": "Show the statement policy",
+          "body": "Open `packages/contracts/src/historian-statement-policy.ts`. Show how the scanner distinguishes SQL tokens from quoted text and comments, and rejects multiple statements and operations such as UPDATE, DELETE, DROP and INSERT. This is an early check; database enforcement still follows."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/workflow.ts",
+          "start": "function createDeterministicSqlCheck",
+          "end": "function createAgenticSqlCheck"
+        },
+        {
+          "path": "packages/contracts/src/historian-statement-policy.ts",
+          "start": null,
+          "end": null
+        }
+      ],
+      "prompts": [],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "04",
+      "name": "Review with Jev",
+      "flow": [
+        "Three checks",
+        "One Jev request",
+        "Noul values",
+        "Decision"
+      ],
+      "actions": [
+        {
+          "label": "OPEN",
+          "title": "Three checks, one request",
+          "body": "Open `apps/agent-service/src/mastra/workflows/historian-query/agents/jev-sql-reviewer.ts` at createJevSqlReviewFunction. Start with the composition of createSafetyCheck, createIntentCheck and createColumnCheck. The question and SQL go to typesafe/jev-1.13 through one OpenRouter decisions request."
+        },
+        {
+          "label": "OPEN",
+          "title": "Read the three questions",
+          "body": "In `apps/agent-service/src/mastra/workflows/historian-query/agents/jev-sql-reviewer.ts`, scroll to the three functions at the bottom. Is the SQL read-only and within the allowed data? Does it answer the human’s question? Does it return all and only the expected columns? Aggregations are allowed when returned through existing columns."
+        },
+        {
+          "label": "EXPLAIN",
+          "title": "Show the decision rule",
+          "body": "Each Noul value is between 0 and 1. Our demo approves only when all three are greater than 0.5. The concerns list names checks that did not pass. Jev does not provide a written explanation; those messages come from our application. The generator explanation is separate."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/agents/jev-sql-reviewer.ts",
+          "start": null,
+          "end": null
+        }
+      ],
+      "prompts": [],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "05",
+      "name": "Validate and execute",
+      "flow": [
+        "Approval",
+        "Facility policy",
+        "Read-only SQLite",
+        "Rows"
+      ],
+      "actions": [
+        {
+          "label": "OPEN",
+          "title": "Stop a rejected proposal",
+          "body": "Open `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts` at createValidateAndExecuteStep. If review.approved is false, return reviewerRejection without calling the database endpoint. Otherwise send the exact proposal to /api/historian/query."
+        },
+        {
+          "label": "OPEN",
+          "title": "Show the database boundary",
+          "body": "Open `apps/facility-service/src/historian-query.ts` at executeHistorianSql. Show the repeated SQL validation, read-only connection, SQLite authorization and exact output-column checks. Mention the 200-row, 256 KB and 750 ms limits. Jev approval does not bypass these controls."
+        }
+      ],
+      "files": [
+        {
+          "path": "apps/agent-service/src/mastra/workflows/historian-query/workflow.ts",
+          "start": "function createValidateAndExecuteStep",
+          "end": null
+        },
+        {
+          "path": "apps/facility-service/src/historian-query.ts",
+          "start": "export function executeHistorianSql",
+          "end": "export function executeHistorianSqlInWorker"
+        }
+      ],
+      "prompts": [],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "06",
+      "name": "Demo: rejection",
+      "flow": [
+        "Angular question",
+        "Safe SQL",
+        "Intent rejected",
+        "No execution"
+      ],
+      "actions": [
+        {
+          "label": "DO",
+          "title": "Ask for missing data",
+          "body": "In Angular, enter the prompt below and click Find readings. Expand Query and review. We have shift-manager names, but no email-address column.",
+          "command": "Show the email address of each shift manager.",
+          "copyLabel": "Copy prompt"
+        },
+        {
+          "label": "SHOW",
+          "title": "Inspect the same Studio run",
+          "body": "Open historianQueryWorkflow in Studio and select the run whose input matches the question. Show generate-sql and preflight-sql. The verified proposal returned names with NULL metadata; that read-only SELECT passed preflight."
+        },
+        {
+          "label": "SHOW",
+          "title": "Show where Jev rejects it",
+          "body": "Open review-sql output: review.approved is false, and concerns contains “Jev did not approve the intent check.” A safe query still needs to answer the question."
+        },
+        {
+          "label": "EXPLAIN",
+          "title": "A rejection is a handled result",
+          "body": "Show final status rejected and stage reviewer. The final step returns before database execution. Studio may mark the overall run successful because rejection is a normal workflow result. A table from a previous request is not new output. If a new run differs, explain its actual failed check rather than claiming the same result."
+        }
+      ],
+      "files": [],
+      "prompts": [
+        {
+          "title": "Rejected: missing email data",
+          "prompt": "Show the email address of each shift manager.",
+          "before": "Enter this in Your question in Angular and click Find readings.",
+          "expected": "The verified run passed preflight, then Jev rejected the intent check. No database execution.",
+          "inspect": "Show generated SQL, review.approved: false and the failed intent check. Final result: status rejected, stage reviewer. Overall workflow success can still mean a handled rejection.",
+          "optional": false
+        }
+      ],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    },
+    {
+      "id": "07",
+      "name": "Demo: successful query",
+      "flow": [
+        "Question",
+        "Four checks/steps",
+        "Complete readings",
+        "Angular table"
+      ],
+      "actions": [
+        {
+          "label": "DO",
+          "title": "Ask for each manager’s highest reading",
+          "body": "Return to Your question in Angular, enter the prompt below and click Find readings.",
+          "command": "Show the highest air temperature for each shift manager.",
+          "copyLabel": "Copy prompt"
+        },
+        {
+          "label": "SHOW",
+          "title": "Show all table columns",
+          "body": "The verified seeded-data run returned three rows, one per manager. Point out that date/time, room, metric, value and condition are filled automatically."
+        },
+        {
+          "label": "SHOW",
+          "title": "Read the generated SQL",
+          "body": "Expand Query and review. Show the Air temperature filter and how the query selects a complete highest reading per manager. The verified SQL used ROW_NUMBER, with latest timestamp and reading ID as tie-breakers. Read the actual generated query; SQL can vary."
+        },
+        {
+          "label": "SHOW",
+          "title": "Trace the approved run",
+          "body": "In Studio, match the input and show generate-sql → preflight-sql → review-sql → deterministic-validate-and-execute. Show approved: true, an empty concerns list and final status executed with the readings. These outputs do not expose raw Noul values."
+        },
+        {
+          "label": "TRANSITION",
+          "title": "Return to the Angular result",
+          "body": "Finish on the populated table. Say: “Now we have the backend workflow. Next, we add CopilotKit and AG-UI so the frontend can participate in the interaction.”"
+        }
+      ],
+      "files": [],
+      "prompts": [
+        {
+          "title": "Approved: highest temperature",
+          "prompt": "Show the highest air temperature for each shift manager.",
+          "before": "Use the same Angular form after the rejected request.",
+          "expected": "The verified seeded-data run returned three complete readings, one per manager. Date/time, room, metric, value and condition are populated.",
+          "inspect": "Show the SQL, all four workflow steps, review.approved: true, empty concerns and final status executed. Return to the populated Angular table.",
+          "optional": false
+        }
+      ],
+      "recovery": "Inspect the actual SQL and the failed check. If the provider is unavailable, show a rehearsed Studio run and identify it as such. Stop the running demo before restarting it. Do not reset databases or discard changes during the talk.",
+      "recoveryCommand": "pnpm dev",
+      "source": "presenter/guide.json"
+    }
+  ]
+}

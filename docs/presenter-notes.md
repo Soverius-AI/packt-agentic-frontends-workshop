@@ -1,5 +1,7 @@
 # AI DevCraft — backend demo presenter guide
 
+For the interactive presenter website, run `pnpm presenter` and open http://localhost:4410. This Markdown file is the printable reference.
+
 Use this guide for chapter 2. Branch `ai-devcraft/00-start` captures the working demo from `ai-devcraft/02-backend-agents`. Start with [Worktree setup](start-here.md). All code paths in the walkthrough are relative to whichever incident-management checkout you open.
 
 ## Slide 9: 02 · Backend agents

@@ -1,5 +1,7 @@
 # AI DevCraft: incident-management demos
 
+Open the presenter website with `pnpm presenter`, then visit http://localhost:4410. It has a section menu, presenter actions, code walkthroughs and copyable demo prompts.
+
 Presentation starting point: `ai-devcraft/00-start`. See [Start here](docs/start-here.md) to create the second worktree, then follow the [Presenter notes](docs/presenter-notes.md).
 
 This branch captures the working chapter 2 baseline from `ai-devcraft/02-backend-agents`.

@@ -38,6 +38,18 @@ Open:
 
 The local databases are created for this checkout. Existing Mastra runs from the original checkout are not copied. Rehearse both prompts here if you want fallback runs available in this Studio instance.
 
+## Open the presenter website
+
+In a second terminal in the new checkout, run:
+
+```sh
+pnpm presenter
+```
+
+Open http://localhost:4410. Use the sidebar to choose a section, then Previous/Next or the arrow keys to move through the actions. Code appears below the instructions. Prompts and commands have copy buttons. Your current step is remembered in the browser.
+
+Only one presenter server should use port 4410. The server rebuilds its code excerpts from this checkout when it starts. Edit `presenter/guide.json` for instructions and restart `pnpm presenter` to refresh.
+
 ## Present chapter 2
 
 Follow [Presenter notes](presenter-notes.md): first the workflow composition and three Jev checks, then the rejected email request and successful highest-temperature request. The guide specifies what to type, which code to open and which outputs to show.
