@@ -110,7 +110,7 @@ Prepare the application branch, open the code and check the alarm state before t
 
 > Show the highest air temperature for each shift manager.
 
-The activity demo reports progress from the workflow itself. Deterministic checking and Jev review each have an artificial two-second pause for visibility; mention this during the demo.
+The activity demo reports progress from the workflow itself, advancing 0 → 25 → 50 → 75 → 100% as the four steps succeed. Deterministic checking and Jev review each have an artificial two-second pause for visibility; mention this during the demo.
 
 For human approval:
 

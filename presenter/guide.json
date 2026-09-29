@@ -436,19 +436,19 @@
         {
           "label": "DEMO",
           "title": "Watch the investigation run",
-          "body": "4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.",
+          "body": "4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.",
           "command": "Show the highest air temperature for each shift manager.",
           "copyLabel": "Copy prompt"
         },
         {
           "label": "CODE",
           "title": "Emit progress from the workflow",
-          "body": "5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own progress. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic."
+          "body": "5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own message and percentage. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic."
         },
         {
           "label": "CODE",
           "title": "Connect the event to its renderer",
-          "body": "6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status and content().message. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8."
+          "body": "6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status, content().message and the native progress element bound to content().progress. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8."
         }
       ],
       "files": [
@@ -480,7 +480,7 @@
           "title": "Visible activity",
           "prompt": "Show the highest air temperature for each shift manager.",
           "before": "Enter this in the Factory assistant on branch 03.",
-          "expected": "The card follows the workflow steps. Deterministic checking and Jev review each remain visible for at least two seconds; completion shows the result count. Rejection ends the sequence without execution.",
+          "expected": "The bar advances in 25% jumps as steps succeed. Deterministic checking shows 25% and Jev review 50%, each for at least two seconds. Completion shows 100% and the result count; rejection retains the last successful-step percentage.",
           "inspect": "Show the changing card, then the workflow writer, streamed forwarding, renderer registration and Angular renderer.",
           "optional": false
         }

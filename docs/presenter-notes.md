@@ -123,17 +123,17 @@ Prepare branch 03 and the demo alarm before the timed unit using the Setup menu.
 
 **DEMO — Watch the investigation run**
 
-4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.
+4:00–5:00. Repeat the query, focusing on the activity card: Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The bar advances as each step succeeds: 0 → 25 → 50 → 75 → 100%. A rejection stops it at the last successful step. The deterministic and agentic checks each include an artificial two-second presentation pause so these states remain visible. Say so explicitly; this is not a model-speed benchmark. Execution may finish too quickly to read its intermediate label.
 
 > Show the highest air temperature for each shift manager.
 
 **CODE — Emit progress from the workflow**
 
-5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own progress. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic.
+5:00–6:30. In `apps/agent-service/src/mastra/workflows/historian-query/workflow.ts`, point to reportProgress in the step functions and writer.custom in the helper. Each step reports its own message and percentage. Show the two delay(2_000) calls as presentation-only pauses. In `apps/agent-service/src/mastra/agents/main/tools/query-historian-tool.ts`, point to run.stream and the loop forwarding only progress events through the tool writer. Do not repeat Unit 2’s SQL or Jev logic.
 
 **CODE — Connect the event to its renderer**
 
-6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status and content().message. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8.
+6:30–8:00. In `apps/angular-host/src/app/app.config.ts`, show renderActivityMessages mapping the activity type to InvestigationProgressCard. In `apps/angular-host/src/app/domains/facility/feat-dashboard/agent/investigation-progress-card.ts`, point to content().status, content().message and the native progress element bound to content().progress. The server adapter converts the workflow data to AG-UI activity snapshots; mention it without walking through its plumbing. Move to human approval at minute 8.
 
 ### Human-in-the-loop · 7 min
 
