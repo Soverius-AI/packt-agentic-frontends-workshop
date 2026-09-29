@@ -139,8 +139,13 @@ test("scanner exposes the same policy error class for both services", () => {
 test("workflow progress reaches the tool writer in order with visible two-second checks", async () => {
   const { workflow } = setup(safeSql);
   const tool = createQueryHistorianTool(workflow);
-  const events: { message: string; status: string; id: string; at: number }[] =
-    [];
+  const events: {
+    message: string;
+    status: string;
+    progress: number;
+    id: string;
+    at: number;
+  }[] = [];
   const writer = new ToolStream(
     {
       prefix: "tool",
@@ -173,6 +178,10 @@ test("workflow progress reaches the tool writer in order with visible two-second
       "Investigation complete · 0 readings returned",
     ],
   );
+  assert.deepEqual(
+    events.map((e) => e.progress),
+    [0, 25, 50, 75, 100],
+  );
   assert.ok(events[2]!.at - events[1]!.at >= 1_900);
   assert.ok(events[3]!.at - events[2]!.at >= 1_900);
   assert.equal(events.at(-1)!.status, "completed");
@@ -185,11 +194,16 @@ test("streamed preflight rejection never reports review or execution", async () 
     inputData: { question },
   });
   const messages: string[] = [];
+  const percentages: number[] = [];
   for await (const chunk of stream.fullStream) {
     const event = historianProgressEventSchema.safeParse(chunk);
-    if (event.success) messages.push(event.data.data.content.message);
+    if (event.success) {
+      messages.push(event.data.data.content.message);
+      percentages.push(event.data.data.content.progress);
+    }
   }
   assert.equal((await stream.result).status, "success");
+  assert.deepEqual(percentages, [0, 25, 25]);
   assert.deepEqual(messages, [
     "Generating SQL…",
     "Checking SQL deterministically…",

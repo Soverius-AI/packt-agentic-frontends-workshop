@@ -33,3 +33,9 @@ These are local checks, not hosted CI or a full accessibility audit. The fixed w
 - 41 agent-service tests passed, including event order, both delay durations, streamed rejection and unchanged SQL safety gates. Four facility tests passed, including custom-event forwarding, isolation between runs and the existing approval HTTP boundary.
 - Contracts, facility and Angular builds passed. Mastra production packaging passed with network access after its sandboxed dependency installation failed. Agent TypeScript checking passed.
 - Live browser: observed Generating SQL → Checking SQL deterministically → Reviewing SQL with Jev → Validating and executing → Complete. The visible check states lasted about 2.18 s and 2.15 s respectively; the final result contained three complete readings.
+
+## Four-step progress bar
+
+The workflow supplies 0/25/50/75/100 percent. Rejection and failure retain the last successful-step percentage. The Angular card uses a labelled native progress element and visible percentage. Targeted streaming/percentage tests and facility HTTP tests passed; contracts/facility builds, agent type checking, Angular production build and lint passed.
+
+Live browser verification: observed 0%, 25% and 50% during the workflow, then 100% with three complete historian readings. The 50% card was visually inspected. The fast 75% transition is covered by the streaming event-order test.

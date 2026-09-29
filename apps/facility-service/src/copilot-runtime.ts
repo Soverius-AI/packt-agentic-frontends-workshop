@@ -74,6 +74,7 @@ export class HistorianBridge extends MastraAgent {
           subscriber.next({
             ...activity,
             content: {
+              ...activity.content,
               status: "failed",
               message: "Investigation ended without a result",
             },

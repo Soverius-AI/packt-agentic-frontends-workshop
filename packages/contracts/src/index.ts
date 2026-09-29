@@ -515,6 +515,13 @@ export type AlarmActionRequest = z.infer<typeof alarmActionRequestSchema>;
 
 export const investigationActivityType = "historian-investigation";
 export const investigationProgressSchema = z.object({
+  progress: z.union([
+    z.literal(0),
+    z.literal(25),
+    z.literal(50),
+    z.literal(75),
+    z.literal(100),
+  ]),
   status: z.enum(["running", "completed", "rejected", "failed"]),
   message: z.string(),
 });

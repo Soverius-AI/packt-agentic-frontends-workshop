@@ -9,7 +9,10 @@ import { FacilityRepository } from "../dist/repository.js";
 
 const progress = (id, message, status = "running") => ({
   type: "data-historian-progress",
-  data: { id, content: { status, message } },
+  data: {
+    id,
+    content: { status, message, progress: status === "completed" ? 100 : 50 },
+  },
 });
 
 test("workflow activities preserve their messages and replace the same card", () => {
@@ -24,6 +27,7 @@ test("workflow activities preserve their messages and replace the same card", ()
   assert.equal(generating.messageId, reviewing.messageId);
   assert.equal(reviewing.content.message, "Reviewing SQL with Jev…");
   assert.equal(rejected.content.status, "rejected");
+  assert.equal(rejected.content.progress, 50);
   assert.equal(generating.replace, true);
   assert.equal(
     workflowActivity({ type: "tool-output", payload: {} }),

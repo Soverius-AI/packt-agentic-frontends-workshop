@@ -2,6 +2,7 @@ import { createTool } from "@mastra/core/tools";
 import {
   historianProgressEventSchema,
   type HistorianToolResult,
+  type InvestigationProgress,
 } from "@packt-workshop/contracts";
 import type { createHistorianQueryWorkflow } from "../../../workflows/historian-query/workflow";
 import {
@@ -69,10 +70,14 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
         requestContext: context.requestContext,
       });
 
+      let progress: InvestigationProgress["progress"] = 0;
       try {
         for await (const chunk of stream.fullStream) {
           const activity = historianProgressEventSchema.safeParse(chunk);
-          if (activity.success) await context.writer?.custom(activity.data);
+          if (activity.success) {
+            progress = activity.data.data.content.progress;
+            await context.writer?.custom(activity.data);
+          }
         }
         const result = await stream.result;
         if (result.status !== "success") {
@@ -86,7 +91,11 @@ export function createQueryHistorianTool(workflow: HistorianQueryWorkflow) {
           type: "data-historian-progress",
           data: {
             id: run.runId,
-            content: { status: "failed", message: "Investigation failed" },
+            content: {
+              status: "failed",
+              message: "Investigation failed",
+              progress,
+            },
           },
         });
         throw error;

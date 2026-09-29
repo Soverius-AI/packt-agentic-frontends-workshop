@@ -66,7 +66,7 @@ function createGenerateSqlStep(generateSqlProposal: SqlGenerationFunction) {
     inputSchema: queryHistorianInputSchema,
     outputSchema: generatedSqlSchema,
     execute: async ({ inputData, writer, runId }) => {
-      await reportProgress(writer, runId, "Generating SQL…");
+      await reportProgress(writer, runId, "Generating SQL…", 0);
       return {
         question: inputData.question,
         ...(await generateSqlProposal(inputData.question)),
@@ -83,7 +83,12 @@ function createDeterministicSqlCheck() {
     inputSchema: generatedSqlSchema,
     outputSchema: generatedSqlSchema,
     execute: async ({ inputData, bail, writer, runId, abortSignal }) => {
-      await reportProgress(writer, runId, "Checking SQL deterministically…");
+      await reportProgress(
+        writer,
+        runId,
+        "Checking SQL deterministically…",
+        25,
+      );
       // Presentation pause: keep this fast check visible for two seconds.
       await delay(2_000, undefined, { signal: abortSignal });
       try {
@@ -96,6 +101,7 @@ function createDeterministicSqlCheck() {
           writer,
           runId,
           "Query rejected by the deterministic check",
+          25,
           "rejected",
         );
         return bail<HistorianToolResult>({
@@ -123,7 +129,7 @@ function createAgenticSqlCheck(reviewSqlProposal: SqlReviewFunction) {
     inputSchema: generatedSqlSchema,
     outputSchema: reviewedSqlSchema,
     execute: async ({ inputData, writer, runId, abortSignal }) => {
-      await reportProgress(writer, runId, "Reviewing SQL with Jev…");
+      await reportProgress(writer, runId, "Reviewing SQL with Jev…", 50);
       // Presentation pause: keep the agentic review visible for two seconds.
       await delay(2_000, undefined, { signal: abortSignal });
       let review: SqlReview;
@@ -158,6 +164,7 @@ function createValidateAndExecuteStep(
           writer,
           runId,
           "Query rejected by Jev",
+          50,
           "rejected",
         );
         return reviewerRejection(inputData);
@@ -166,6 +173,7 @@ function createValidateAndExecuteStep(
         writer,
         runId,
         "Validating and executing the query…",
+        75,
       );
 
       const response = await request(`${facilityBaseUrl}/api/historian/query`, {
@@ -186,6 +194,7 @@ function createValidateAndExecuteStep(
         result.status === "executed"
           ? `Investigation complete · ${result.rowCount} readings returned`
           : `Query stopped · ${result.message}`,
+        result.status === "executed" ? 100 : 75,
         result.status === "executed" ? "completed" : "rejected",
       );
       return result;
@@ -207,10 +216,11 @@ async function reportProgress(
   writer: ToolStream,
   runId: string,
   message: string,
+  progress: InvestigationProgress["progress"],
   status: InvestigationProgress["status"] = "running",
 ): Promise<void> {
   await writer.custom({
     type: "data-historian-progress",
-    data: { id: runId, content: { status, message } },
+    data: { id: runId, content: { status, message, progress } },
   });
 }
