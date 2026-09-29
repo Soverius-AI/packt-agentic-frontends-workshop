@@ -99,3 +99,91 @@ If a live run differs, inspect its actual SQL and failed check. Do not promise i
 
 Transition: “Now we have the backend workflow. Next, we add CopilotKit and AG-UI so the frontend can participate in the interaction.”
 
+
+
+## Chapter 3 — CopilotKit and human approval
+
+Branch 03 includes chapter 02. Use presenter desk sections 08–13.
+
+### Chapter 3: switch to CopilotKit
+
+- **Switch the application worktree**: Stop pnpm dev with Ctrl+C in the application terminal. Keep the presenter desk running in its separate checkout. Save any changes first. Create this local branch once; on later rehearsals use git switch ai-devcraft/live-ui.
+
+```text
+git fetch origin
+git switch --no-track -c ai-devcraft/live-ui origin/ai-devcraft/03-agentic-ui
+pnpm install
+pnpm dev
+```
+
+- **The backend stays the same**: Reload Angular at http://localhost:4300. The chapter label now says Agentic UI · CopilotKit. Branch 03 includes the latest chapter 02 workflow: SQL generation, deterministic preflight, Jev review and protected execution.
+
+- **What the frontend adds**: Say: “The same backend is now a tool in a conversation. The frontend can show progress, change the view and pause an alarm proposal for a human decision.” There is no A2UI example in this chapter.
+
+### Connect the agent and UI
+
+- **Start with the chat**: Open app.config.ts and chat.component.ts. Show provideCopilotKit pointing at /api/copilotkit and copilot-chat using agentId default. This is the UI connection.
+
+- **Follow the server connection**: Open copilot-runtime.ts. MastraAgent connects the runtime to Mastra; HistorianBridge adds investigation activity events to the stream.
+
+- **Show what the agent may do**: Open the main agent. It has query_historian and discovers frontend tools through the runtime. The alarm instruction allows proposals only after an explicit request. The model does not write the alarm directly.
+
+### Demo: query with activity
+
+- **Ask the same successful question**: Use the prompt below in chat. Keep the table and activity card visible.
+
+```text
+Show the highest air temperature for each shift manager.
+```
+
+- **Read the activity and result**: Show the running activity followed by Investigation complete and three returned readings. Point out the populated date/time, manager, room, metric, value and condition. Activity reflects actual tool events; it is not a timer or a per-step percentage.
+
+- **Connect the result to the table**: In connect-facility-agent.ts, show historianResult and the effect calling showHistorianResult. The frontend consumes the structured tool result. The agent receives a short acknowledgment rather than the complete reading payload.
+
+- **Reuse the backend walkthrough**: In Studio, inspect query_historian and its historianQueryWorkflow run. The four steps and Jev checks are the same as chapter 2. The chat agent chooses the tool; the workflow executes it.
+
+### Demo: frontend tools
+
+- **Let the agent adjust the view**: Enter the prompt below. Show Reading log selected and Cooling room selected in the room filter.
+
+```text
+Switch to the reading log and show only the Cooling room.
+```
+
+- **Show context and tool registration**: In connect-facility-agent.ts, show connectAgentContext, list_rooms, set_view and update_filters. The context shares view state and timezone. Tools return available options and update the existing Angular store.
+
+- **Keep the distinction clear**: Say: “This changes the interface. The previous example generated SQL on the backend. Both use the same chat, but they use different tools.”
+
+### Demo: human approval
+
+- **Check the alarm before the demo**: Select Snapshot and inspect Packaging hall → Air temperature. It should say not raised. If a previous rehearsal already raised it, resolve that demo alarm with the normal UI before presenting, or use another unraised metric and adapt the prompt. Keep the audit.
+
+- **Ask for an alarm proposal**: Enter the prompt below. Pause when the approval card appears. Show room, metric, reason and operator. The alarm has not been raised yet.
+
+```text
+Raise an alarm for the Packaging hall air temperature because I want the operator to investigate.
+```
+
+- **Reject first**: Click Reject. Show Rejected · no alarm was raised, the rejected audit entry and the resumed assistant acknowledgment. The active alarm count must not increase.
+
+- **Create a new proposal**: Ask again using the prompt below. A new proposal needs a new human decision.
+
+```text
+Please propose that alarm again for Packaging hall air temperature. I want to approve it this time.
+```
+
+- **Approve and inspect the outcome**: Click Approve and raise alarm. Show Approved · alarm raised, the active alarm count increasing by one, the approved audit entry and the assistant acknowledgment. Approval and execution are distinct: an already-active alarm produces an execution-failed outcome.
+
+- **Name the demo boundary**: The facility backend performs the write and records both decisions. This workshop uses the fixed demo operator night-reception; it does not implement production authentication or role-based authorization.
+
+### Walk through human approval
+
+- **Register the human step**: At the end of connect-facility-agent.ts, show review_alarm, its schema and AlarmApprovalCard. This is the pause point exposed to the agent.
+
+- **Follow the human click**: In AlarmApprovalCard, follow decide: validate the proposal against the facility catalog, wait for the operator, call the store, then pass the recorded outcome to toolCall.respond. Both approval and rejection resume the conversation.
+
+- **Follow the backend write**: Open facility-store.ts → decideAlarmApproval and facility-client.ts → decideAlarmApproval in the app checkout. Follow POST /api/alarm-approvals in server.ts into repository.ts. The transaction checks the metric, records the decision and creates an alarm only when approved.
+
+- **Explain retries with one concrete example**: The message/tool-call identity remains stable when the card reopens or a request is retried. The backend returns the recorded result for that same decision rather than creating a second alarm. A conflicting decision is rejected.
+
+- **Close with the failure paths**: An invalid proposal can be dismissed without executing it, so the conversation can continue. A failed HTTP request shows an error and allows retry. An approved but failed alarm operation is displayed as failed, not as success.
