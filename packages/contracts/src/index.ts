@@ -1,3 +1,7 @@
+export {
+  HistorianPolicyError,
+  validateHistorianStatement,
+} from "./historian-statement-policy.js";
 import { z } from "zod";
 
 export const metricConditionSchema = z.enum([
@@ -268,7 +272,7 @@ export const historianToolResultSchema = z.discriminatedUnion("status", [
   historianToolResultBaseSchema
     .extend({
       status: z.literal("rejected"),
-      stage: z.enum(["reviewer", "validator", "execution"]),
+      stage: z.enum(["preflight", "reviewer", "validator", "execution"]),
       code: z.string().min(1),
       message: z.string().min(1),
     })

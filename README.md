@@ -22,7 +22,11 @@ These ports are separate from the original Packt demo. `pnpm reset:demo` resets 
 
 Ask **“Show the highest air temperature for each shift manager.”**
 
-The ordinary request form calls `POST /api/investigate`. The facility service starts the Mastra `historianQueryWorkflow`. A generator proposes SQL, a separate agent reviews it, and the facility service applies deterministic policy before executing against its read-only historian. Complete readings appear in the existing table. Open **Query and review** to inspect the SQL and reviewer verdict.
+The ordinary request form calls `POST /api/investigate`. The facility service starts the Mastra `historianQueryWorkflow`. A generator proposes SQL, a deterministic preflight rejects prohibited statements, a separate agent reviews the meaning, and the facility service applies its full deterministic policy before executing against the read-only historian.
+
+The workflow is **Generate SQL → Preflight SQL → Review SQL → Validate and execute**. Preflight uses the same SQL-aware lexical scanner as the execution boundary. It rejects write/schema operations and multiple statements, while distinguishing keywords from quoted text and comments. Rejection stops the workflow before the reviewer or database is called; the form explains that review was not run. The reviewer model is unchanged.
+
+Preflight is an early statement-policy check, not a proof against every possible SQL injection. SQLite authorization, read-only access, result-shape checks, and execution limits remain mandatory. Complete readings appear in the existing table. Open **Query and review** to inspect the SQL and reviewer verdict.
 
 Try **“Show critical readings in the Cooling room”** next. A request for a computed average should be rejected: this baseline deliberately supports complete reading records, not generated summary layouts.
 
@@ -43,3 +47,5 @@ Earlier workshop documents under `docs/` are retained as source material; this R
 The shared Angular refactor originates on this backend-only branch. It uses a facility domain, Signal Store, Signal Forms, single-file components, strict checking, and Sheriff boundaries. See [Architecture](apps/angular-host/ARCHITECTURE.md). Run `pnpm --filter angular-host lint` and `pnpm --filter angular-host test`.
 
 Branch numbers match talk chapters: 01 Agentic Coding, 02 Backend Agents, 03 Agentic UI.
+
+Preflight regression tests: `pnpm --filter @packt-workshop/agent-service test`. Execution-boundary tests: `node --test apps/facility-service/test/historian-policy.test.mjs` after building contracts and the facility service.
